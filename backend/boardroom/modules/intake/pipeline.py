@@ -47,6 +47,8 @@ log = get_logger(__name__)
 
 STATUS_CHANGED = "intake.upload_status_changed"
 QUESTION_ASKED = "intake.question_asked"
+DATASET_READY = "intake.dataset_ready"
+FIGURE_ENTERED = "intake.figure_entered"
 KIND_WORDS = {
     "finance": "finance",
     "sales": "sales pipeline",
@@ -311,11 +313,24 @@ def _finish(
     upload.data_as_of = ds.data_as_of
     upload.needs_mapping = False
     upload.proposal = None
-    # E3 and E6 fill these steps. Each is still recorded, so the timeline is complete.
+    # The metrics module calculates, then tells intake to move on (figures_computed).
     set_status(session, upload, "calculating")
+    emit(
+        session,
+        IntakeOutbox,
+        DATASET_READY,
+        upload.tenant_id,
+        {"upload_id": str(upload.id), "dataset_id": str(dataset.id)},
+    )
+
+
+def finish_after_figures(session: Session, upload: Upload) -> None:
+    """Describing passes straight through until E6 writes commentary."""
+    if upload.status != "calculating":
+        return
     set_status(session, upload, "describing")
     message = None
-    if interp.file_kind in ("delivery", "people") and not get_settings().flags.people:
+    if upload.file_kind in ("delivery", "people") and not get_settings().flags.people:
         message = "Saved. Figures from this kind of file arrive in phase 2."
     set_status(session, upload, "ready", message)
 

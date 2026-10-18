@@ -2,7 +2,8 @@
 
 import hashlib
 import uuid
-from datetime import UTC, datetime
+from dataclasses import dataclass
+from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
@@ -14,7 +15,14 @@ from boardroom.events import Event, consumer, emit
 from boardroom.modules.audit import service as audit
 from boardroom.modules.identity import service as identity
 from boardroom.modules.intake import pipeline
-from boardroom.modules.intake.models import IntakeOutbox, ManualFigure, Question, Upload
+from boardroom.modules.intake.models import (
+    Dataset,
+    DatasetRow,
+    IntakeOutbox,
+    ManualFigure,
+    Question,
+    Upload,
+)
 from boardroom.modules.intake.parsing import Table
 from boardroom.modules.intake.profiler import profile
 from boardroom.modules.intake.skill1 import SkillOutputError
@@ -254,6 +262,7 @@ def add_figure(
     )
     session.add(figure)
     session.flush()
+    emit(session, IntakeOutbox, pipeline.FIGURE_ENTERED, tenant_id, {"figure_id": str(figure.id)})
     audit.record(
         session,
         "figure.entered",
@@ -270,3 +279,108 @@ def list_figures(session: Session) -> list[ManualFigure]:
     return list(
         session.scalars(select(ManualFigure).order_by(ManualFigure.entered_at.desc())).all()
     )
+
+
+# Read access for the metrics module, which runs as br_system: every call names its tenant.
+
+
+@dataclass(frozen=True)
+class DatasetView:
+    id: uuid.UUID
+    kind: str
+    version: int
+    upload_id: uuid.UUID
+    filename: str
+    fields: tuple[str, ...]
+    data_as_of: date | None
+    created_at: datetime
+    rows: tuple[tuple[int, dict[str, Any]], ...]
+
+
+def datasets_for_metrics(
+    session: Session, tenant_id: uuid.UUID, per_kind: int = 5
+) -> list[DatasetView]:
+    """The newest datasets of each kind, newest first, with their rows."""
+    found = session.execute(
+        select(Dataset, Upload.filename)
+        .join(Upload, Upload.id == Dataset.upload_id)
+        .where(Dataset.tenant_id == tenant_id, Upload.tenant_id == tenant_id)
+        .order_by(Dataset.created_at.desc())
+    ).all()
+    counts: dict[str, int] = {}
+    views = []
+    for ds, filename in found:
+        counts[ds.kind] = counts.get(ds.kind, 0) + 1
+        if counts[ds.kind] > per_kind:
+            continue
+        rows = session.execute(
+            select(DatasetRow.row_number, DatasetRow.data)
+            .where(DatasetRow.tenant_id == tenant_id, DatasetRow.dataset_id == ds.id)
+            .order_by(DatasetRow.row_number)
+        ).all()
+        views.append(
+            DatasetView(
+                ds.id,
+                ds.kind,
+                ds.version,
+                ds.upload_id,
+                filename,
+                tuple(ds.fields),
+                ds.data_as_of,
+                ds.created_at,
+                tuple((n, d) for n, d in rows),
+            )
+        )
+    return views
+
+
+def dataset_rows(
+    session: Session, tenant_id: uuid.UUID, dataset_id: uuid.UUID, numbers: list[int]
+) -> list[tuple[int, dict[str, Any]]]:
+    rows = session.execute(
+        select(DatasetRow.row_number, DatasetRow.data)
+        .where(
+            DatasetRow.tenant_id == tenant_id,
+            DatasetRow.dataset_id == dataset_id,
+            DatasetRow.row_number.in_(numbers),
+        )
+        .order_by(DatasetRow.row_number)
+    ).all()
+    return [(n, d) for n, d in rows]
+
+
+@dataclass(frozen=True)
+class ManualFigureView:
+    id: uuid.UUID
+    metric: str
+    period: str
+    value: Decimal
+    kind: str
+    entered_by_name: str
+    entered_at: datetime
+
+
+def manual_figures_for(session: Session, tenant_id: uuid.UUID) -> list[ManualFigureView]:
+    rows = session.scalars(
+        select(ManualFigure)
+        .where(ManualFigure.tenant_id == tenant_id)
+        .order_by(ManualFigure.entered_at)
+    ).all()
+    return [
+        ManualFigureView(
+            f.id, f.metric, f.period, Decimal(f.value), f.kind, f.entered_by_name, f.entered_at
+        )
+        for f in rows
+    ]
+
+
+@consumer("intake.after_figures", "metrics.figures_computed")
+def _after_figures(session: Session, event: Event) -> None:
+    upload_id = event.payload.get("upload_id")
+    if not upload_id or event.tenant_id is None:
+        return
+    upload = session.scalar(
+        select(Upload).where(Upload.id == uuid.UUID(upload_id), Upload.tenant_id == event.tenant_id)
+    )
+    if upload is not None:
+        pipeline.finish_after_figures(session, upload)

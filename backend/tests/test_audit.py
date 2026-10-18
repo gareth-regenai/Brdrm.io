@@ -60,6 +60,7 @@ def scenario(client, make_company, invite, owner_conn, recorded_ai):
         headers=h,
         json={"metric": "revenue", "period": "2026-12", "value": "1", "kind": "target"},
     )
+    client.put("/company/metrics/settings/runway", headers=h, json={"band_offset": 1})
     client.delete("/company", headers=h)
     return _audit_actions(owner_conn)
 
@@ -81,6 +82,7 @@ EXPECTED = {
     ("POST", "/company/uploads/{upload_id}/answer"): "upload.question_answered",
     ("PUT", "/company/uploads/{upload_id}/mapping"): "upload.mapped_by_hand",
     ("POST", "/company/figures"): "figure.entered",
+    ("PUT", "/company/metrics/settings/{metric}"): "metrics.setting_changed",
 }
 # A refresh swaps tokens only; the sign-in it continues is already audited.
 NOT_STATE_CHANGES = {("POST", "/auth/refresh"), ("PUT", "/storage/upload/{token}")}

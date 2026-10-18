@@ -43,7 +43,7 @@ os.environ.update(
         "DATABASE_URL": _db_url("br_login", APP_PASSWORD),
         "MAILER": "memory",
         "DISPATCH_INLINE": "true",
-        "JWT_SECRET": "test-secret-at-least-16-chars",
+        "JWT_SECRET": "test-secret-at-least-32-characters-long",
         "WEB_ORIGIN": "http://web.test",
         "API_URL": "http://testserver",
         "STORAGE_BACKEND": "local",
@@ -81,7 +81,8 @@ def clean_db() -> Iterator[None]:
         conn.execute(
             "TRUNCATE identity.tenants, identity.users, identity.outbox, "
             "events.processed_events, audit.audit_log, intake.uploads, intake.layouts, "
-            "intake.interpretation_log, intake.manual_figures, intake.outbox CASCADE"
+            "intake.interpretation_log, intake.manual_figures, intake.outbox, metrics.selections, "
+            "metrics.runs, metrics.settings, metrics.outbox CASCADE"
         )
     import shutil
 

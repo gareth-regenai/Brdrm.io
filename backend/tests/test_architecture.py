@@ -160,7 +160,7 @@ def test_production_refuses_the_console_mailer(monkeypatch):
     from boardroom import config
 
     monkeypatch.setenv("ENVIRONMENT", "production")
-    monkeypatch.setenv("JWT_SECRET", "a-real-secret-for-this-test")
+    monkeypatch.setenv("JWT_SECRET", "a-real-secret-for-this-test-of-32-chars")
     monkeypatch.setenv("STORAGE_BACKEND", "s3")
     for mailer, ok in (("console", False), ("disabled", True)):
         monkeypatch.setenv("MAILER", mailer)

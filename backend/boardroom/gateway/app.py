@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 import boardroom.modules.intake.service  # noqa: F401  registers event consumers
+import boardroom.modules.metrics.service  # noqa: F401  registers event consumers
 import boardroom.modules.notify.service  # noqa: F401  registers event consumers
 from boardroom.config import get_settings
 from boardroom.db import get_engine
@@ -19,6 +20,7 @@ from boardroom.logs import configure_logging, get_logger, request_id_var, tenant
 from boardroom.modules.identity.api import router as identity_router
 from boardroom.modules.identity.service import IdentityError
 from boardroom.modules.intake.api import router as intake_router
+from boardroom.modules.metrics.api import router as metrics_router
 
 log = get_logger("gateway")
 
@@ -97,6 +99,7 @@ def create_app() -> FastAPI:
 
     app.include_router(identity_router)
     app.include_router(intake_router)
+    app.include_router(metrics_router)
     return app
 
 

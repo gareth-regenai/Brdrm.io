@@ -380,3 +380,105 @@ td.num {
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   align-items: end;
 }
+
+/* Figures */
+
+.tiles {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+.tile {
+  text-align: left;
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  padding: var(--space-3) var(--space-4);
+  min-height: 0;
+  font-weight: 400;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.tile.open {
+  border-color: var(--focus-ring);
+}
+.figure {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 27px;
+  line-height: 32px;
+  font-variant-numeric: tabular-nums;
+}
+.muted-figure {
+  color: var(--ink-muted);
+  font-size: 18px;
+}
+.tile-foot {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  min-height: 0;
+}
+.source-line {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-1);
+  font-size: 12px;
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+.pill.risk-high {
+  background: var(--risk-4);
+  color: var(--risk-4-ink);
+}
+.pill.risk-medium {
+  background: var(--risk-2);
+  color: var(--risk-2-ink);
+}
+.pill.risk-low {
+  background: var(--risk-1);
+  color: var(--risk-1-ink);
+}
+.trace {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  corner-shape: bevel;
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+  background: var(--bg);
+  min-width: 0;
+}
+.trace-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: start;
+}
+.trace-list {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+}
+.trace-list dt {
+  font-weight: 700;
+}
+.trace-list dd {
+  margin: 0;
+}
+.trace-source {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.trace-settings {
+  display: grid;
+  gap: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-3);
+}
+@media (max-width: 640px) {
+  .trace-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

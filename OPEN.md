@@ -12,14 +12,17 @@ Decisions the code does not make. Each is built behind a setting or a default th
 
 | File formats beyond CSV and Excel, such as PDF | FR-4.1 | CSV (any delimiter, UTF-8, UTF-16 or Windows-1252) and .xlsx. Old .xls, PDF and others get a plain message asking for CSV or .xlsx. | `backend/boardroom/modules/intake/parsing.py` |
 
-The rest of chapter 14 (row-selection filters, thresholds, sort rule, warn or block, named check, rates feed, first connector) belongs to later epics and is recorded when those epics start.
+| The closed filter set for row selection | FR-5.2 | Four filters: in, not in, is empty, not empty, on the dataset's own fields and only with values the dataset holds. Defined once in `backend/boardroom/modules/metrics/selection.py`. | `FILTER_OPS` |
+| Default High, Medium and Low thresholds | FR-5.7, FR-7.2, FR-7.3 | Placeholders: runway high below 6 months, medium below 12; gross margin 20% / 40%; revenue growth -5% / 0%; revenue against plan 80% / 95% of target; coverage 1x / 2x; win rate 15% / 25%; stalled deals above 30% / 15% of open deals. Cash, burn, pipeline and deal size carry no level. Companies can change their own. | `DEFAULT_THRESHOLDS` in `backend/boardroom/modules/metrics/display.py` |
+
+The rest of chapter 14 (sort rule, warn or block, named check, rates feed, first connector) belongs to later epics and is recorded when those epics start.
 
 ## Raised in E1
 
 | Decision | Why it matters | What the code does now |
 |---|---|---|
 | Authentication: built in or a managed provider | The previous spec recommended a managed provider for passwords, MFA and email sign-in links. The FRD does not decide. | Email and password, Argon2 hashing, 15-minute access tokens and single-use refresh tokens, behind `identity.service`. No email verification, password reset or MFA yet. Swapping in a provider changes `sign_up`, `sign_in` and the token checks only. |
-| Email provider | Invitations need to be emailed. Also a subprocessor to list. | `MAILER=console` prints emails in development. Staging and production must run `MAILER=disabled`, which sends nothing and logs that an email was due (never its link). Until a provider is chosen, invitations can be created in production but the person is not emailed. |
+| Email provider | Invitations and questions need to be emailed. Also a subprocessor to list. | Decided for now: plain SMTP (`MAILER=smtp`), so an existing mailbox can send without a new account. See docs/email.md. A dedicated sending service (better deliverability, bounce handling) can replace it later by changing the SMTP settings only. Sending from a RegenAI mailbox would mix the two businesses, which CLAUDE.md rules out, so use a separate BoardRoom address. |
 | Database role per module | FR-11.1 asks for a role per module. | One app role (`br_app`) and one system role (`br_system`), both under row-level security. Per-module roles follow the service-count decision. |
 | Migration credentials | The API and worker hold the database owner URL so the pre-deploy step can migrate. | Least privilege would move migrations to a separate job with its own secret. Worth doing when the service count is settled. |
 | Render plans and staging | Full-stack previews and isolated staging need the Pro workspace. Plan names in `render.yaml` are first guesses. | `render.yaml` defines production with automatic pull-request previews. Staging is not yet defined. Confirm plan names and sizes when the Blueprint is first applied. |
@@ -38,3 +41,14 @@ The rest of chapter 14 (row-selection filters, thresholds, sort rule, warn or bl
 | More than one uncertain column | FR-3.2 says one question. | The least certain column that blocks a figure is asked about. Other uncertain columns between 0.5 and 0.8 keep the AI's best guess; below 0.5 they are ignored. |
 | Model for skill 1 | Cost and accuracy. | `claude-sonnet-5-5` at medium effort, as the spec names, with server-side fallback if a request is refused. Switch with `SKILL1_MODEL`. The eval is how to compare. |
 | Agent Skills path (FR-10.5) | The spec describes skills uploaded through the Skills API with code execution, and a per-tenant switch to a Messages-only path. | Only the Messages-only path is built: structured outputs, no tools, no code execution. It fits "no AI-written code is ever run" and zero data retention. The Skills API path is not built. |
+
+## Raised in E3
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| Periods for sales measures | The FRD says "for the period" without defining it. | Win rate and average deal size use deals closed in each calendar month. Pipeline, weighted pipeline, coverage and stalled deals are a snapshot at the latest sales data. Coverage compares deals expected to close this month with this month's closed-won target. A quarterly view would need agreeing. |
+| Runway with fewer than three months | The formula averages the last three months of burn. | Runway shows only when three months of burn are known; otherwise "Not provided". |
+| Company-specific methods | FR-5.3 allows one only where the standard formula cannot work. | One so far: net burn from the fall in cash when the profit and loss lines are missing. It is flagged on the tile, in the click view and in the database, which refuses an unflagged one. Others need agreeing as they come up. |
+| Deals in another currency | Conversion is phase 2. | Rows in a currency other than the company's are left out of sales figures, and the click view says how many. The reporting currency is GBP until the setup chat (E4) sets it. |
+| Targets from a plan file | FR-4.11. | Hand-entered targets are used first. From a plan file, rows whose metric reads revenue, sales, income or turnover are revenue targets, and closed won, bookings or new business are sales targets. The setup chat (E4) will capture targets in conversation. |
+| Display precision for cash | BRD chapter 5 sets money precision by annual revenue. | Applied to every money figure, so a £800k-revenue company sees cash of £1.19m as £1,194.5k. Each company can move a measure one step either way. |

@@ -275,7 +275,7 @@ def test_tampered_and_expired_tokens_are_refused(client: TestClient, make_compan
             "iat": 0,
             "exp": int((datetime.now(UTC) - timedelta(minutes=1)).timestamp()),
         },
-        "test-secret-at-least-16-chars",
+        "test-secret-at-least-32-characters-long",
         algorithm="HS256",
     )
     for token in (tampered, forged, expired, "", "not-a-jwt"):
