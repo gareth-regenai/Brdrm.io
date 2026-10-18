@@ -7,6 +7,7 @@ created, migrated as the owner, and the app connects as br_login like production
 import os
 import subprocess
 import sys
+import tempfile
 import uuid
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -44,6 +45,12 @@ os.environ.update(
         "DISPATCH_INLINE": "true",
         "JWT_SECRET": "test-secret-at-least-16-chars",
         "WEB_ORIGIN": "http://web.test",
+        "API_URL": "http://testserver",
+        "STORAGE_BACKEND": "local",
+        "STORAGE_ROOT": tempfile.mkdtemp(prefix="boardroom-storage-"),
+        "ANTHROPIC_API_KEY": "",
+        "PARSE_MEMORY_MB": "1024",
+        "PARSE_SECONDS": "20",
     }
 )
 
@@ -73,11 +80,15 @@ def clean_db() -> Iterator[None]:
     with psycopg.connect(OWNER_URL, autocommit=True) as conn:
         conn.execute(
             "TRUNCATE identity.tenants, identity.users, identity.outbox, "
-            "events.processed_events, audit.audit_log CASCADE"
+            "events.processed_events, audit.audit_log, intake.uploads, intake.layouts, "
+            "intake.interpretation_log, intake.manual_figures, intake.outbox CASCADE"
         )
+    import shutil
+
     from boardroom.modules.notify.mailer import memory_mailer
 
     memory_mailer().sent.clear()
+    shutil.rmtree(os.environ["STORAGE_ROOT"], ignore_errors=True)
 
 
 @pytest.fixture
@@ -186,3 +197,75 @@ def invite(client: TestClient):
         return account
 
     return do
+
+
+# Intake helpers
+
+FIXTURES = Path(__file__).parent / "fixtures"
+
+
+class RecordedClient:
+    """Replays recorded skill 1 responses (FR-13.2) and keeps every payload, so tests
+    can check what the model would have been sent."""
+
+    def __new__(cls) -> "RecordedClient":
+        from boardroom.modules.intake.replay import ReplayClient
+
+        return ReplayClient(FIXTURES / "recorded")  # type: ignore[return-value]
+
+    payloads: list[dict[str, str]]
+    override: object | None
+
+
+@pytest.fixture
+def recorded_ai() -> Iterator[RecordedClient]:
+    from boardroom.modules.intake import skill1
+
+    client = RecordedClient()
+    skill1.set_client(client)
+    yield client
+    skill1.set_client(None)
+
+
+@pytest.fixture(autouse=True)
+def _no_live_ai() -> Iterator[None]:
+    """CI never calls the live API: without a recorded client, the AI is off."""
+    from boardroom.modules.intake import skill1
+
+    skill1.set_client(None)
+    yield
+    skill1.set_client(None)
+
+
+def upload_file(
+    client: TestClient,
+    company: Company,
+    name: str,
+    data: bytes | None = None,
+    account: Account | None = None,
+) -> dict:
+    data = data if data is not None else (FIXTURES / "files" / name).read_bytes()
+    who = account or company.owner
+    r = client.post(
+        "/company/uploads",
+        headers=who.auth(company.tenant_id),
+        json={"filename": name, "size_bytes": len(data), "content_type": "text/csv"},
+    )
+    assert r.status_code == 201, r.text
+    link = r.json()
+    put = client.put(
+        link["url"].replace("http://testserver", ""), content=data, headers=link["headers"]
+    )
+    assert put.status_code == 204, put.text
+    r = client.post(
+        f"/company/uploads/{link['upload_id']}/complete", headers=who.auth(company.tenant_id)
+    )
+    assert r.status_code == 200, r.text
+    r = client.get(f"/company/uploads/{link['upload_id']}", headers=who.auth(company.tenant_id))
+    return r.json()
+
+
+def stored_keys() -> list[str]:
+    from boardroom.modules.intake.storage import get_storage
+
+    return get_storage().all_keys()  # type: ignore[attr-defined]

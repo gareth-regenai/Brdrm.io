@@ -1,12 +1,16 @@
 """The worker: delivers outbox events. Later epics add file parsing and AI jobs here."""
 
+import uuid
+
 from celery import Celery
 
 import boardroom.modules.identity.models  # noqa: F401  registers the identity outbox
+import boardroom.modules.intake.service  # noqa: F401  registers the intake outbox and consumers
 import boardroom.modules.notify.service  # noqa: F401  registers event consumers
 from boardroom.config import get_settings
 from boardroom.events import dispatch_pending
 from boardroom.logs import configure_logging
+from boardroom.modules.intake import pipeline
 
 configure_logging()
 settings = get_settings()
@@ -23,3 +27,9 @@ celery_app.conf.update(
 @celery_app.task(name="boardroom.dispatch")
 def dispatch() -> int:
     return dispatch_pending()
+
+
+@celery_app.task(name="boardroom.process_upload", soft_time_limit=600, time_limit=660)
+def process_upload(upload_id: str, tenant_id: str, user_id: str) -> None:
+    """Idempotent: an upload already past "received" is left alone."""
+    pipeline.process(uuid.UUID(upload_id), uuid.UUID(tenant_id), uuid.UUID(user_id))

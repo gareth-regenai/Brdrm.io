@@ -1,0 +1,126 @@
+{
+  "note": "Hand-written in the shape skill 1 returns, for replay in tests. The scheduled eval checks the real model.",
+  "columns": [
+    "Month",
+    "Income",
+    "Cost of goods sold",
+    "Expenses",
+    "Net income",
+    "Bank balance",
+    "Currency"
+  ],
+  "response": {
+    "file_kind": "finance",
+    "layout": "rows",
+    "label_column": null,
+    "currency": "GBP",
+    "columns": [
+      {
+        "column": "Month",
+        "field": "period",
+        "transform": {
+          "type": "parse_date",
+          "date_format": "%b-%y",
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.97,
+        "reason": "Month labels like Apr-26."
+      },
+      {
+        "column": "Income",
+        "field": "revenue",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.93,
+        "reason": "Monthly income total."
+      },
+      {
+        "column": "Cost of goods sold",
+        "field": "cost_of_sales",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.95,
+        "reason": "Direct costs."
+      },
+      {
+        "column": "Expenses",
+        "field": "operating_expenses",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.88,
+        "reason": "Overheads after cost of sales."
+      },
+      {
+        "column": "Net income",
+        "field": "ignore",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.9,
+        "reason": "Derived; code calculates burn."
+      },
+      {
+        "column": "Bank balance",
+        "field": "cash_balance",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.91,
+        "reason": "Month-end bank balance."
+      },
+      {
+        "column": "Currency",
+        "field": "currency",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.95,
+        "reason": "ISO code column."
+      }
+    ],
+    "row_labels": []
+  }
+}

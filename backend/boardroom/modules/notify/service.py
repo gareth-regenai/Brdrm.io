@@ -50,3 +50,19 @@ def send_invitation(session: Session, event: Event) -> None:
         target_type="invitation",
         target_id=event.payload["invitation_id"],
     )
+
+
+@consumer("notify.question_email", "intake.question_asked")
+def send_question(session: Session, event: Event) -> None:
+    """The one question also goes by email, so the upload does not wait unseen (FR-3.2)."""
+    assert event.tenant_id is not None  # noqa: S101
+    person = identity.contact(session, uuid.UUID(event.payload["user_id"]), event.tenant_id)
+    if person is None:
+        return
+    url = f"{get_settings().web_origin}/c/{event.tenant_id}"
+    body = (
+        f"We have one question about a file you added to {person.company_name}.\n\n"
+        f"Answer it here: {url}\n\n"
+        "The rest of the file is ready. Its figures are calculated as soon as you answer."
+    )
+    get_mailer().send(Email(to=person.email, subject="One question about your file", body=body))

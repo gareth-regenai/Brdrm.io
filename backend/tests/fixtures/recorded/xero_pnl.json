@@ -1,0 +1,57 @@
+{
+  "note": "Hand-written in the shape skill 1 returns, for replay in tests. The scheduled eval checks the real model.",
+  "columns": [
+    "Account",
+    "Apr 2026",
+    "May 2026",
+    "Jun 2026",
+    "Jul 2026",
+    "Aug 2026",
+    "Sep 2026"
+  ],
+  "response": {
+    "file_kind": "finance",
+    "layout": "periods_as_columns",
+    "label_column": "Account",
+    "currency": "GBP",
+    "columns": [],
+    "row_labels": [
+      {
+        "label": "Total Trading Income",
+        "field": "revenue",
+        "confidence": 0.96,
+        "reason": "Total of the trading income section."
+      },
+      {
+        "label": "Total Cost of Sales",
+        "field": "cost_of_sales",
+        "confidence": 0.95,
+        "reason": "Total of the cost of sales section."
+      },
+      {
+        "label": "Total Operating Expenses",
+        "field": "operating_expenses",
+        "confidence": 0.95,
+        "reason": "Total of the operating expenses section."
+      },
+      {
+        "label": "Sales",
+        "field": "ignore",
+        "confidence": 0.9,
+        "reason": "Part of Total Trading Income."
+      },
+      {
+        "label": "Gross Profit",
+        "field": "ignore",
+        "confidence": 0.9,
+        "reason": "Derived; code calculates margin."
+      },
+      {
+        "label": "Net Profit",
+        "field": "ignore",
+        "confidence": 0.9,
+        "reason": "Derived."
+      }
+    ]
+  }
+}

@@ -107,8 +107,19 @@ def deliver(session: Session, event: Event) -> int:
     return ran
 
 
-def dispatch_pending(limit: int = 100) -> int:
-    """Deliver undispatched events from every outbox. Safe to run concurrently."""
+def dispatch_pending(limit: int = 100, rounds: int = 10) -> int:
+    """Deliver undispatched events from every outbox, including events that consumers
+    emit while handling others. Safe to run concurrently."""
+    delivered = 0
+    for _ in range(rounds):
+        seen = _dispatch_round(limit)
+        delivered += seen
+        if seen == 0:
+            break
+    return delivered
+
+
+def _dispatch_round(limit: int) -> int:
     delivered = 0
     for outbox in list(_outboxes):
         with system_session() as session:
@@ -123,11 +134,12 @@ def dispatch_pending(limit: int = 100) -> int:
                 event = Event(row.id, row.tenant_id, row.event_type, row.payload)
                 try:
                     with session.begin_nested():
-                        delivered += deliver(session, event)
+                        deliver(session, event)
                 except Exception:
                     # Left undispatched, so the next run retries it.
                     log.exception("event_failed", event_type=row.event_type, event_id=str(row.id))
                     continue
                 row.dispatched_at = datetime.now(UTC)
+                delivered += 1
                 log.info("event_dispatched", event_type=row.event_type, event_id=str(row.id))
     return delivered
