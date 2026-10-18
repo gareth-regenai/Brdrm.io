@@ -47,6 +47,11 @@ services:
         sync: false
       - key: SMTP_FROM
         sync: false
+      # Payment (E8). Leave both empty until Stripe is set up; plans and limits still apply.
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
 
   - type: worker
     name: boardroom-worker

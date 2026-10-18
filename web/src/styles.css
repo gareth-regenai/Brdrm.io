@@ -1310,3 +1310,53 @@ button.as-pill {
   font-weight: 400;
   color: var(--ink-muted);
 }
+
+/* Billing (E8) */
+.billing {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+.billing-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+.billing-head h2 {
+  margin: var(--space-1) 0 0;
+}
+.billing td.over {
+  color: var(--accent-ink);
+}
+.billing td.over .pill {
+  margin-left: var(--space-2);
+}
+.plan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+  gap: var(--space-3);
+}
+.plan-option {
+  border: 1px solid var(--border);
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+}
+.plan-option h4 {
+  margin: 0;
+}
+.plan-option ul {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+.limit-notice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-3) var(--space-4) 0;
+  background: var(--warn-bg);
+  color: var(--warn);
+}

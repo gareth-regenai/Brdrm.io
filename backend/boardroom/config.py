@@ -66,7 +66,8 @@ class Settings(BaseSettings):
     # Where the API is reached from outside, for signed upload links in development.
     api_url: str = "http://localhost:8000"
 
-    # File intake limits (FR-11.7). Upload size moves to entitlements in E8.
+    # File intake limits (FR-11.7). This size is the hard ceiling for every company; a
+    # plan's max_file_mb entitlement can only set a lower one (E8).
     max_file_mb: int = 25
     max_rows: int = 200_000
     max_columns: int = 200
@@ -101,6 +102,13 @@ class Settings(BaseSettings):
     commentary_model: str = "claude-sonnet-5-5"
     # Development only: replay recorded answers instead of calling the model.
     skill1_replay_dir: str | None = None
+
+    # Billing (FRD ch. 9). Without a Stripe key plans and limits still apply; payment is off.
+    stripe_secret_key: str | None = None
+    stripe_webhook_secret: str | None = None
+    # FR-9.4 is open: at a limit, "warn" lets the action through and says so, "block"
+    # refuses it. See OPEN.md.
+    limit_behaviour: Literal["warn", "block"] = "warn"
 
     # On Render the app has the owner URL (for migrations) and the br_login password.
     # The app's own URL is the owner URL with br_login in place of the owner.
@@ -150,4 +158,6 @@ def get_settings() -> Settings:
                 raise RuntimeError("MAILER=smtp needs SMTP_HOST and SMTP_FROM")
             if settings.smtp_security == "none":
                 raise RuntimeError("SMTP_SECURITY=none is for a local test inbox only")
+        if settings.stripe_secret_key and not settings.stripe_webhook_secret:
+            raise RuntimeError("STRIPE_SECRET_KEY needs STRIPE_WEBHOOK_SECRET")
     return settings

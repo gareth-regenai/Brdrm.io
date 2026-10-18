@@ -19,6 +19,8 @@ from boardroom.config import get_settings
 from boardroom.db import get_engine
 from boardroom.gateway.deps import TENANT_HEADER, bearer_user_id
 from boardroom.logs import configure_logging, get_logger, request_id_var, tenant_id_var, user_id_var
+from boardroom.modules.billing import service as billing
+from boardroom.modules.billing.api import router as billing_router
 from boardroom.modules.identity.api import router as identity_router
 from boardroom.modules.identity.service import IdentityError
 from boardroom.modules.intake.api import router as intake_router
@@ -38,8 +40,12 @@ PUBLIC_PATHS = frozenset(
         "/openapi.json",
         "/docs",
         "/docs/oauth2-redirect",
+        # Stripe signs each event; the signature is checked instead of a sign-in.
+        "/billing/stripe/webhook",
     }
 )
+# A limit passed in warn mode is reported on the response (FR-9.4).
+LIMIT_HEADER = "X-Limit-Warning"
 # Signed upload links carry their own short-lived token instead of a sign-in.
 PUBLIC_PREFIXES = ("/storage/upload/",)
 
@@ -58,6 +64,7 @@ def create_app() -> FastAPI:
         allow_credentials=False,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Authorization", "Content-Type", "X-Tenant-ID"],
+        expose_headers=[LIMIT_HEADER],
     )
 
     @app.middleware("http")
@@ -67,6 +74,7 @@ def create_app() -> FastAPI:
         request_id_var.set(uuid.uuid4().hex)
         tenant_id_var.set(None)
         user_id_var.set(None)
+        billing.start_request()
         started = time.perf_counter()
         # First token check, at the gateway. Each endpoint checks again.
         if request.method != "OPTIONS" and not is_public(request.url.path):
@@ -81,6 +89,9 @@ def create_app() -> FastAPI:
             with contextlib.suppress(ValueError):
                 tenant_id_var.set(str(uuid.UUID(tenant_header)))
         response = await call_next(request)
+        warnings = billing.take_warnings()
+        if warnings:
+            response.headers[LIMIT_HEADER] = " ".join(warnings)
         log.info(
             "request",
             method=request.method,
@@ -101,6 +112,7 @@ def create_app() -> FastAPI:
             conn.execute(text("SELECT 1"))
         return {"status": "ok"}
 
+    app.include_router(billing_router)
     app.include_router(identity_router)
     app.include_router(intake_router)
     app.include_router(metrics_router)

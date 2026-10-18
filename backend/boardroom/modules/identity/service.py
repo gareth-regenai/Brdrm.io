@@ -12,6 +12,7 @@ from boardroom.config import get_settings
 from boardroom.db import app_session, as_system, set_tenant, system_session
 from boardroom.events import emit
 from boardroom.modules.audit import service as audit
+from boardroom.modules.billing import service as billing
 from boardroom.modules.identity.models import (
     CompanySettings,
     IdentityOutbox,
@@ -350,6 +351,11 @@ def investor_emails(session: Session, tenant_id: uuid.UUID) -> list[str]:
     return sorted(set(members) | set(invited))
 
 
+def investor_seats(session: Session, tenant_id: uuid.UUID) -> int:
+    """Investors in the company and those invited, as counted against the viewers key."""
+    return len(investor_emails(session, tenant_id))
+
+
 def portfolio(session: Session, user_id: uuid.UUID) -> list[Tenant]:
     """Every company that has invited this user as an investor (FR-2.4)."""
     return list(
@@ -404,6 +410,13 @@ def create_invitation(
     )
     if already_member:
         raise IdentityError(409, "This person is already in the company.")
+    if role == Role.INVESTOR:
+        # Inviting someone already invited again takes no new place.
+        wanted = len(set(investor_emails(session, tenant_id)) | {email})
+        try:
+            billing.check(session, tenant_id, actor, "viewers", wanted)
+        except billing.LimitReached as exc:
+            raise IdentityError(exc.code, exc.message) from exc
 
     invitation = Invitation(
         tenant_id=tenant_id,

@@ -83,7 +83,8 @@ def clean_db() -> Iterator[None]:
             "events.processed_events, audit.audit_log, intake.uploads, intake.layouts, "
             "intake.interpretation_log, intake.manual_figures, intake.outbox, metrics.selections, "
             "metrics.runs, metrics.settings, metrics.outbox, setup.profiles, setup.targets, "
-            "setup.conversations, setup.outbox, updates.updates, updates.outbox CASCADE"
+            "setup.conversations, setup.outbox, updates.updates, updates.outbox, "
+            "billing.subscriptions, billing.stripe_events, billing.plans CASCADE"
         )
     import shutil
 
@@ -286,3 +287,113 @@ def png_data_url(size: tuple[int, int] = (120, 40), colour: str = "#1F5F8F") -> 
     out = io.BytesIO()
     Image.new("RGB", size, colour).save(out, format="PNG")
     return "data:image/png;base64," + base64.b64encode(out.getvalue()).decode()
+
+
+# Billing: a recorded payment client and signed Stripe events, so CI never calls Stripe.
+
+WEBHOOK_SECRET = "whsec_test_secret"
+
+
+class RecordedPayments:
+    def __init__(self) -> None:
+        self.checkouts: list[dict] = []
+        self.portals: list[dict] = []
+
+    def checkout_url(self, **kwargs) -> str:
+        self.checkouts.append(kwargs)
+        return f"https://checkout.stripe.test/c/{len(self.checkouts)}"
+
+    def portal_url(self, **kwargs) -> str:
+        self.portals.append(kwargs)
+        return "https://billing.stripe.test/p/1"
+
+
+@dataclass
+class Stripe:
+    client: TestClient
+    owner_conn: psycopg.Connection
+    payments: RecordedPayments
+
+    def plan(self, key: str, *, price: str | None = None, default: bool = False, **limits):
+        """Set a plan straight in the database, as a platform admin's change would."""
+        import json
+
+        self.owner_conn.execute(
+            "INSERT INTO billing.plans (key, name, stripe_price_id, entitlements, is_default) "
+            "VALUES (%s, %s, %s, %s, %s) ON CONFLICT (key) DO UPDATE SET "
+            "stripe_price_id = EXCLUDED.stripe_price_id, entitlements = EXCLUDED.entitlements, "
+            "is_default = EXCLUDED.is_default",
+            (key, key.title(), price, json.dumps(limits), default),
+        )
+
+    def send(self, event: dict, secret: str = WEBHOOK_SECRET):
+        import hashlib
+        import hmac
+        import json
+        import time
+
+        payload = json.dumps(event)
+        stamp = int(time.time())
+        mac = hmac.new(secret.encode(), f"{stamp}.{payload}".encode(), hashlib.sha256)
+        return self.client.post(
+            "/billing/stripe/webhook",
+            content=payload,
+            headers={
+                "Stripe-Signature": f"t={stamp},v1={mac.hexdigest()}",
+                "Content-Type": "application/json",
+            },
+        )
+
+
+_event_seq = iter(range(1, 1_000_000))
+
+
+def subscription_event(
+    tenant_id: str | None,
+    price: str,
+    status: str = "active",
+    kind: str = "updated",
+    created: int = 1_790_000_000,
+    sub_id: str = "sub_1",
+    event_id: str | None = None,
+) -> dict:
+    return {
+        "id": event_id or f"evt_{next(_event_seq)}",
+        "type": f"customer.subscription.{kind}",
+        "created": created,
+        "data": {
+            "object": {
+                "id": sub_id,
+                "object": "subscription",
+                "customer": f"cus_for_{sub_id}",
+                "status": status,
+                "metadata": {"tenant_id": tenant_id} if tenant_id else {},
+                "items": {
+                    "data": [{"price": {"id": price}, "current_period_end": created + 2_592_000}]
+                },
+            }
+        },
+    }
+
+
+@pytest.fixture
+def stripe(client, owner_conn, monkeypatch) -> Iterator[Stripe]:
+    from boardroom.config import get_settings
+    from boardroom.modules.billing import payments
+
+    monkeypatch.setattr(get_settings(), "stripe_webhook_secret", WEBHOOK_SECRET)
+    recorded = RecordedPayments()
+    payments.set_payments(recorded)
+    yield Stripe(client, owner_conn, recorded)
+    payments.set_payments(None)
+
+
+@pytest.fixture
+def platform_admin(make_company, owner_conn) -> Account:
+    """A BoardRoom staff account. Platform admins are set in the database, never by the API."""
+    company = make_company("BoardRoom staff")
+    owner_conn.execute(
+        "UPDATE identity.users SET is_platform_admin = true WHERE id = %s",
+        (company.owner.user_id,),
+    )
+    return company.owner

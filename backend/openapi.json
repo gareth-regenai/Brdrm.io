@@ -44,10 +44,127 @@
           "view_audit",
           "view_figures",
           "comment",
-          "delete_workspace"
+          "delete_workspace",
+          "manage_billing"
         ],
         "title": "Action",
         "type": "string"
+      },
+      "AdminPlanIn": {
+        "properties": {
+          "available": {
+            "default": true,
+            "title": "Available",
+            "type": "boolean"
+          },
+          "entitlements": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Entitlements",
+            "type": "object"
+          },
+          "is_default": {
+            "default": false,
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "position": {
+            "default": 0,
+            "title": "Position",
+            "type": "integer"
+          },
+          "stripe_price_id": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stripe Price Id"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "AdminPlanIn",
+        "type": "object"
+      },
+      "AdminPlanOut": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "entitlements": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Entitlements",
+            "type": "object"
+          },
+          "is_default": {
+            "title": "Is Default",
+            "type": "boolean"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "position": {
+            "title": "Position",
+            "type": "integer"
+          },
+          "stripe_price_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stripe Price Id"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "entitlements",
+          "stripe_price_id",
+          "is_default",
+          "available",
+          "position"
+        ],
+        "title": "AdminPlanOut",
+        "type": "object"
       },
       "AnswerIn": {
         "properties": {
@@ -190,6 +307,86 @@
         "title": "AuditOut",
         "type": "object"
       },
+      "BillingOut": {
+        "properties": {
+          "behaviour": {
+            "enum": [
+              "warn",
+              "block"
+            ],
+            "title": "Behaviour",
+            "type": "string"
+          },
+          "current_period_end": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Period End"
+          },
+          "has_account": {
+            "title": "Has Account",
+            "type": "boolean"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/Line"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "payment_ready": {
+            "title": "Payment Ready",
+            "type": "boolean"
+          },
+          "plan_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Name"
+          },
+          "plans": {
+            "items": {
+              "$ref": "#/components/schemas/PlanOut"
+            },
+            "title": "Plans",
+            "type": "array"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          }
+        },
+        "required": [
+          "plan_name",
+          "status",
+          "behaviour",
+          "payment_ready",
+          "has_account",
+          "current_period_end",
+          "lines",
+          "plans"
+        ],
+        "title": "BillingOut",
+        "type": "object"
+      },
       "CardOut": {
         "properties": {
           "latest_update_id": {
@@ -240,6 +437,21 @@
           "latest_update_id"
         ],
         "title": "CardOut",
+        "type": "object"
+      },
+      "CheckoutIn": {
+        "properties": {
+          "plan": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Plan",
+            "type": "string"
+          }
+        },
+        "required": [
+          "plan"
+        ],
+        "title": "CheckoutIn",
         "type": "object"
       },
       "ColumnChoice": {
@@ -569,6 +781,60 @@
           "created_at"
         ],
         "title": "InvitationOut",
+        "type": "object"
+      },
+      "Line": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "limit": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit"
+          },
+          "used": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Used"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "limit"
+        ],
+        "title": "Line",
+        "type": "object"
+      },
+      "LinkOut": {
+        "properties": {
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "title": "LinkOut",
         "type": "object"
       },
       "LogOut": {
@@ -1027,6 +1293,42 @@
           "can_approve"
         ],
         "title": "PermissionsOut",
+        "type": "object"
+      },
+      "PlanOut": {
+        "properties": {
+          "can_buy": {
+            "title": "Can Buy",
+            "type": "boolean"
+          },
+          "current": {
+            "title": "Current",
+            "type": "boolean"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/Line"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "lines",
+          "current",
+          "can_buy"
+        ],
+        "title": "PlanOut",
         "type": "object"
       },
       "PointOut": {
@@ -2234,6 +2536,19 @@
         "title": "ValidationError",
         "type": "object"
       },
+      "WebhookOut": {
+        "properties": {
+          "outcome": {
+            "title": "Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "outcome"
+        ],
+        "title": "WebhookOut",
+        "type": "object"
+      },
       "boardroom__modules__identity__api__PersonOut": {
         "properties": {
           "departments": {
@@ -2524,6 +2839,83 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/admin/billing/plans": {
+      "get": {
+        "operationId": "admin_plans_admin_billing_plans_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AdminPlanOut"
+                  },
+                  "title": "Response Admin Plans Admin Billing Plans Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Admin Plans",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/billing/plans/{key}": {
+      "put": {
+        "operationId": "admin_save_plan_admin_billing_plans__key__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPlanIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPlanOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Admin Save Plan",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/admin/uploads/{upload_id}/interpretation": {
       "get": {
         "operationId": "interpretation_log_admin_uploads__upload_id__interpretation_get",
@@ -2728,6 +3120,28 @@
         ]
       }
     },
+    "/billing/stripe/webhook": {
+      "post": {
+        "description": "Public: Stripe signs each event, and the signature is checked before anything else.",
+        "operationId": "stripe_webhook_billing_stripe_webhook_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Stripe Webhook",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
     "/companies": {
       "post": {
         "operationId": "create_company_companies_post",
@@ -2887,6 +3301,142 @@
         "summary": "Audit Log",
         "tags": [
           "company"
+        ]
+      }
+    },
+    "/company/billing": {
+      "get": {
+        "operationId": "billing_company_billing_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Billing",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/company/billing/checkout": {
+      "post": {
+        "operationId": "checkout_company_billing_checkout_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Checkout",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/company/billing/portal": {
+      "post": {
+        "operationId": "portal_company_billing_portal_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Portal",
+        "tags": [
+          "billing"
         ]
       }
     },
