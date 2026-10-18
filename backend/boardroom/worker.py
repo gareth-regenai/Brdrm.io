@@ -8,6 +8,7 @@ import boardroom.modules.identity.models  # noqa: F401  registers the identity o
 import boardroom.modules.intake.service  # noqa: F401  registers the intake outbox and consumers
 import boardroom.modules.metrics.service  # noqa: F401  registers the metrics outbox and consumers
 import boardroom.modules.notify.service  # noqa: F401  registers event consumers
+import boardroom.modules.setup.models  # noqa: F401  registers the setup outbox
 from boardroom.config import get_settings
 from boardroom.events import dispatch_pending
 from boardroom.logs import configure_logging

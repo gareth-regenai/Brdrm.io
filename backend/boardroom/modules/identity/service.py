@@ -328,6 +328,28 @@ def remove_investor(
     )
 
 
+def investor_emails(session: Session, tenant_id: uuid.UUID) -> list[str]:
+    """Investors in the company and those invited, for the setup chat."""
+    members = session.scalars(
+        select(User.email)
+        .join(Membership, Membership.user_id == User.id)
+        .where(
+            Membership.tenant_id == tenant_id,
+            Membership.role == Role.INVESTOR.value,
+            Membership.status == "active",
+        )
+    ).all()
+    invited = session.scalars(
+        select(Invitation.email).where(
+            Invitation.tenant_id == tenant_id,
+            Invitation.role == Role.INVESTOR.value,
+            Invitation.accepted_at.is_(None),
+            Invitation.revoked_at.is_(None),
+        )
+    ).all()
+    return sorted(set(members) | set(invited))
+
+
 def portfolio(session: Session, user_id: uuid.UUID) -> list[Tenant]:
     """Every company that has invited this user as an investor (FR-2.4)."""
     return list(

@@ -90,6 +90,8 @@ class Settings(BaseSettings):
     skill1_effort: Literal["low", "medium", "high"] = "medium"
     # Skill 2, row selection.
     skill2_model: str = "claude-sonnet-5-5"
+    # The setup chat.
+    setup_model: str = "claude-sonnet-5-5"
     # Development only: replay recorded answers instead of calling the model.
     skill1_replay_dir: str | None = None
 

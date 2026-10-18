@@ -384,3 +384,49 @@ def _after_figures(session: Session, event: Event) -> None:
     )
     if upload is not None:
         pipeline.finish_after_figures(session, upload)
+
+
+def currencies_seen(session: Session, tenant_id: uuid.UUID) -> dict[str, int]:
+    """How often each currency appears in the company's data, for the setup chat."""
+    counts: dict[str, int] = {}
+    for ds in session.scalars(select(Dataset).where(Dataset.tenant_id == tenant_id)).all():
+        code = (ds.interpretation or {}).get("currency")
+        if code:
+            counts[code] = counts.get(code, 0) + ds.row_count
+    rows = session.execute(
+        select(DatasetRow.data["currency"].astext).where(
+            DatasetRow.tenant_id == tenant_id, DatasetRow.data.has_key("currency")
+        )
+    ).all()
+    for (code,) in rows:
+        if code:
+            counts[code] = counts.get(code, 0) + 1
+    return counts
+
+
+def pnl_labels(session: Session, tenant_id: uuid.UUID, limit: int = 100) -> list[str]:
+    """Line items down the side of the newest profit and loss report, such as "Sales"."""
+    ds = session.scalar(
+        select(Dataset)
+        .where(Dataset.tenant_id == tenant_id, Dataset.kind == "finance")
+        .order_by(Dataset.created_at.desc())
+        .limit(1)
+    )
+    if ds is None or ds.interpretation.get("layout") != "periods_as_columns":
+        return []
+    upload = session.scalar(
+        select(Upload).where(Upload.tenant_id == tenant_id, Upload.id == ds.upload_id)
+    )
+    if upload is None:
+        return []
+    table = pipeline.load_clean_table(upload)
+    column = ds.interpretation["label_column"]
+    if column not in table.headers:
+        return []
+    i = table.headers.index(column)
+    labels: list[str] = []
+    for row in table.rows:
+        label = row[i].strip()
+        if label and len(label) <= 60 and label not in labels:
+            labels.append(label)
+    return labels[:limit]

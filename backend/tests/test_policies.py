@@ -1,6 +1,6 @@
 """FR-11.1: every table has row-level security, with a policy for the app role."""
 
-SCHEMAS = ("identity", "audit", "events", "intake", "metrics")
+SCHEMAS = ("identity", "audit", "events", "intake", "metrics", "setup")
 
 
 def test_every_table_has_row_level_security_and_an_app_policy(owner_conn):
@@ -24,7 +24,8 @@ def test_no_table_lives_outside_the_module_schemas(owner_conn):
     rows = owner_conn.execute(
         "SELECT schemaname || '.' || tablename FROM pg_tables "
         "WHERE schemaname NOT IN "
-        "('pg_catalog', 'information_schema', 'identity', 'audit', 'events', 'intake', 'metrics')"
+        "('pg_catalog', 'information_schema', 'identity', 'audit', 'events', 'intake', "
+        "'metrics', 'setup')"
     ).fetchall()
     assert [r for (r,) in rows] == ["public.alembic_version"]
 

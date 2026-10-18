@@ -27,9 +27,9 @@ from boardroom.modules.metrics.models import (
     Run,
 )
 from boardroom.modules.metrics.registry import METRICS, ROW_SETS, VARIANT_FORMULAS
+from boardroom.modules.setup import service as setup
 
 FIGURES_COMPUTED = "metrics.figures_computed"
-DEFAULT_CURRENCY = "GBP"  # The reporting currency setting arrives with the setup chat (E4).
 
 STATUS_WORDS = {
     "not_provided": "Not provided",
@@ -115,18 +115,30 @@ def recalculate(session: Session, tenant_id: uuid.UUID, upload_id: uuid.UUID | N
     """Calculates every figure from the company's current data. Every query names the
     tenant, because this runs as br_system inside the event dispatcher."""
     datasets = intake.datasets_for_metrics(session, tenant_id)
-    manual = intake.manual_figures_for(session, tenant_id)
-    ctx = compute.Context(
-        datasets, _selections(session, tenant_id, datasets), manual, DEFAULT_CURRENCY
-    )
+    profile = setup.profile(session, tenant_id)
+    # Targets set in the chat or settings come last, so they win over a hand-entered target.
+    manual = intake.manual_figures_for(session, tenant_id) + [
+        intake.ManualFigureView(
+            t.id,
+            t.metric,
+            t.period,
+            t.value,
+            "target",
+            f"{t.set_by_name} ({'setup chat' if t.source == 'chat' else 'settings'})",
+            t.updated_at,
+        )
+        for t in setup.targets(session, tenant_id)
+    ]
+    currency = profile.reporting_currency
+    ctx = compute.Context(datasets, _selections(session, tenant_id, datasets), manual, currency)
     figures = compute.compute_all(ctx)
     annual = compute.annual_revenue(figures)
     run = Run(
         tenant_id=tenant_id,
         upload_id=upload_id,
         annual_revenue=str(annual) if annual is not None else None,
-        band=band_for(annual),
-        currency=DEFAULT_CURRENCY,
+        band=profile.display_band if profile.display_band is not None else band_for(annual),
+        currency=currency,
     )
     session.add(run)
     session.flush()
@@ -163,7 +175,9 @@ def recalculate(session: Session, tenant_id: uuid.UUID, upload_id: uuid.UUID | N
     return run
 
 
-@consumer("metrics.recalculate", "intake.dataset_ready", "intake.figure_entered")
+@consumer(
+    "metrics.recalculate", "intake.dataset_ready", "intake.figure_entered", "setup.settings_changed"
+)
 def _recalculate(session: Session, event: Event) -> None:
     assert event.tenant_id is not None  # noqa: S101
     upload = event.payload.get("upload_id")
