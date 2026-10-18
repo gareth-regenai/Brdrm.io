@@ -1,3 +1,5 @@
+aiosmtpd==1.4.6
+    # via boardroom (pyproject.toml)
 alembic==1.20.0
     # via boardroom (pyproject.toml)
 amqp==5.4.1
@@ -21,6 +23,10 @@ argon2-cffi-bindings==26.1.0
     # via argon2-cffi
 ast-serialize==0.13.1
     # via mypy
+atpublic==9.0.0
+    # via aiosmtpd
+attrs==26.1.0
+    # via aiosmtpd
 bandit==1.9.4
     # via boardroom (pyproject.toml)
 billiard==4.3.1

@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://br_login:br_login@localhost:5432/boardroom"
     redis_url: str = "redis://localhost:6379/0"
 
-    jwt_secret: str = Field(default="dev-only-change-me", min_length=16)
+    jwt_secret: str = Field(default="dev-only-change-me-at-least-32-chars", min_length=32)
     jwt_issuer: str = "boardroom.io"
     access_token_minutes: int = 15
     refresh_token_days: int = 30
@@ -36,7 +36,17 @@ class Settings(BaseSettings):
 
     # "console" prints emails, links included, so it is for development only.
     # "disabled" sends nothing until the email provider is chosen (OPEN.md).
-    mailer: Literal["console", "memory", "disabled"] = "console"
+    mailer: Literal["console", "memory", "disabled", "smtp"] = "console"
+    # Any SMTP server: an existing mailbox (Google Workspace or Gmail with an app
+    # password), a provider, or Mailpit locally. The provider is open (OPEN.md).
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from: str = ""
+    smtp_from_name: str = "BoardRoom.io"
+    # "starttls" on 587, "ssl" on 465, "none" only for a local test inbox.
+    smtp_security: Literal["starttls", "ssl", "none"] = "starttls"
     # In development and tests events are delivered straight after commit.
     # In staging and production the worker delivers them.
     dispatch_inline: bool = True
@@ -114,7 +124,7 @@ def _psycopg_driver(url: str) -> str:
 @lru_cache
 def get_settings() -> Settings:
     settings = Settings()
-    insecure = settings.jwt_secret == "dev-only-change-me"  # noqa: S105
+    insecure = settings.jwt_secret == "dev-only-change-me-at-least-32-chars"  # noqa: S105
     if settings.environment in ("staging", "production"):
         if insecure:
             raise RuntimeError("JWT_SECRET must be set outside development")
@@ -122,6 +132,11 @@ def get_settings() -> Settings:
             raise RuntimeError("SKILL1_REPLAY_DIR is for development only")
         if settings.storage_backend != "s3":
             raise RuntimeError("STORAGE_BACKEND=s3 is required outside development")
-        if settings.mailer != "disabled":
-            raise RuntimeError("Only MAILER=disabled is allowed until an email provider is chosen")
+        if settings.mailer not in ("disabled", "smtp"):
+            raise RuntimeError("MAILER must be smtp or disabled outside development")
+        if settings.mailer == "smtp":
+            if not settings.smtp_host or not settings.smtp_from:
+                raise RuntimeError("MAILER=smtp needs SMTP_HOST and SMTP_FROM")
+            if settings.smtp_security == "none":
+                raise RuntimeError("SMTP_SECURITY=none is for a local test inbox only")
     return settings

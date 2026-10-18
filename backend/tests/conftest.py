@@ -43,7 +43,7 @@ os.environ.update(
         "DATABASE_URL": _db_url("br_login", APP_PASSWORD),
         "MAILER": "memory",
         "DISPATCH_INLINE": "true",
-        "JWT_SECRET": "test-secret-at-least-16-chars",
+        "JWT_SECRET": "test-secret-at-least-32-characters-long",
         "WEB_ORIGIN": "http://web.test",
         "API_URL": "http://testserver",
         "STORAGE_BACKEND": "local",
