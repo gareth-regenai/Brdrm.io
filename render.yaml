@@ -1,0 +1,100 @@
+# BoardRoom.io on Render. Everything runs in Frankfurt (FR-12.1).
+# One app plus a worker for now. Splitting into separate services is an open decision (OPEN.md).
+# Only the API is public. The worker, queue and database have no public address (FR-10.1).
+
+previews:
+  generation: automatic
+  expireAfterDays: 3
+
+services:
+  - type: web
+    name: boardroom-api
+    runtime: python
+    region: frankfurt
+    plan: starter
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && pip install --no-deps .
+    preDeployCommand: alembic upgrade head
+    startCommand: uvicorn boardroom.gateway.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    buildFilter:
+      paths: ["backend/**"]
+    envVars:
+      - fromGroup: boardroom-shared
+      - key: MIGRATION_DATABASE_URL
+        fromDatabase: { name: boardroom-db, property: connectionString }
+      - key: REDIS_URL
+        fromService: { type: keyvalue, name: boardroom-queue, property: connectionString }
+      - key: WEB_ORIGIN
+        sync: false
+
+  - type: worker
+    name: boardroom-worker
+    runtime: python
+    region: frankfurt
+    plan: starter
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && pip install --no-deps .
+    startCommand: celery -A boardroom.worker:celery_app worker --beat --loglevel INFO
+    maxShutdownDelaySeconds: 120
+    buildFilter:
+      paths: ["backend/**"]
+    envVars:
+      - fromGroup: boardroom-shared
+      - key: MIGRATION_DATABASE_URL
+        fromDatabase: { name: boardroom-db, property: connectionString }
+      - key: REDIS_URL
+        fromService: { type: keyvalue, name: boardroom-queue, property: connectionString }
+      - key: WEB_ORIGIN
+        sync: false
+
+  - type: keyvalue
+    name: boardroom-queue
+    region: frankfurt
+    plan: starter
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
+  - type: web
+    name: boardroom-web
+    runtime: static
+    rootDir: web
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    buildFilter:
+      paths: ["web/**", "design-system/tokens.json"]
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+    envVars:
+      - key: VITE_API_URL
+        fromService: { type: web, name: boardroom-api, property: host }
+
+databases:
+  - name: boardroom-db
+    databaseName: boardroom
+    region: frankfurt
+    plan: basic-1gb
+    postgresMajorVersion: "16"
+    ipAllowList: []
+
+envVarGroups:
+  - name: boardroom-shared
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_DB_PASSWORD
+        generateValue: true
+      - key: DISPATCH_INLINE
+        value: "false"
+      - key: MAILER
+        value: disabled
+      - key: PYTHON_VERSION
+        value: 3.12.7
