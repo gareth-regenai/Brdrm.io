@@ -36,7 +36,7 @@ interface Figure {
   label: string;
 }
 
-const STEPS = ["received", "understanding", "calculating", "describing", "ready"];
+const STEPS = ["received", "understanding", "calculating", "describing", "ready", "shared"];
 const STEP_WORDS: Record<string, string> = {
   received: "Received",
   understanding: "Understanding",
@@ -214,7 +214,7 @@ function UploadRow(props: {
             {u.data_as_of && ` · data true as of ${new Date(u.data_as_of).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`}
           </div>
         </div>
-        <span className={`pill ${u.status === "ready" ? "ok" : u.status === "failed" ? "warn" : ""}`}>
+        <span className={`pill ${u.status === "ready" || u.status === "shared" ? "ok" : u.status === "failed" ? "warn" : ""}`}>
           {STEP_WORDS[u.status] ?? u.status}
         </span>
       </div>

@@ -14,6 +14,7 @@ import boardroom.modules.intake.service  # noqa: F401  registers event consumers
 import boardroom.modules.metrics.service  # noqa: F401  registers event consumers
 import boardroom.modules.notify.service  # noqa: F401  registers event consumers
 import boardroom.modules.setup.service  # noqa: F401  registers the setup outbox
+import boardroom.modules.updates.service  # noqa: F401  registers event consumers
 from boardroom.config import get_settings
 from boardroom.db import get_engine
 from boardroom.gateway.deps import TENANT_HEADER, bearer_user_id
@@ -23,6 +24,7 @@ from boardroom.modules.identity.service import IdentityError
 from boardroom.modules.intake.api import router as intake_router
 from boardroom.modules.metrics.api import router as metrics_router
 from boardroom.modules.setup.api import router as setup_router
+from boardroom.modules.updates.api import router as updates_router
 
 log = get_logger("gateway")
 
@@ -103,6 +105,7 @@ def create_app() -> FastAPI:
     app.include_router(intake_router)
     app.include_router(metrics_router)
     app.include_router(setup_router)
+    app.include_router(updates_router)
     return app
 
 

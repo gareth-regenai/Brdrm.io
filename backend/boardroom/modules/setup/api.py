@@ -1,9 +1,11 @@
+import base64
+import binascii
 import uuid
 from datetime import datetime
 from decimal import Decimal
 from typing import Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 
 from boardroom.gateway.deps import TenantContext, require
@@ -46,6 +48,8 @@ class ProfileOut(BaseModel):
     revenue_lines: list[str]
     display_band: int | None
     voice: str
+    brand_colour: str | None
+    has_logo: bool
 
 
 class ProfileIn(BaseModel):
@@ -55,6 +59,13 @@ class ProfileIn(BaseModel):
     display_band: int | None = Field(default=None, ge=0, le=4)
     follow_revenue: bool = False
     voice: Literal["we", "third_person"] | None = None
+    # A hex colour such as #1F5F8F, or "" to go back to the default.
+    brand_colour: str | None = Field(default=None, pattern=r"^(#[0-9A-Fa-f]{6})?$")
+
+
+class LogoIn(BaseModel):
+    # A data URL from the browser: data:image/png;base64,... Checked and redrawn as a PNG.
+    data_url: str = Field(max_length=720_000)
 
 
 class TargetIn(BaseModel):
@@ -142,6 +153,8 @@ def _profile_out(ctx: TenantContext) -> ProfileOut:
         revenue_lines=list(p.revenue_lines or []),
         display_band=p.display_band,
         voice=p.voice,
+        brand_colour=p.brand_colour,
+        has_logo=p.logo_key is not None,
     )
 
 
@@ -175,6 +188,8 @@ def put_profile(
         values["display_band"] = body.display_band
     if body.voice is not None:
         values["voice"] = body.voice
+    if body.brand_colour is not None:
+        values["brand_colour"] = body.brand_colour.upper() or None
     service.apply_settings(ctx.session, ctx.tenant_id, ctx.user_id, values)
     return _profile_out(ctx)
 
@@ -205,3 +220,39 @@ def put_targets(
         "settings",
     )
     return get_targets(ctx)
+
+
+@router.put("/company/settings/logo", response_model=ProfileOut, tags=["setup"])
+def put_logo(
+    body: LogoIn, ctx: TenantContext = Depends(require(Action.MANAGE_SETTINGS))
+) -> ProfileOut:
+    """The logo on exported updates (FR-6.6)."""
+    _, _, encoded = body.data_url.partition("base64,")
+    try:
+        data = base64.b64decode(encoded, validate=True)
+    except (binascii.Error, ValueError) as exc:
+        raise HTTPException(422, "That file is not a logo we can read. Use a PNG or JPEG.") from exc
+    try:
+        service.set_logo(ctx.session, ctx.tenant_id, ctx.user_id, data)
+    except service.SetupError as exc:
+        raise HTTPException(exc.code, exc.message) from exc
+    return _profile_out(ctx)
+
+
+@router.delete("/company/settings/logo", response_model=ProfileOut, tags=["setup"])
+def delete_logo(ctx: TenantContext = Depends(require(Action.MANAGE_SETTINGS))) -> ProfileOut:
+    service.delete_logo(ctx.session, ctx.tenant_id, ctx.user_id)
+    return _profile_out(ctx)
+
+
+@router.get(
+    "/company/settings/logo",
+    response_class=Response,
+    responses={200: {"content": {"image/png": {}}}},
+    tags=["setup"],
+)
+def get_logo(ctx: TenantContext = Depends(require(Action.MANAGE_SETTINGS))) -> Response:
+    _, data = service.branding(ctx.session, ctx.tenant_id)
+    if data is None:
+        raise HTTPException(404, "No logo yet.")
+    return Response(data, media_type="image/png")

@@ -3,7 +3,7 @@
 import psycopg
 import pytest
 
-from tests.conftest import upload_file
+from tests.conftest import png_data_url, upload_file
 from tests.routes import all_routes
 
 MUTATING = [r for r in all_routes() if r.method in ("POST", "PUT", "PATCH", "DELETE")]
@@ -75,6 +75,14 @@ def scenario(client, make_company, invite, owner_conn, recorded_ai):
         json=[{"metric": "revenue", "period": "2026-12", "value": "90000"}],
     )
     client.post("/company/setup/skip", headers=h)
+    # Updates: the finished uploads made updates. Edit, approve and comment on one.
+    update = next(u for u in client.get("/company/updates", headers=h).json() if u["figures"])
+    figure = update["figures"][0]["figure_id"]
+    client.put(f"/company/updates/{update['id']}/figures/{figure}", headers=h, json={"value": "1"})
+    client.post(f"/company/updates/{update['id']}/approve", headers=h)
+    client.post(f"/company/updates/{update['id']}/comments", headers=h, json={"body": "Hello"})
+    client.put("/company/settings/logo", headers=h, json={"data_url": png_data_url()})
+    client.delete("/company/settings/logo", headers=h)
     client.delete("/company", headers=h)
     return _audit_actions(owner_conn)
 
@@ -104,6 +112,11 @@ EXPECTED = {
     ("DELETE", "/company/setup/invites"): "setup.invites_discarded",
     ("PUT", "/company/settings/profile"): "setup.settings_changed",
     ("PUT", "/company/settings/targets"): "setup.settings_changed",
+    ("PUT", "/company/settings/logo"): "setup.logo_changed",
+    ("DELETE", "/company/settings/logo"): "setup.logo_removed",
+    ("POST", "/company/updates/{update_id}/approve"): "update.approved",
+    ("PUT", "/company/updates/{update_id}/figures/{figure_id}"): "update.edited",
+    ("POST", "/company/updates/{update_id}/comments"): "update.commented",
 }
 # A refresh swaps tokens only; the sign-in it continues is already audited.
 NOT_STATE_CHANGES = {("POST", "/auth/refresh"), ("PUT", "/storage/upload/{token}")}

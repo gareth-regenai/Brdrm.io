@@ -160,6 +160,25 @@ export async function api<T>(
   return body as T;
 }
 
+// A file from the API, such as an update's PDF or the company logo.
+export async function apiBlob(path: string, tenant: string, retry = true): Promise<Blob> {
+  const headers: Record<string, string> = { "X-Tenant-ID": tenant };
+  if (session) headers.Authorization = `Bearer ${session.access_token}`;
+  const r = await fetch(`${API_URL}${path}`, { headers });
+  if (r.status === 401 && session && retry && (await refreshTokens())) return apiBlob(path, tenant, false);
+  if (!r.ok) throw new ApiError(r.status, message(await r.json().catch(() => null), r.status));
+  return r.blob();
+}
+
+export async function download(path: string, tenant: string, filename: string): Promise<void> {
+  const url = URL.createObjectURL(await apiBlob(path, tenant));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
 export async function signOut(): Promise<void> {
   if (session) {
     await fetch(`${API_URL}/auth/logout`, {

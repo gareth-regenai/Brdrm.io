@@ -604,3 +604,36 @@ def set_approvers(
 def user_can_approve(session: Session, user_id: uuid.UUID, role: Role) -> bool:
     settings = approval_setting(session)
     return can_approve(role, str(user_id), settings.approver_roles, settings.approver_user_ids)
+
+
+# People to notify about updates (E5). Every query names the tenant, because these are
+# also read by event consumers running as br_system.
+
+
+@dataclass(frozen=True)
+class MemberContact:
+    user_id: uuid.UUID
+    email: str
+    name: str
+    role: Role
+
+
+def member_contacts(
+    session: Session, tenant_id: uuid.UUID, roles: set[Role]
+) -> list[MemberContact]:
+    return [
+        MemberContact(u.id, u.email, u.name, Role(m.role))
+        for m, u in _members(session, tenant_id, roles)
+    ]
+
+
+def approvers(session: Session, tenant_id: uuid.UUID) -> list[MemberContact]:
+    """Everyone who can approve this company's updates under its setting (FR-2.7)."""
+    settings = session.scalar(select(CompanySettings).where(CompanySettings.tenant_id == tenant_id))
+    if settings is None:
+        return []
+    return [
+        c
+        for c in member_contacts(session, tenant_id, set(COMPANY_ROLES))
+        if can_approve(c.role, str(c.user_id), settings.approver_roles, settings.approver_user_ids)
+    ]

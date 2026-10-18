@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { api } from "../api";
+import { api, apiBlob } from "../api";
 import { useSubmit } from "./Auth";
 
 interface Message {
@@ -25,6 +25,8 @@ interface Profile {
   revenue_lines: string[];
   display_band: number | null;
   voice: string;
+  brand_colour: string | null;
+  has_logo: boolean;
 }
 
 interface Target {
@@ -221,6 +223,7 @@ function SettingsForm({ tenant, onSaved }: { tenant: string; onSaved: () => void
         business_description: data.get("description"),
         website: data.get("website"),
         voice: data.get("voice"),
+        brand_colour: String(data.get("brand_colour") ?? "").toUpperCase(),
         ...(band === "auto" ? { follow_revenue: true } : { display_band: Number(band) }),
       },
     });
@@ -266,6 +269,10 @@ function SettingsForm({ tenant, onSaved }: { tenant: string; onSaved: () => void
               <option value="third_person">The company</option>
             </select>
           </label>
+          <label className="field">
+            <span>Colour on exports</span>
+            <input name="brand_colour" type="color" defaultValue={profile.brand_colour ?? "#123C4A"} />
+          </label>
         </div>
         <label className="field">
           <span>What the business does</span>
@@ -279,6 +286,7 @@ function SettingsForm({ tenant, onSaved }: { tenant: string; onSaved: () => void
         {saved && <p className="notice ok">Saved.</p>}
         <button disabled={save.busy}>Save settings</button>
       </form>
+      <LogoSetting tenant={tenant} hasLogo={profile.has_logo} onChanged={(p) => setProfile(p)} />
       <h3>Targets</h3>
       {targets.length > 0 && (
         <div className="table-wrap">
@@ -317,6 +325,86 @@ function SettingsForm({ tenant, onSaved }: { tenant: string; onSaved: () => void
         <button disabled={addTarget.busy}>Save target</button>
       </form>
       {addTarget.error && <p className="notice err">{addTarget.error}</p>}
+    </div>
+  );
+}
+
+// The logo on exported updates (FR-6.6). The server checks it and redraws it as a PNG.
+function LogoSetting({ tenant, hasLogo, onChanged }: { tenant: string; hasLogo: boolean; onChanged: (p: Profile) => void }) {
+  const [preview, setPreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!hasLogo) {
+      setPreview(null);
+      return;
+    }
+    let url: string | null = null;
+    void apiBlob("/company/settings/logo", tenant)
+      .then((blob) => {
+        url = URL.createObjectURL(blob);
+        setPreview(url);
+      })
+      .catch(() => setPreview(null));
+    return () => {
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, [hasLogo, tenant]);
+
+  async function choose(file: File) {
+    setError(null);
+    if (file.size > 512 * 1024) {
+      setError("Use a logo under 512 KB.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const data_url = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("That file could not be read."));
+        reader.readAsDataURL(file);
+      });
+      onChanged(await api<Profile>("/company/settings/logo", { method: "PUT", tenant, body: { data_url } }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "That logo could not be used.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="logo-setting">
+      <h3>Logo on exports</h3>
+      <div className="checks">
+        {preview && <img src={preview} alt="Your logo" className="logo-preview" />}
+        <label className="button-like small">
+          {hasLogo ? "Replace logo" : "Add a logo"}
+          <input
+            type="file"
+            accept="image/png,image/jpeg"
+            hidden
+            disabled={busy}
+            onChange={(e) => {
+              const file = e.currentTarget.files?.[0];
+              e.currentTarget.value = "";
+              if (file) void choose(file);
+            }}
+          />
+        </label>
+        {hasLogo && (
+          <button
+            className="small"
+            disabled={busy}
+            onClick={async () => onChanged(await api<Profile>("/company/settings/logo", { method: "DELETE", tenant }))}
+          >
+            Remove logo
+          </button>
+        )}
+      </div>
+      <p className="small muted">A PNG or JPEG under 512 KB. It appears on the PDF of each update.</p>
+      {error && <p className="notice err">{error}</p>}
     </div>
   );
 }

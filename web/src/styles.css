@@ -617,3 +617,114 @@ button.link {
   border-top: 1px solid var(--border-subtle);
   padding-top: var(--space-4);
 }
+
+/* Updates (E5) */
+
+.updates {
+  display: grid;
+  gap: var(--space-5);
+}
+.update {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+.updates .update:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.update-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: var(--space-3);
+}
+.update-line {
+  font-weight: 700;
+}
+.update-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+}
+.update-figures {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.update-figure {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.update-figure.open {
+  border-color: var(--focus-ring);
+}
+.figure-actions {
+  display: flex;
+  gap: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-1);
+  margin-top: var(--space-1);
+}
+.figure-actions button.link {
+  padding: var(--space-1) 0;
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+.figure-edit {
+  display: grid;
+  gap: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--space-2);
+}
+.comments {
+  display: grid;
+  gap: var(--space-2);
+}
+.comment {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  overflow-wrap: anywhere;
+}
+.comment p {
+  margin: var(--space-1) 0 0;
+  white-space: pre-wrap;
+}
+
+/* Logo and colour on exports */
+
+.button-like {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 13px;
+  min-height: 32px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.button-like:focus-within {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.logo-preview {
+  max-height: 40px;
+  max-width: 160px;
+  object-fit: contain;
+}
+input[type="color"] {
+  min-height: 40px;
+  padding: var(--space-1);
+  cursor: pointer;
+}
