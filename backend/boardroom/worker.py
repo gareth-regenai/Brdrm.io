@@ -13,6 +13,7 @@ import boardroom.modules.updates.service  # noqa: F401  registers the updates ou
 from boardroom.config import get_settings
 from boardroom.events import dispatch_pending
 from boardroom.logs import configure_logging
+from boardroom.modules.connectors import service as connectors
 from boardroom.modules.intake import pipeline
 
 configure_logging()
@@ -23,7 +24,11 @@ celery_app.conf.update(
     task_acks_late=True,
     task_reject_on_worker_lost=True,
     worker_prefetch_multiplier=1,
-    beat_schedule={"dispatch-outbox": {"task": "boardroom.dispatch", "schedule": 5.0}},
+    beat_schedule={
+        "dispatch-outbox": {"task": "boardroom.dispatch", "schedule": 5.0},
+        # Each connected tool is pulled once a day; the hourly check finds those due.
+        "sync-connections": {"task": "boardroom.sync_connections", "schedule": 3600.0},
+    },
 )
 
 
@@ -36,3 +41,8 @@ def dispatch() -> int:
 def process_upload(upload_id: str, tenant_id: str, user_id: str) -> None:
     """Idempotent: an upload already past "received" is left alone."""
     pipeline.process(uuid.UUID(upload_id), uuid.UUID(tenant_id), uuid.UUID(user_id))
+
+
+@celery_app.task(name="boardroom.sync_connections", soft_time_limit=1800, time_limit=1860)
+def sync_connections() -> int:
+    return connectors.sync_due()

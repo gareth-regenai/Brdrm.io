@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router";
 
 import { api, Me, Membership, ROLE_NAMES, signOut } from "../api";
 import { SetupChat } from "./Setup";
+import type { Tool } from "./Tools";
 
 // The app shell from mockup v5.7: a sidebar with the logo, the pages, and the company box.
 
@@ -150,11 +151,13 @@ export function Dashboard({
 }) {
   const [updates, setUpdates] = useState<UpdateRow[] | null>(null);
   const [uploads, setUploads] = useState<UploadRow[]>([]);
+  const [tools, setTools] = useState<Tool[]>([]);
 
   useEffect(() => {
     void api<UpdateRow[]>("/company/updates", { tenant }).then(setUpdates);
     void api<UploadRow[]>("/company/uploads", { tenant }).then(setUploads, () => setUploads([]));
-  }, [tenant]);
+    if (canSetUp) void api<Tool[]>("/company/connections", { tenant }).then(setTools, () => setTools([]));
+  }, [tenant, canSetUp]);
 
   // The newest data across updates, not the most recently added file.
   const latest = updates?.reduce<UpdateRow | undefined>((a, u) => (!a || u.data_as_of > a.data_as_of ? u : a), undefined);
@@ -168,6 +171,9 @@ export function Dashboard({
     if (f.question) attention.push([`${f.filename} has one question for you.`, "files"]);
     else if (f.needs_mapping) attention.push([`${f.filename} needs its columns chosen.`, "files"]);
     else if (f.status === "failed") attention.push([`${f.filename} could not be used.`, "files"]);
+  }
+  for (const t of tools) {
+    if (t.state === "failed") attention.push([`${t.name} could not send its data.`, "files"]);
   }
 
   return (

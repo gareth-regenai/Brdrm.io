@@ -21,6 +21,7 @@ from boardroom.gateway.deps import TENANT_HEADER, bearer_user_id
 from boardroom.logs import configure_logging, get_logger, request_id_var, tenant_id_var, user_id_var
 from boardroom.modules.billing import service as billing
 from boardroom.modules.billing.api import router as billing_router
+from boardroom.modules.connectors.api import router as connectors_router
 from boardroom.modules.identity.api import router as identity_router
 from boardroom.modules.identity.service import IdentityError
 from boardroom.modules.intake.api import router as intake_router
@@ -116,6 +117,7 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     app.include_router(billing_router)
+    app.include_router(connectors_router)
     app.include_router(identity_router)
     app.include_router(intake_router)
     app.include_router(metrics_router)

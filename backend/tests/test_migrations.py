@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 import boardroom.events  # noqa: F401
 import boardroom.modules.audit.models  # noqa: F401
 import boardroom.modules.billing.models  # noqa: F401
+import boardroom.modules.connectors.models  # noqa: F401
 import boardroom.modules.identity.models  # noqa: F401
 import boardroom.modules.intake.models  # noqa: F401
 import boardroom.modules.metrics.models  # noqa: F401
@@ -35,6 +36,7 @@ def test_models_match_the_migrated_schema():
                         "setup",
                         "updates",
                         "billing",
+                        "connectors",
                     )
                 ),
                 "compare_server_default": False,

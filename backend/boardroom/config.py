@@ -111,6 +111,10 @@ class Settings(BaseSettings):
     # refuses it. See OPEN.md.
     limit_behaviour: Literal["warn", "block"] = "warn"
 
+    # Connected tools (connectors). The demo connector pulls sample books and deals, for
+    # demos and the journey tests; production refuses it, so no real pack holds made-up data.
+    connectors_demo: bool = False
+
     # On Render the app has the owner URL (for migrations) and the br_login password.
     # The app's own URL is the owner URL with br_login in place of the owner.
     migration_database_url: str | None = None
@@ -168,6 +172,8 @@ def get_settings() -> Settings:
                 raise RuntimeError("MAILER=smtp needs SMTP_HOST and SMTP_FROM")
             if settings.smtp_security == "none":
                 raise RuntimeError("SMTP_SECURITY=none is for a local test inbox only")
+        if settings.connectors_demo and settings.environment == "production":
+            raise RuntimeError("CONNECTORS_DEMO is for demos and tests, never production")
         if settings.stripe_secret_key and not settings.stripe_webhook_secret:
             raise RuntimeError("STRIPE_SECRET_KEY needs STRIPE_WEBHOOK_SECRET")
     return settings

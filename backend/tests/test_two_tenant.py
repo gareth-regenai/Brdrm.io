@@ -63,7 +63,8 @@ def test_database_rows_are_invisible_across_tenants(two_companies, owner_conn):
     tables = owner_conn.execute(
         "SELECT schemaname || '.' || tablename FROM pg_tables "
         "WHERE schemaname IN "
-        "('identity', 'audit', 'events', 'intake', 'metrics', 'setup', 'updates', 'billing') "
+        "('identity', 'audit', 'events', 'intake', 'metrics', 'setup', 'updates', 'billing', "
+        "'connectors') "
         "AND has_table_privilege('br_app', schemaname || '.' || tablename, 'SELECT')"
     ).fetchall()
     owner = people[a.tenant_id]["owner"]

@@ -21,6 +21,7 @@ import { Dashboard, Sidebar } from "./Shell";
 import { Hub } from "./Hub";
 import { MetricsGrid } from "./Metrics";
 import { SetupChat } from "./Setup";
+import { ToolsSection } from "./Tools";
 import { FiguresSection, UploadsSection } from "./Uploads";
 
 interface Data {
@@ -37,6 +38,12 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
   const [data, setData] = useState<Data | null>(null);
   const [figuresVersion, setFiguresVersion] = useState(0);
   const refreshFigures = useCallback(() => setFiguresVersion((v) => v + 1), []);
+  // A connected tool's pull adds files: the file list starts again to show them.
+  const [filesVersion, setFilesVersion] = useState(0);
+  const pulled = useCallback(() => {
+    setFilesVersion((v) => v + 1);
+    refreshFigures();
+  }, [refreshFigures]);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -211,9 +218,10 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
                   <h1>Files</h1>
                   <p className="muted">Add any export. Nothing to prepare: we work out what it is and calculate the figures.</p>
                 </div>
+                {can("manage_connections") && <ToolsSection tenant={tenant} onPulled={pulled} />}
                 {can("upload_files") && (
                   <div className="grid-2">
-                    <UploadsSection tenant={tenant} onSettled={refreshFigures} />
+                    <UploadsSection key={filesVersion} tenant={tenant} onSettled={refreshFigures} />
                     <FiguresSection tenant={tenant} onSaved={refreshFigures} />
                   </div>
                 )}
@@ -286,6 +294,9 @@ const ACTIONS: Record<string, string> = {
   "billing.portal_opened": "Opened billing",
   "billing.subscription_changed": "Plan changed, confirmed by Stripe",
   "billing.limit_passed": "Went past a plan limit",
+  "connection.connected": "Connected a tool",
+  "connection.synced": "Pulled data from a tool",
+  "connection.disconnected": "Disconnected a tool",
 };
 
 function describe(e: AuditEntry): string {

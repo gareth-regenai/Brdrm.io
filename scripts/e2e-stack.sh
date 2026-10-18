@@ -24,12 +24,12 @@ cd "$ROOT/backend"
 MIGRATION_DATABASE_URL="$OWNER_URL" APP_DB_PASSWORD=br_login_e2e "$PYTHON" -m alembic upgrade head
 
 export MIGRATION_DATABASE_URL="$OWNER_URL" APP_DB_PASSWORD=br_login_e2e
-export ENVIRONMENT=development MAILER=capture DISPATCH_INLINE=true
+export ENVIRONMENT=development MAILER=capture DISPATCH_INLINE=true CONNECTORS_DEMO=true
 export STORAGE_BACKEND=local STORAGE_ROOT="$RUN/storage"
 export WEB_ORIGIN="http://localhost:$WEB_PORT" API_URL="http://localhost:$API_PORT"
 # Recorded answers for the AI steps, so the journeys never call the live API (FR-13.2).
 export SKILL1_REPLAY_DIR="$ROOT/backend/tests/fixtures/recorded" ANTHROPIC_API_KEY=""
-nohup "$PYTHON" -m uvicorn boardroom.gateway.app:app --port "$API_PORT" > "$RUN/api.log" 2>&1 &
+nohup "$PYTHON" -m uvicorn boardroom.gateway.app:app --port "$API_PORT" --no-access-log > "$RUN/api.log" 2>&1 &
 echo $! > "$RUN/api.pid"
 
 cd "$ROOT/web"

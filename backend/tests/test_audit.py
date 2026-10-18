@@ -3,6 +3,7 @@
 import psycopg
 import pytest
 
+from boardroom.config import get_settings
 from tests.conftest import png_data_url, subscription_event, upload_file
 from tests.routes import all_routes
 
@@ -18,7 +19,9 @@ def _audit_actions(owner_conn):
 
 
 @pytest.fixture
-def scenario(client, make_company, invite, owner_conn, recorded_ai, stripe, platform_admin):
+def scenario(
+    client, make_company, invite, owner_conn, recorded_ai, stripe, platform_admin, monkeypatch
+):
     """Exercises every state-changing endpoint once and returns the audit actions it produced."""
     company = make_company()
     owner = company.owner
@@ -97,6 +100,11 @@ def scenario(client, make_company, invite, owner_conn, recorded_ai, stripe, plat
     client.post("/company/billing/checkout", headers=h, json={"plan": "growth"})
     stripe.send(subscription_event(company.tenant_id, "price_growth"))
     client.post("/company/billing/portal", headers=h)
+    # Connected tools: connect the demo (which pulls at once), pull again, disconnect.
+    monkeypatch.setattr(get_settings(), "connectors_demo", True)
+    client.post("/company/connections/demo", headers=h)
+    client.post("/company/connections/demo/sync", headers=h)
+    client.delete("/company/connections/demo", headers=h)
     client.delete("/company", headers=h)
     return _audit_actions(owner_conn)
 
@@ -137,6 +145,9 @@ EXPECTED = {
     ("POST", "/company/billing/checkout"): "billing.checkout_started",
     ("POST", "/company/billing/portal"): "billing.portal_opened",
     ("POST", "/billing/stripe/webhook"): "billing.subscription_changed",
+    ("POST", "/company/connections/{provider}"): "connection.connected",
+    ("POST", "/company/connections/{provider}/sync"): "connection.synced",
+    ("DELETE", "/company/connections/{provider}"): "connection.disconnected",
 }
 # A refresh swaps tokens only; the sign-in it continues is already audited.
 NOT_STATE_CHANGES = {("POST", "/auth/refresh"), ("PUT", "/storage/upload/{token}")}
