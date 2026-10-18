@@ -1,0 +1,11 @@
+{
+  "company": "Northpath",
+  "department": "finance",
+  "currency": "GBP",
+  "data_as_of": "30 Sep 2026",
+  "figures": [
+    {"key": "cash_balance", "label": "Cash", "unit": "money", "period": "2026-09", "value": "1378000", "shown_as": "£1.378m", "previous_period": "2026-08", "previous_value": "1456100", "previous_shown_as": "£1.456m"},
+    {"key": "runway", "label": "Runway", "unit": "months", "period": "2026-09", "value": "17.6", "shown_as": "17.6 months", "previous_period": "2026-08", "previous_value": "19.1", "previous_shown_as": "19.1 months", "risk": "low", "inputs": {"cash_balance": "1378000", "average_net_burn": "78100"}},
+    {"key": "revenue_vs_plan", "label": "Revenue against plan", "unit": "money", "period": "2026-09", "value": "-38000", "shown_as": "-£38.0k", "risk": "medium", "inputs": {"revenue": "412000", "target": "450000"}, "share_of_target": "0.9155555556"}
+  ]
+}

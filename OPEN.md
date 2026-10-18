@@ -77,3 +77,14 @@ The rest of chapter 14 (sort rule, warn or block, named check, rates feed, first
 | Phase 2 files and updates | FR-6.1 says each finished upload makes an update. Delivery and people files have no figures while their flags are off. | No update is made for them until the flag is on, so investors never get an empty update. |
 | What an investor sees in a figure's source | The old mockup said investors never see raw files; FR-6.7 and the journeys say they trace a figure. | The same click view as the company: formula, inputs and the rows used (with pay columns already dropped at intake). Never the whole file. |
 
+## Raised in E6
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| Which numbers the check tests | FR-5.5: "ignores dates, quarters and counts of things". | A number is a figure when it has a unit: £, € or $, k, m or million, %, x, or months with a decimal (months are always written with one). Bare numbers are dates, years, quarters or counts and are ignored, as is a whole number of months ("the last 3 months"). |
+| What a written figure may round to | The reference demo allowed differences between any two figures, which lets a wrong number through by chance. | The update's figures, last period's, the change between the two for the same measure, the money inputs a figure came from, and revenue as a share of target. Units must match: 2.4 as a ratio does not pass "2.4 months". Rounding is half up at the precision written. |
+| A person's words and the check | BR-5: "every commentary figure passes the check, or the section is written by a person". | A person's text is checked too, and figures that match nothing are shown to the company as a warning. It is not blocked, because the person is the fallback. |
+| Likely board questions | FR-10.3 asks skill 3 for them; nothing says who sees them. | Shown to the company only, to prepare. Hidden from investors in the API, the PDF and by row-level security. |
+| A section that fails twice | The update could wait for it, or go out without it. | The update can still be approved. The section stays hidden from investors until a person writes it; a person can also leave it out. |
+| Model for commentary | Cost and quality. | `claude-sonnet-5-5`, switchable with `COMMENTARY_MODEL`. |
+

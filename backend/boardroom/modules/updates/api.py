@@ -27,6 +27,17 @@ class FigureOut(BaseModel):
     edited_at: datetime | None
 
 
+class SectionOut(BaseModel):
+    id: uuid.UUID
+    kind: str
+    department: str | None
+    text: str | None
+    status: str
+    label: str
+    reason: str | None
+    unmatched: list[str]
+
+
 class CommentOut(BaseModel):
     id: uuid.UUID
     author_name: str
@@ -49,6 +60,7 @@ class UpdateOut(BaseModel):
     last_edited_by_name: str | None
     last_edited_at: datetime | None
     figures: list[FigureOut]
+    sections: list[SectionOut]
     comments: list[CommentOut]
     can_edit: bool
     can_approve: bool
@@ -57,6 +69,11 @@ class UpdateOut(BaseModel):
 class FigureEdit(BaseModel):
     # None puts back the calculated figure.
     value: str | None = Field(max_length=40)
+
+
+class SectionEdit(BaseModel):
+    # "" leaves the section out of the update.
+    text: str = Field(max_length=4000)
 
 
 class CommentIn(BaseModel):
@@ -116,6 +133,46 @@ def edit_figure(
             update_id,
             figure_id,
             body.value,
+        )
+        return _one(ctx, update_id)
+    except service.UpdatesError as exc:
+        raise _raise(exc) from exc
+
+
+@router.put(
+    "/company/updates/{update_id}/sections/{section_id}", response_model=UpdateOut, tags=["updates"]
+)
+def edit_section(
+    update_id: uuid.UUID,
+    section_id: uuid.UUID,
+    body: SectionEdit,
+    ctx: TenantContext = Depends(require(Action.EDIT_UPDATE)),
+) -> UpdateOut:
+    """Edit Claude's draft, or write a section yourself (FR-5.5, FR-6.4)."""
+    try:
+        service.edit_section(
+            ctx.session,
+            ctx.tenant_id,
+            ctx.user_id,
+            ctx.role,
+            ctx.departments,
+            update_id,
+            section_id,
+            body.text,
+        )
+        return _one(ctx, update_id)
+    except service.UpdatesError as exc:
+        raise _raise(exc) from exc
+
+
+@router.post("/company/updates/{update_id}/redraft", response_model=UpdateOut, tags=["updates"])
+def redraft(
+    update_id: uuid.UUID, ctx: TenantContext = Depends(require(Action.EDIT_UPDATE))
+) -> UpdateOut:
+    """Claude drafts the commentary again, in the company's current voice."""
+    try:
+        service.redraft(
+            ctx.session, ctx.tenant_id, ctx.user_id, ctx.role, ctx.departments, update_id
         )
         return _one(ctx, update_id)
     except service.UpdatesError as exc:

@@ -1,0 +1,12 @@
+{
+  "company": "Kestrel Field",
+  "department": "finance",
+  "currency": "GBP",
+  "data_as_of": "30 Sep 2026",
+  "figures": [
+    {"key": "revenue", "label": "Revenue", "unit": "money", "period": "2026-09", "value": "72880.00", "shown_as": "£72.9k", "previous_period": "2026-08", "previous_value": "70420.00", "previous_shown_as": "£70.4k"},
+    {"key": "revenue_growth", "label": "Revenue growth", "unit": "percent", "period": "2026-09", "value": "0.0349332576", "shown_as": "3.5%", "previous_period": "2026-08", "previous_value": "0.0290808125", "previous_shown_as": "2.9%", "risk": "low"},
+    {"key": "gross_margin", "label": "Gross margin", "unit": "percent", "period": "2026-09", "value": "0.8423435785", "shown_as": "84.2%", "previous_period": "2026-08", "previous_value": "0.8420903153", "previous_shown_as": "84.2%", "risk": "low", "inputs": {"revenue": "72880.00", "cost_of_sales": "11490.00"}},
+    {"key": "net_burn", "label": "Net monthly burn", "unit": "money", "period": "2026-09", "value": "61430.00", "shown_as": "£61.4k", "previous_period": "2026-08", "previous_value": "61690.00", "previous_shown_as": "£61.7k", "inputs": {"revenue": "72880.00", "cost_of_sales": "11490.00", "operating_expenses": "122820.00"}}
+  ]
+}

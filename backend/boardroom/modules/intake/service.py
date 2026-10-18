@@ -448,9 +448,9 @@ class FinishedUpload:
 def finished_upload(
     session: Session, tenant_id: uuid.UUID, upload_id: uuid.UUID
 ) -> FinishedUpload | None:
-    """A ready upload, as the update made from it needs it. None if it is not ready."""
+    """An upload whose figures are calculated, as the update made from it needs it."""
     u = session.scalar(select(Upload).where(Upload.id == upload_id, Upload.tenant_id == tenant_id))
-    if u is None or u.status != "ready":
+    if u is None or u.status not in ("describing", "ready"):
         return None
     return FinishedUpload(
         u.id, u.uploaded_by, u.file_kind, u.dataset_id, u.data_as_of, u.created_at
@@ -465,5 +465,16 @@ def _mark_shared(session: Session, event: Event) -> None:
             Upload.id == uuid.UUID(event.payload["upload_id"]), Upload.tenant_id == event.tenant_id
         )
     )
-    if upload is not None and upload.status == "ready":
+    if upload is not None and upload.status in ("describing", "ready"):
         pipeline.set_status(session, upload, "shared")
+
+
+@consumer("intake.after_description", "updates.described")
+def _after_description(session: Session, event: Event) -> None:
+    upload = session.scalar(
+        select(Upload).where(
+            Upload.id == uuid.UUID(event.payload["upload_id"]), Upload.tenant_id == event.tenant_id
+        )
+    )
+    if upload is not None:
+        pipeline.finish_after_description(session, upload)

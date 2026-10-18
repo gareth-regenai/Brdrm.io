@@ -325,14 +325,22 @@ def _finish(
 
 
 def finish_after_figures(session: Session, upload: Upload) -> None:
-    """Describing passes straight through until E6 writes commentary."""
+    """Describing: the updates module drafts and checks the commentary, then says so
+    (updates.described) and the upload is ready. Phase 2 files have nothing to describe."""
     if upload.status != "calculating":
         return
+    flag = {"delivery": "product_delivery", "people": "people"}.get(upload.file_kind or "")
+    if flag and not getattr(get_settings().flags, flag):
+        set_status(
+            session, upload, "ready", "Saved. Figures from this kind of file arrive in phase 2."
+        )
+        return
     set_status(session, upload, "describing")
-    message = None
-    if upload.file_kind in ("delivery", "people") and not get_settings().flags.people:
-        message = "Saved. Figures from this kind of file arrive in phase 2."
-    set_status(session, upload, "ready", message)
+
+
+def finish_after_description(session: Session, upload: Upload) -> None:
+    if upload.status == "describing":
+        set_status(session, upload, "ready")
 
 
 # Entry points

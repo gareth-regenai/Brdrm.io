@@ -98,6 +98,7 @@ class Settings(BaseSettings):
     skill2_model: str = "claude-sonnet-5-5"
     # The setup chat.
     setup_model: str = "claude-sonnet-5-5"
+    commentary_model: str = "claude-sonnet-5-5"
     # Development only: replay recorded answers instead of calling the model.
     skill1_replay_dir: str | None = None
 
