@@ -229,6 +229,32 @@ def export_pdf(
     )
 
 
+class SharedFigureOut(BaseModel):
+    update_id: uuid.UUID
+    figure_id: uuid.UUID
+    metric: str
+    label: str
+    period: str
+    display: str
+    previous_period: str | None
+    previous_display: str | None
+    risk: str | None
+    source_line: str
+    edited_by_name: str | None
+
+
+@router.get("/company/shared-figures", response_model=list[SharedFigureOut], tags=["updates"])
+def shared_figures(
+    ctx: TenantContext = Depends(require(Action.VIEW_COMPANY)),
+) -> list[SharedFigureOut]:
+    """Every measure the company has shared, at its latest shared value: the investor's
+    tiles (FR-7.4). Each traces through the update it was shared in."""
+    return [
+        SharedFigureOut.model_validate(f, from_attributes=True)
+        for f in service.shared_figures(ctx.session, ctx.tenant_id)
+    ]
+
+
 # The investor's portfolio overview (FRD chapter 7)
 
 

@@ -618,3 +618,16 @@ def common_risk(
 
 def last_update_risk(days: int) -> str | None:
     return risk(Decimal(days), LAST_UPDATE_DAYS)
+
+
+def measure_order() -> list[str]:
+    """Measures in the order the registry lists them, as the company's tiles show them."""
+    return list(METRICS)
+
+
+def common_thresholds(metric: str) -> dict[str, str] | None:
+    """The common lines for a measure, as the click view shows them to investors."""
+    t = DEFAULT_THRESHOLDS.get(metric)
+    if t is None:
+        return None
+    return {"high": str(t.high), "medium": str(t.medium), "direction": t.direction}

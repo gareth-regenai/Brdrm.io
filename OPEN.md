@@ -95,6 +95,7 @@ The rest of chapter 14 (sort rule, warn or block, named check, rates feed, first
 |---|---|---|
 | Levels for cash and net burn on the overview | FR-7.2 asks for a level on every measure, and the mockup shows them. An amount of cash means different things for companies of different sizes. | No level yet, as in the threshold placeholders. Runway already carries the risk of low cash. Set lines in `DEFAULT_THRESHOLDS` to add them. |
 | Lines for "Last update" | FR-7.6 gives days since the last shared update; nothing sets its levels. | Placeholders matching the mockup: High above 35 days, Medium above 20 (`LAST_UPDATE_DAYS`). A company that has shared nothing shows "None yet" with no level. |
+| Which lines an investor sees inside a company | FR-5.7 says a company's own lines apply on its own pages. The investor's view of a company is the company's section, but read by an investor. | The common lines, in the investor's tiles and click view as on the overview, so an investor judges every company the same way everywhere. The company still sees its own lines. |
 | Where overview figures come from | An investor must only see what a company shared (FR-3.3). | Each measure is the most recently shared figure of that measure, as shared, including a change a person made in the update. Never the company's live tiles. |
 | A runway that is not limited | A company spending less than it earns has no runway figure. | It shows "Not shared yet" on the overview for now, and sorts after companies with a runway. A "Cash generative" label would be clearer. |
 

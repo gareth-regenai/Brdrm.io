@@ -43,7 +43,7 @@ export function PortfolioPage() {
       {error && <p className="notice err">{error}</p>}
       <div className="portfolio">
         {cards?.map((c) => (
-          <Link key={c.tenant_id} to={`/c/${c.tenant_id}#updates`} className="card company-card" aria-label={`Open ${c.name}`}>
+          <Link key={c.tenant_id} to={`/c/${c.tenant_id}`} className="card company-card" aria-label={`Open ${c.name}`}>
             <div className="company-head">
               <h2>{c.name}</h2>
               {c.risk ? (

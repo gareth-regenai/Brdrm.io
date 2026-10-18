@@ -210,3 +210,63 @@ def test_each_view_is_in_each_companys_audit_log(backed, owner_conn):
         "WHERE action = 'investor.viewed' AND details->>'page' = 'portfolio overview'"
     ).fetchone()
     assert rows[0] == 2
+
+
+# FR-7.4: the deep dive has the company's full figures, as shared
+
+
+def test_the_investor_sees_every_measure_the_company_shared(backed, client, invite):
+    add, _ = backed
+    company, update = add("Kestrel Field", share=False)
+    investor = invite(company, "investor")
+    h_inv = investor.auth(company.tenant_id)
+    assert client.get("/company/shared-figures", headers=h_inv).json() == []
+
+    h = company.owner.auth(company.tenant_id)
+    client.post(f"/company/updates/{update['id']}/approve", headers=h)
+    figures = client.get("/company/shared-figures", headers=h_inv).json()
+    assert [f["metric"] for f in figures] == [
+        "revenue",
+        "revenue_growth",
+        "gross_margin",
+        "net_burn",
+        "cash_balance",
+        "runway",
+    ]
+    revenue = figures[0]
+    assert revenue["display"] == "£68.5k" and revenue["period"] == "2026-09"
+    assert revenue["previous_period"] == "2026-08" and revenue["previous_display"] == "£66.4k"
+    runway = next(f for f in figures if f["metric"] == "runway")
+    assert runway["risk"] == "low"
+
+    # A change made in the update shows as made, and the click view still traces it.
+    client.put(
+        f"/company/updates/{update['id']}/figures/{runway['figure_id']}",
+        headers=h,
+        json={"value": "4"},
+    )
+    runway = next(
+        f
+        for f in client.get("/company/shared-figures", headers=h_inv).json()
+        if f["metric"] == "runway"
+    )
+    assert runway["display"] == "4.0 months" and runway["risk"] == "high"
+    assert runway["edited_by_name"] == f"Owner of {company.name}"
+    trace = client.get(
+        f"/company/updates/{runway['update_id']}/figures/{runway['figure_id']}", headers=h_inv
+    )
+    assert trace.status_code == 200 and trace.json()["edited"]["by"] == runway["edited_by_name"]
+
+
+def test_an_investor_sees_the_common_lines_in_the_click_view_too(backed, client, invite):
+    add, _ = backed
+    company, update = add("Kestrel Field")
+    investor = invite(company, "investor")
+    h = company.owner.auth(company.tenant_id)
+    client.put("/company/metrics/settings/runway", headers=h, json={"high": "20", "medium": "30"})
+    runway = next(f for f in update["figures"] if f["metric"] == "runway")
+    path = f"/company/updates/{update['id']}/figures/{runway['figure_id']}"
+    company_view = client.get(path, headers=h).json()
+    investor_view = client.get(path, headers=investor.auth(company.tenant_id)).json()
+    assert company_view["thresholds"]["high"] == "20" and company_view["risk"] == "high"
+    assert investor_view["thresholds"]["high"] == "6" and investor_view["risk"] == "low"

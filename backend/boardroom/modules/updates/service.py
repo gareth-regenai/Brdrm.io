@@ -510,6 +510,11 @@ def figure_trace(
         }
         trace["display"], trace["value"] = edited.display, f.edited_value
     trace["check"] = _check_line(session, u, role, trace["label"])
+    if role == Role.INVESTOR:
+        # Investors judge every company on the same lines (FR-7.2), here as on the overview.
+        override = Decimal(f.edited_value) if f.edited_value is not None else None
+        trace["risk"] = metrics.common_risk(session, tenant_id, figure_id, override)
+        trace["thresholds"] = metrics.common_thresholds(trace["metric"])
     return trace
 
 
@@ -994,3 +999,61 @@ def overview(session: Session, user_id: uuid.UUID) -> list[CardOut]:
             c.name.lower(),
         ),
     )
+
+
+# The investor's figures for one company (FR-7.4): every measure it has shared
+
+
+@dataclass(frozen=True)
+class SharedFigureOut:
+    update_id: uuid.UUID
+    figure_id: uuid.UUID
+    metric: str
+    label: str
+    period: str
+    display: str
+    previous_period: str | None
+    previous_display: str | None
+    risk: str | None
+    source_line: str
+    edited_by_name: str | None
+
+
+def shared_figures(session: Session, tenant_id: uuid.UUID) -> list[SharedFigureOut]:
+    """The latest shared figure of each measure, as shared, with last period beside it and
+    the level on the common lines, as on the overview. Never the company's live tiles."""
+    rows = session.execute(
+        select(UpdateFigure)
+        .join(Update, Update.id == UpdateFigure.update_id)
+        .where(UpdateFigure.tenant_id == tenant_id, Update.status == "shared")
+        .order_by(Update.approved_at.desc(), UpdateFigure.period.desc())
+    ).scalars()
+    latest: dict[str, UpdateFigure] = {}
+    for row in rows:
+        latest.setdefault(row.metric, row)
+    out = []
+    for key in metrics.measure_order():
+        f = latest.get(key)
+        if f is None:
+            continue
+        override = Decimal(f.edited_value) if f.edited_value is not None else None
+        view = metrics.figure_view(session, tenant_id, f.figure_id, override)
+        facts = metrics.commentary_figure(session, tenant_id, f.figure_id)
+        if view is None:
+            continue
+        out.append(
+            SharedFigureOut(
+                f.update_id,
+                f.figure_id,
+                key,
+                view.label,
+                view.period,
+                view.display,
+                facts.previous_period if facts else None,
+                facts.previous_shown_as if facts else None,
+                metrics.common_risk(session, tenant_id, f.figure_id, override),
+                view.source_line,
+                f.edited_by_name if override is not None else None,
+            )
+        )
+    return out

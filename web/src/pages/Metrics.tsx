@@ -316,3 +316,72 @@ export function TraceView({
     </div>
   );
 }
+
+interface SharedFigure {
+  update_id: string;
+  figure_id: string;
+  metric: string;
+  label: string;
+  period: string;
+  display: string;
+  previous_period: string | null;
+  previous_display: string | null;
+  risk: string | null;
+  source_line: string;
+  edited_by_name: string | null;
+}
+
+// The investor's tiles (FR-7.4): every measure the company has shared, at its latest shared
+// value, on the same lines as the overview. Each traces through the update it came in.
+export function SharedFiguresGrid({ tenant, companyName }: { tenant: string; companyName: string }) {
+  const [figures, setFigures] = useState<SharedFigure[] | null>(null);
+  const [open, setOpen] = useState<SharedFigure | null>(null);
+
+  useEffect(() => {
+    void api<SharedFigure[]>("/company/shared-figures", { tenant }).then(setFigures);
+  }, [tenant]);
+
+  if (!figures) return null;
+  return (
+    <section className="card" id="figures">
+      <h2>Figures</h2>
+      <p className="muted">
+        {figures.length === 0
+          ? `${companyName} has not shared any figures yet.`
+          : "The latest figures shared with you, calculated by code from the company's files. Choose one to see its exact value and source."}
+      </p>
+      <div className="tiles">
+        {figures.map((f) => (
+          <button
+            key={f.figure_id}
+            className={`tile ${open?.figure_id === f.figure_id ? "open" : ""}`}
+            onClick={() => setOpen(open?.figure_id === f.figure_id ? null : f)}
+            aria-expanded={open?.figure_id === f.figure_id}
+          >
+            <span className="label">{f.label}</span>
+            <span className="figure">{f.display}</span>
+            <span className="small">
+              {month(f.period)}
+              {f.previous_display && f.previous_period && ` · ${month(f.previous_period)}: ${f.previous_display}`}
+            </span>
+            <span className="tile-foot">
+              {f.risk && <span className={`pill ${RISK_CLASS[f.risk]}`}>{RISK_WORDS[f.risk]}</span>}
+              {f.edited_by_name && <span className="pill warn">Changed by {f.edited_by_name}</span>}
+            </span>
+            <span className="source-line">Source: {f.source_line}</span>
+          </button>
+        ))}
+      </div>
+      {open && (
+        <TraceView
+          key={open.figure_id}
+          tenant={tenant}
+          id={open.figure_id}
+          canManage={false}
+          onChanged={async () => undefined}
+          path={`/company/updates/${open.update_id}/figures/${open.figure_id}`}
+        />
+      )}
+    </section>
+  );
+}
