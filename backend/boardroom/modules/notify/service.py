@@ -134,10 +134,15 @@ def comment_added(session: Session, event: Event) -> None:
         people = identity.member_contacts(session, event.tenant_id, {Role.INVESTOR})
     else:
         people = []  # investors cannot see an update that is not shared yet
-    people = [c for c in people if c.user_id != notice.author_id]
+    tagged = set(notice.mentions)
     company = identity.get_company(session, event.tenant_id)
     body = (
         f'{notice.author_name} commented on "{notice.line}":\n\n{notice.body}\n\n'
         f"Reply here: {_company_url(event.tenant_id)}"
     )
+    # People tagged with @ hear that they were tagged, wherever they sit, and only once.
+    everyone = identity.member_contacts(session, event.tenant_id, set(Role))
+    mentioned = [c for c in everyone if c.user_id in tagged and c.user_id != notice.author_id]
+    _send_all(mentioned, f"{notice.author_name} mentioned you on {company.name}", body)
+    people = [c for c in people if c.user_id != notice.author_id and c.user_id not in tagged]
     _send_all(people, f"New comment on an update from {company.name}", body)

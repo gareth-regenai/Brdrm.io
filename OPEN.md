@@ -99,3 +99,11 @@ The rest of chapter 14 (sort rule, warn or block, named check, rates feed, first
 | Where overview figures come from | An investor must only see what a company shared (FR-3.3). | Each measure is the most recently shared figure of that measure, as shared, including a change a person made in the update. Never the company's live tiles. |
 | A runway that is not limited | A company spending less than it earns has no runway figure. | It shows "Not shared yet" on the overview for now, and sorts after companies with a runway. A "Cash generative" label would be clearer. |
 
+## Raised in the v5.7 board pack
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| Who an investor can tag | Tagging tells a person their name was used. Investors already see other investors' names (FR-2.5), not the whole team. | Investors can tag the Owner, the CEO, department leads and other investors. The company can tag anyone in it. Investors cannot be tagged on an update before it is shared. |
+| What the company sees in its own pack | "The same view" for both sides, but the company also needs to see what is about to go out. | The company's pack includes updates awaiting approval, with each such figure marked "Awaiting approval" and a notice at the top. Investors see shared updates only. |
+| Parts of v5.7 not built | v5.7 predates the revised spec. | Quarterly cycles, the stepper and "Submit for approval" are replaced by dated updates. Risk register and CEO development are left out until they have requirements. Spend, income and balance sub-pages, forward burn and stack optimisation need calculations the registry does not have yet. |
+

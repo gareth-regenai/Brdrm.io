@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, Navigate, Route, Routes, useNavigate, useParams } from "react-router";
+import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router";
 
-import { api, Me, ROLE_NAMES, signedIn, signOut } from "./api";
+import { api, Me, signedIn, signOut } from "./api";
 import { CompanyPage } from "./pages/Company";
 import { InvitePage } from "./pages/Invite";
 import { PortfolioPage } from "./pages/Portfolio";
@@ -35,11 +35,11 @@ function SignedIn() {
 
   return (
     <>
-      <TopBar me={me} />
+      <Masthead me={me} />
       <Routes>
         <Route path="/" element={<Home me={me} />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
-        <Route path="/c/:tenantId" element={<CompanyRoute me={me} />} />
+        <Route path="/c/:tenantId/*" element={<CompanyRoute me={me} />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
@@ -67,57 +67,43 @@ function CompanyRoute({ me }: { me: Me }) {
   return <CompanyPage key={membership.tenant_id} me={me} membership={membership} />;
 }
 
-function TopBar({ me }: { me: Me }) {
+// Company users get the sidebar from v5.7, which carries the logo and who they are.
+// Investors, and anyone outside a company, get this light masthead instead.
+function Masthead({ me }: { me: Me }) {
   const navigate = useNavigate();
-  const { tenantId } = useParams();
-  const companies = me.memberships.filter((m) => m.role !== "investor");
+  const location = useLocation();
+  const inCompany = location.pathname.startsWith("/c/") ? location.pathname.split("/")[2] : null;
+  const membership = me.memberships.find((m) => m.tenant_id === inCompany);
+  if (membership && membership.role !== "investor") return null;
   const backs = me.memberships.some((m) => m.role === "investor");
-  const current = location.pathname.startsWith("/c/") ? location.pathname.split("/")[2] : tenantId;
 
   return (
-    <header className="topbar">
-      <div className="topbar-inner">
-        <Link to="/" className="wordmark">
-          <img src="/boardroom-mark.svg" alt="" width={28} height={28} />
-          <span>
-            BoardRoom<span className="io">.io</span>
-          </span>
-        </Link>
-        {backs && (
-          <Link to="/portfolio" style={{ color: "inherit" }}>
-            Portfolio
-          </Link>
-        )}
-        <span className="spacer" />
-        {companies.length > 1 && (
-          <select
-              aria-label="Company"
-              value={companies.some((c) => c.tenant_id === current) ? current : ""}
-              onChange={(e) => navigate(`/c/${e.target.value}`)}
-            >
-              <option value="" disabled>
-                Choose a company
-              </option>
-              {companies.map((c) => (
-                <option key={c.tenant_id} value={c.tenant_id}>
-                  {c.tenant_name} ({ROLE_NAMES[c.role]})
-                </option>
-              ))}
-          </select>
-        )}
-        <span className="small" style={{ color: "inherit" }}>
-          {me.name}
+    <header className="masthead">
+      <Link to="/" className="wordmark">
+        <img src="/boardroom-mark.svg" alt="" width={28} height={28} />
+        <span>
+          BoardRoom<span className="io">.io</span>
         </span>
-        <button
-          className="small"
-          onClick={async () => {
-            await signOut();
-            navigate("/signin");
-          }}
-        >
-          Sign out
-        </button>
-      </div>
+      </Link>
+      <span className="spacer" />
+      {backs && (
+        <Link to="/portfolio" className="masthead-link" aria-current={location.pathname === "/portfolio" ? "page" : undefined}>
+          Portfolio
+        </Link>
+      )}
+      <span className="small muted">
+        {me.name}
+        {backs && " · Investor · read-only"}
+      </span>
+      <button
+        className="small"
+        onClick={async () => {
+          await signOut();
+          navigate("/signin");
+        }}
+      >
+        Sign out
+      </button>
     </header>
   );
 }

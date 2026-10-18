@@ -280,6 +280,12 @@ class FigureOut:
 
 
 @dataclass(frozen=True)
+class MentionOut:
+    user_id: uuid.UUID
+    name: str
+
+
+@dataclass(frozen=True)
 class CommentOut:
     id: uuid.UUID
     author_name: str
@@ -287,6 +293,7 @@ class CommentOut:
     body: str
     created_at: datetime
     mine: bool
+    mentions: list[MentionOut]
 
 
 @dataclass(frozen=True)
@@ -413,13 +420,29 @@ def _sections(session: Session, u: Update, role: Role) -> list[SectionOut]:
 def _comments(
     session: Session, tenant_id: uuid.UUID, update_id: uuid.UUID, user_id: uuid.UUID
 ) -> list[CommentOut]:
-    return [
-        CommentOut(c.id, c.author_name, c.author_role, c.body, c.created_at, c.author_id == user_id)
-        for c in session.scalars(
+    comments = list(
+        session.scalars(
             select(Comment)
             .where(Comment.tenant_id == tenant_id, Comment.update_id == update_id)
             .order_by(Comment.created_at, Comment.id)
         )
+    )
+    names: dict[str, str] = {}
+    if any(c.mentions for c in comments):
+        names = {
+            str(m.user_id): m.name for m in identity.member_contacts(session, tenant_id, set(Role))
+        }
+    return [
+        CommentOut(
+            c.id,
+            c.author_name,
+            c.author_role,
+            c.body,
+            c.created_at,
+            c.author_id == user_id,
+            [MentionOut(uuid.UUID(m), names[m]) for m in c.mentions if m in names],
+        )
+        for c in comments
     ]
 
 
@@ -715,6 +738,30 @@ def redraft(
 # Comments (FR-6.5)
 
 
+def _mentions(
+    session: Session,
+    tenant_id: uuid.UUID,
+    role: Role,
+    u: Update,
+    body: str,
+    asked: list[uuid.UUID],
+) -> list[uuid.UUID]:
+    """The people a comment tags. Each must be someone this person can tag, written in the
+    comment as @Name. An investor cannot be tagged on an update they cannot see yet."""
+    if not asked:
+        return []
+    allowed = {m.user_id: m for m in identity.mentionable(session, tenant_id, role)}
+    out = []
+    for user_id in dict.fromkeys(asked):
+        person = allowed.get(user_id)
+        if person is None or f"@{person.name}" not in body:
+            raise UpdatesError(422, "Tag people by choosing them from the list.")
+        if person.role == Role.INVESTOR and u.status != "shared":
+            raise UpdatesError(422, "Investors see this update once it is approved. Tag them then.")
+        out.append(user_id)
+    return out
+
+
 def add_comment(
     session: Session,
     tenant_id: uuid.UUID,
@@ -722,10 +769,12 @@ def add_comment(
     role: Role,
     update_id: uuid.UUID,
     body: str,
+    mentions: list[uuid.UUID] | None = None,
 ) -> None:
     u = _get(session, tenant_id, role, update_id)
     if not body:
         raise UpdatesError(422, "Write a comment first.")
+    tagged = _mentions(session, tenant_id, role, u, body, mentions or [])
     user, _ = identity.me(session, user_id)
     comment = Comment(
         tenant_id=tenant_id,
@@ -734,6 +783,7 @@ def add_comment(
         author_name=user.name,
         author_role=role.value,
         body=body,
+        mentions=[str(m) for m in tagged],
         created_at=_now(),
     )
     session.add(comment)
@@ -765,6 +815,7 @@ class CommentNotice:
     body: str
     line: str
     shared: bool
+    mentions: list[uuid.UUID]
 
 
 def comment_notice(
@@ -786,6 +837,7 @@ def comment_notice(
         c.body,
         headline(u),
         u.status == "shared",
+        [uuid.UUID(m) for m in c.mentions],
     )
 
 
@@ -1010,6 +1062,8 @@ class SharedFigureOut:
     figure_id: uuid.UUID
     metric: str
     label: str
+    unit: str
+    department: str
     period: str
     display: str
     previous_period: str | None
@@ -1017,25 +1071,34 @@ class SharedFigureOut:
     risk: str | None
     source_line: str
     edited_by_name: str | None
+    shared: bool
 
 
-def shared_figures(session: Session, tenant_id: uuid.UUID) -> list[SharedFigureOut]:
-    """The latest shared figure of each measure, as shared, with last period beside it and
-    the level on the common lines, as on the overview. Never the company's live tiles."""
+def _scope(role: Role) -> tuple[str, ...]:
+    """Investors see shared updates only (FR-3.3). The company's own view also holds what
+    is waiting for approval, marked as such, so it sees what investors are about to."""
+    return ("shared",) if role == Role.INVESTOR else ("shared", "awaiting_approval")
+
+
+def shared_figures(
+    session: Session, tenant_id: uuid.UUID, role: Role = Role.INVESTOR
+) -> list[SharedFigureOut]:
+    """The latest figure of each measure, as shared, with last period beside it and the
+    level on the common lines, as on the overview. Never the company's live tiles."""
     rows = session.execute(
-        select(UpdateFigure)
+        select(UpdateFigure, Update)
         .join(Update, Update.id == UpdateFigure.update_id)
-        .where(UpdateFigure.tenant_id == tenant_id, Update.status == "shared")
-        .order_by(Update.approved_at.desc(), UpdateFigure.period.desc())
-    ).scalars()
-    latest: dict[str, UpdateFigure] = {}
-    for row in rows:
-        latest.setdefault(row.metric, row)
+        .where(UpdateFigure.tenant_id == tenant_id, Update.status.in_(_scope(role)))
+        .order_by(Update.created_at.desc(), UpdateFigure.period.desc())
+    ).all()
+    latest: dict[str, tuple[UpdateFigure, Update]] = {}
+    for f, u in rows:
+        latest.setdefault(f.metric, (f, u))
     out = []
     for key in metrics.measure_order():
-        f = latest.get(key)
-        if f is None:
+        if key not in latest:
             continue
+        f, u = latest[key]
         override = Decimal(f.edited_value) if f.edited_value is not None else None
         view = metrics.figure_view(session, tenant_id, f.figure_id, override)
         facts = metrics.commentary_figure(session, tenant_id, f.figure_id)
@@ -1047,6 +1110,8 @@ def shared_figures(session: Session, tenant_id: uuid.UUID) -> list[SharedFigureO
                 f.figure_id,
                 key,
                 view.label,
+                view.unit,
+                u.department,
                 view.period,
                 view.display,
                 facts.previous_period if facts else None,
@@ -1054,6 +1119,90 @@ def shared_figures(session: Session, tenant_id: uuid.UUID) -> list[SharedFigureO
                 metrics.common_risk(session, tenant_id, f.figure_id, override),
                 view.source_line,
                 f.edited_by_name if override is not None else None,
+                u.status == "shared",
             )
         )
     return out
+
+
+# The board pack: everything "The Full Picture" shows, in one call
+
+
+@dataclass(frozen=True)
+class SeriesOut:
+    metric: str
+    label: str
+    points: list[metrics.Point]
+
+
+@dataclass(frozen=True)
+class DepartmentCommentaryOut:
+    department: str
+    update_id: uuid.UUID
+    shared: bool
+    sections: list[SectionOut]
+
+
+@dataclass(frozen=True)
+class PackOut:
+    company_name: str
+    data_as_of: date | None
+    includes_unshared: bool
+    figures: list[SharedFigureOut]
+    series: list[SeriesOut]
+    targets: list[metrics.Target]
+    commentary: list[DepartmentCommentaryOut]
+    # Company only: a part of the latest commentary is waiting for a person to write it.
+    commentary_waiting: bool
+
+
+SERIES = [("revenue", "Revenue"), ("net_burn", "Net monthly burn"), ("cash_balance", "Cash")]
+
+
+def pack(session: Session, tenant_id: uuid.UUID, role: Role) -> PackOut:
+    """The same view for the company and its investors; investors see shared data only."""
+    updates = list(
+        session.scalars(
+            select(Update)
+            .where(Update.tenant_id == tenant_id, Update.status.in_(_scope(role)))
+            .order_by(Update.created_at.desc())
+        )
+    )
+    figures = shared_figures(session, tenant_id, role)
+    latest_by_department: dict[str, Update] = {}
+    for u in updates:
+        latest_by_department.setdefault(u.department, u)
+    finance = latest_by_department.get("finance")
+    series = []
+    if finance is not None:
+        for key, label in SERIES:
+            points = metrics.series(session, tenant_id, finance.run_id, key)
+            if points:
+                series.append(SeriesOut(key, label, points))
+    targets = [
+        t for f in figures if (t := metrics.target_for(session, tenant_id, f.figure_id)) is not None
+    ]
+    commentary = []
+    waiting = False
+    for department, u in latest_by_department.items():
+        if role != Role.INVESTOR:
+            waiting = waiting or any(
+                sec.status == "needs_person" for sec in _sections(session, u, role)
+            )
+        sections = [
+            sec for sec in _sections(session, u, role) if sec.kind != "questions" and sec.text
+        ]
+        if sections:
+            commentary.append(
+                DepartmentCommentaryOut(department, u.id, u.status == "shared", sections)
+            )
+    return PackOut(
+        company_name=identity.get_company(session, tenant_id).name,
+        data_as_of=max((u.data_as_of for u in updates), default=None),
+        includes_unshared=any(u.status != "shared" for u in updates),
+        figures=figures,
+        series=series,
+        targets=targets,
+        commentary=commentary,
+        commentary_waiting=waiting,
+    )

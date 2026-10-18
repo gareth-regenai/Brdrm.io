@@ -36,6 +36,13 @@ interface Comment {
   body: string;
   created_at: string;
   mine: boolean;
+  mentions: { user_id: string; name: string }[];
+}
+
+interface Person {
+  user_id: string;
+  name: string;
+  role: Role;
 }
 
 interface Update {
@@ -72,13 +79,20 @@ export function UpdatesFeed({
   companyName,
   version,
   investor,
+  onChanged,
 }: {
   tenant: string;
   companyName: string;
   version: number;
   investor: boolean;
+  onChanged?: () => void;
 }) {
   const [updates, setUpdates] = useState<Update[] | null>(null);
+  const [people, setPeople] = useState<Person[]>([]);
+
+  useEffect(() => {
+    void api<Person[]>("/company/people", { tenant }).then(setPeople, () => setPeople([]));
+  }, [tenant]);
 
   const load = useCallback(async () => {
     const list = await api<Update[]>("/company/updates", { tenant });
@@ -111,7 +125,10 @@ export function UpdatesFeed({
   }, [version]);
 
   if (!updates) return null;
-  const replace = (u: Update) => setUpdates((list) => (list ?? []).map((x) => (x.id === u.id ? u : x)));
+  const replace = (u: Update) => {
+    setUpdates((list) => (list ?? []).map((x) => (x.id === u.id ? u : x)));
+    onChanged?.();
+  };
   return (
     <section className="card" id="updates">
       <h2>Updates</h2>
@@ -124,7 +141,7 @@ export function UpdatesFeed({
       )}
       <div className="updates">
         {updates.map((u) => (
-          <UpdateCard key={u.id} tenant={tenant} companyName={companyName} update={u} investor={investor} onChange={replace} />
+          <UpdateCard key={u.id} tenant={tenant} companyName={companyName} update={u} investor={investor} people={people} onChange={replace} />
         ))}
       </div>
     </section>
@@ -136,12 +153,14 @@ function UpdateCard({
   companyName,
   update: u,
   investor,
+  people,
   onChange,
 }: {
   tenant: string;
   companyName: string;
   update: Update;
   investor: boolean;
+  people: Person[];
   onChange: (u: Update) => void;
 }) {
   const [open, setOpen] = useState<string | null>(null);
@@ -163,10 +182,17 @@ function UpdateCard({
     }
   }
 
-  const comment = useSubmit(async (data, form) => {
-    const body = String(data.get("body") ?? "").trim();
+  const [draft, setDraft] = useState("");
+  const [tagged, setTagged] = useState<Person[]>([]);
+  const comment = useSubmit(async () => {
+    const body = draft.trim();
     if (!body) return;
-    if (await act(`/company/updates/${u.id}/comments`, "POST", { body })) form.reset();
+    // Only people still written as @Name in the comment are tagged.
+    const mentions = tagged.filter((p) => body.includes(`@${p.name}`)).map((p) => p.user_id);
+    if (await act(`/company/updates/${u.id}/comments`, "POST", { body, mentions })) {
+      setDraft("");
+      setTagged([]);
+    }
   });
 
   const shared = u.status === "shared";
@@ -267,12 +293,20 @@ function UpdateCard({
               {c.author_role === "investor" ? "Investor · " : ""}
               {when(c.created_at)}
             </span>
-            <p>{c.body}</p>
+            <p>
+              <Mentioned body={c.body} names={c.mentions.map((m) => m.name)} />
+            </p>
           </div>
         ))}
         {(shared || !investor) && (
-          <form onSubmit={comment.onSubmit} className="answer-row">
-            <input name="body" aria-label="Add a comment" placeholder="Add a comment" maxLength={2000} autoComplete="off" disabled={busy} />
+          <form onSubmit={comment.onSubmit} className="answer-row mention-row">
+            <MentionInput
+              value={draft}
+              onChange={setDraft}
+              people={people.filter((p) => shared || p.role !== "investor")}
+              onTag={(p) => setTagged((t) => (t.some((x) => x.user_id === p.user_id) ? t : [...t, p]))}
+              disabled={busy}
+            />
             <button className="primary" disabled={busy}>
               Send
             </button>
@@ -449,5 +483,93 @@ function SectionEdit({
         </button>
       </div>
     </form>
+  );
+}
+
+// A comment box that offers people to tag after "@" (the mention is sent by user id).
+function MentionInput({
+  value,
+  onChange,
+  people,
+  onTag,
+  disabled,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  people: Person[];
+  onTag: (p: Person) => void;
+  disabled: boolean;
+}) {
+  const [active, setActive] = useState(0);
+  const query = /(?:^|\s)@([^@\n]{0,40})$/.exec(value)?.[1];
+  const matches =
+    query === undefined ? [] : people.filter((p) => p.name.toLowerCase().startsWith(query.toLowerCase())).slice(0, 6);
+
+  function pick(p: Person) {
+    onChange(value.replace(/@([^@\n]{0,40})$/, `@${p.name} `));
+    onTag(p);
+    setActive(0);
+  }
+
+  return (
+    <div className="mention">
+      <input
+        name="body"
+        aria-label="Add a comment"
+        placeholder="Add a comment. Type @ to tag someone"
+        maxLength={2000}
+        autoComplete="off"
+        disabled={disabled}
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setActive(0);
+        }}
+        onKeyDown={(e) => {
+          if (matches.length === 0) return;
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setActive((a) => (a + 1) % matches.length);
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setActive((a) => (a - 1 + matches.length) % matches.length);
+          } else if (e.key === "Enter" || e.key === "Tab") {
+            e.preventDefault();
+            pick(matches[active]);
+          }
+        }}
+        aria-autocomplete="list"
+        aria-expanded={matches.length > 0}
+      />
+      {matches.length > 0 && (
+        <ul className="mention-list" role="listbox">
+          {matches.map((p, i) => (
+            <li key={p.user_id} role="option" aria-selected={i === active}>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => pick(p)}>
+                {p.name} <span className="small muted">{ROLE_NAMES[p.role]}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function Mentioned({ body, names }: { body: string; names: string[] }) {
+  if (names.length === 0) return <>{body}</>;
+  const pattern = new RegExp(`(${names.map((n) => `@${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`).join("|")})`, "g");
+  return (
+    <>
+      {body.split(pattern).map((part, i) =>
+        names.some((n) => part === `@${n}`) ? (
+          <b key={i} className="mention-name">
+            {part}
+          </b>
+        ) : (
+          part
+        ),
+      )}
+    </>
   );
 }
