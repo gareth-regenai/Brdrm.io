@@ -191,3 +191,9 @@ def test_production_refuses_the_console_mailer(monkeypatch):
         except RuntimeError:
             assert not ok, mailer
     config.get_settings.cache_clear()
+
+
+def test_the_api_keeps_tokens_in_paths_out_of_its_logs():
+    # Signed upload links carry a token in the path. Uvicorn's access log would print it.
+    [api] = [s for s in _blueprint()["services"] if s["name"] == "boardroom-api"]
+    assert "--no-access-log" in api["startCommand"]
