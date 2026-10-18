@@ -94,6 +94,9 @@ services:
         sync: false
       - key: SMTP_FROM
         sync: false
+      # Alerts (FR-12.4): who is emailed when the worker sees one. Empty logs only.
+      - key: OPS_ALERT_EMAIL
+        sync: false
 
   - type: keyvalue
     name: boardroom-queue

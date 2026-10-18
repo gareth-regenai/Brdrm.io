@@ -115,6 +115,16 @@ class Settings(BaseSettings):
     # demos and the journey tests; production refuses it, so no real pack holds made-up data.
     connectors_demo: bool = False
 
+    # Alerts (FR-12.4). Sent to this address as well as the log; empty means log only.
+    ops_alert_email: str | None = None
+    # A queued event or a file in progress waiting longer than this is the worker behind.
+    alert_queue_minutes: int = 10
+    # The AI failing on this share of files in an hour, once there are enough to judge.
+    alert_ai_error_rate: float = 0.25
+    alert_ai_min_calls: int = 4
+    # Failed sign-ins in 15 minutes, across all accounts.
+    alert_login_failures: int = 20
+
     # Staff support access (FR-11.6): how long a support session lasts.
     support_session_minutes: int = Field(default=60, ge=5, le=240)
 

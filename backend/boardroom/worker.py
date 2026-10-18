@@ -10,6 +10,7 @@ import boardroom.modules.metrics.service  # noqa: F401  registers the metrics ou
 import boardroom.modules.notify.service  # noqa: F401  registers event consumers
 import boardroom.modules.setup.models  # noqa: F401  registers the setup outbox
 import boardroom.modules.updates.service  # noqa: F401  registers the updates outbox and consumers
+from boardroom import ops
 from boardroom.config import get_settings
 from boardroom.events import dispatch_pending
 from boardroom.logs import configure_logging
@@ -28,6 +29,7 @@ celery_app.conf.update(
         "dispatch-outbox": {"task": "boardroom.dispatch", "schedule": 5.0},
         # Each connected tool is pulled once a day; the hourly check finds those due.
         "sync-connections": {"task": "boardroom.sync_connections", "schedule": 3600.0},
+        "check-alerts": {"task": "boardroom.check_alerts", "schedule": 300.0},
     },
 )
 
@@ -46,3 +48,8 @@ def process_upload(upload_id: str, tenant_id: str, user_id: str) -> None:
 @celery_app.task(name="boardroom.sync_connections", soft_time_limit=1800, time_limit=1860)
 def sync_connections() -> int:
     return connectors.sync_due()
+
+
+@celery_app.task(name="boardroom.check_alerts")
+def check_alerts() -> int:
+    return len(ops.check())
