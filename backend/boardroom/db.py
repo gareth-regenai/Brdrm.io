@@ -26,7 +26,15 @@ class Base(DeclarativeBase):
 
 @lru_cache
 def get_engine() -> Engine:
-    return create_engine(get_settings().database_url, pool_pre_ping=True)
+    s = get_settings()
+    # The API runs up to 40 requests at once in its thread pool; each holds a connection.
+    return create_engine(
+        s.database_url,
+        pool_pre_ping=True,
+        pool_size=s.db_pool_size,
+        max_overflow=s.db_max_overflow,
+        pool_timeout=s.db_pool_timeout,
+    )
 
 
 @lru_cache

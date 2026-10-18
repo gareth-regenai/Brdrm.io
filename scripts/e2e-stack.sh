@@ -24,13 +24,21 @@ cd "$ROOT/backend"
 MIGRATION_DATABASE_URL="$OWNER_URL" APP_DB_PASSWORD=br_login_e2e "$PYTHON" -m alembic upgrade head
 
 export MIGRATION_DATABASE_URL="$OWNER_URL" APP_DB_PASSWORD=br_login_e2e
-export ENVIRONMENT=development MAILER=capture DISPATCH_INLINE=true CONNECTORS_DEMO=true
+export ENVIRONMENT=development MAILER=capture CONNECTORS_DEMO=true
+# The journeys deliver events inside each request. The load test sets E2E_WORKER=1 to run
+# a Celery worker instead, as production does; that needs Redis at REDIS_URL.
+if [ "${E2E_WORKER:-0}" = 1 ]; then export DISPATCH_INLINE=false; else export DISPATCH_INLINE=true; fi
 export STORAGE_BACKEND=local STORAGE_ROOT="$RUN/storage"
 export WEB_ORIGIN="http://localhost:$WEB_PORT" API_URL="http://localhost:$API_PORT"
 # Recorded answers for the AI steps, so the journeys never call the live API (FR-13.2).
 export SKILL1_REPLAY_DIR="$ROOT/backend/tests/fixtures/recorded" ANTHROPIC_API_KEY=""
 nohup "$PYTHON" -m uvicorn boardroom.gateway.app:app --port "$API_PORT" --no-access-log > "$RUN/api.log" 2>&1 &
 echo $! > "$RUN/api.pid"
+if [ "${E2E_WORKER:-0}" = 1 ]; then
+  nohup "$PYTHON" -m celery -A boardroom.worker:celery_app worker --beat --loglevel WARNING \
+    > "$RUN/worker.log" 2>&1 &
+  echo $! > "$RUN/worker.pid"
+fi
 
 cd "$ROOT/web"
 VITE_API_URL="http://localhost:$API_PORT" npm run -s build > "$RUN/build.log" 2>&1

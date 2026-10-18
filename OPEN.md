@@ -100,6 +100,13 @@ The rest of chapter 14 (rates feed, first connector) belongs to later epics and 
 | Where overview figures come from | An investor must only see what a company shared (FR-3.3). | Each measure is the most recently shared figure of that measure, as shared, including a change a person made in the update. Never the company's live tiles. |
 | A runway that is not limited | A company spending less than it earns has no runway figure. | It shows "Not shared yet" on the overview for now, and sorts after companies with a runway. A "Cash generative" label would be clearer. |
 
+## Raised in E10: load
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| Server sizes on Render | The API's `starter` plan has half a CPU; two processes help most with a full CPU. | `render.yaml` keeps `starter` and runs two API processes. Size up when the staging load test says so. |
+| Faster board pack | The board pack takes about 110 ms alone, the slowest page. Fine for a beta; worth caching once companies hold many updates. | Not optimised yet. |
+
 ## Raised in the v5.7 board pack
 
 | Decision | Why it matters | What the code does now |

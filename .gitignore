@@ -22,3 +22,7 @@ backend/.env
 .e2e/
 web/test-results/
 web/playwright-report/
+
+# Local Celery and Redis runtime files
+celerybeat-schedule*
+dump.rdb
