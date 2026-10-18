@@ -20,7 +20,7 @@ The source palette is six colours: `deep-ocean`, `ocean`, `coral`, `brick`, `sea
 - Coral means "look here": the current step, destructive actions, off-plan and warning text (`accent-ink`), focus rings and the approver seat. Never use it for decoration or body links.
 - Status uses the Ocean family: `ok` (teal) for on plan or passed, `warn` (coral-brown) for check this, `err` (brick) for off plan or blocking, `info` (blue) for in review. Each is text on its own `-bg` tint.
 - The risk register has a four-step heat scale, `risk-1` (ocean) through `risk-4` (solid coral), by likelihood times impact: under 5, 5 to 9, 10 to 14, 15 and up. A risk card has a left stripe in its severity colour.
-- Charts use `chart-1` to `chart-10` in order. Label series directly. `chart-2`, `chart-6` and `chart-7` (light) and `chart-8` (dark) are under 3:1, so use them for large areas, never as the only cue.
+- Charts use `chart-1` to `chart-10` in order. The monthly revenue and net burn chart puts revenue in `chart-1` and net burn in `chart-3` (coral), so money out always stands out; the figures are labelled on every bar. Label series directly. `chart-2`, `chart-6` and `chart-7` (light) and `chart-8` (dark) are under 3:1, so use them for large areas, never as the only cue.
 - Large brand fields (cover, page header, section band) use `brand-fill` with white text.
 - Every status carries a word as well as a colour, so status is never told by hue alone.
 - Dark is Graphite: near-black `bg`, white `ink`, body weight 500, `brand` becomes a light ocean blue and the primary button becomes coral.
