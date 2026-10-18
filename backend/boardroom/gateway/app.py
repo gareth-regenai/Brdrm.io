@@ -106,6 +106,21 @@ def create_app() -> FastAPI:
         )
         return response
 
+    @app.exception_handler(Exception)
+    async def unexpected(request: Request, exc: Exception) -> JSONResponse:
+        # Error tracking without data values: the kind of error and the route, never the
+        # message, which can hold a value from a file.
+        log.error(
+            "unhandled_error",
+            error=type(exc).__name__,
+            route=getattr(request.scope.get("route"), "path", None),
+            method=request.method,
+        )
+        return JSONResponse(
+            {"detail": "Something went wrong on our side. Try again in a moment."},
+            status_code=500,
+        )
+
     @app.exception_handler(IdentityError)
     async def identity_error(_request: Request, exc: IdentityError) -> JSONResponse:
         return JSONResponse({"detail": exc.message}, status_code=exc.code)

@@ -57,6 +57,8 @@ SYSTEM_SESSION_ALLOWED = {
     ("modules/identity/service.py", "sign_out"),
     # The dispatcher reads every module's outbox.
     ("events.py", "_dispatch_round"),
+    # Health signals count rows across modules, for alerts (FR-12.4).
+    ("ops.py", "signals"),
     # Platform admins reading the interpretation log (FR-4.10).
     ("modules/intake/api.py", "interpretation_log"),
     # Stripe's signed webhook, which has no user, writes the company's plan (FR-9.2).

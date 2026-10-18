@@ -125,6 +125,15 @@ The rest of chapter 14 (rates feed, first connector) belongs to later epics and 
 | Journeys on Render previews | FR-13.4 asks for the journeys on every preview. Previews need Render connected. | The journeys run in CI against the whole app started by `scripts/e2e-stack.sh`. To run them on a preview: give the preview `ENVIRONMENT=staging`, `MAILER=capture` and the recorded AI answers, then run `npx playwright test` with `E2E_WEB_URL` and `E2E_API_URL` set to the preview. |
 | How a journey reads an invitation email | The investor journey has to follow the link in a real email. | `MAILER=capture` keeps emails in storage and `GET /e2e/mail` returns them. The route exists only in capture mode, and production refuses `MAILER=capture` (tested). |
 
+## Raised in E10: alerts and restore
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| Alert thresholds | Too tight and alerts are ignored; too loose and problems are missed. | Placeholders: queue over 10 minutes; AI failing on a quarter of files once there are 4 in an hour; 20 failed sign-ins in 15 minutes. Each is a setting. |
+| Where alerts go | Someone has to act on them. | The log, plus an email to `OPS_ALERT_EMAIL` when set. Paging (phone or Slack) can be added on the same check. |
+| An error-tracking service | FR-12.4 names error tracking. A service such as Sentry groups errors and keeps their history, but receives data about each error. | Not chosen. Unexpected errors are logged with their type and route only. |
+| Point-in-time recovery | FR-12.3. It needs a paid Render Postgres plan. | `render.yaml` uses `basic-1gb`. Turn on recovery on the plan chosen for production, then run the restore drill against staging. |
+
 ## Raised by connected tools
 
 | Decision | Why it matters | What the code does now |
