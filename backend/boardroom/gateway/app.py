@@ -25,6 +25,7 @@ from boardroom.modules.identity.api import router as identity_router
 from boardroom.modules.identity.service import IdentityError
 from boardroom.modules.intake.api import router as intake_router
 from boardroom.modules.metrics.api import router as metrics_router
+from boardroom.modules.notify import api as e2e_mail
 from boardroom.modules.setup.api import router as setup_router
 from boardroom.modules.updates.api import router as updates_router
 
@@ -51,6 +52,8 @@ PUBLIC_PREFIXES = ("/storage/upload/",)
 
 
 def is_public(path: str) -> bool:
+    if path == e2e_mail.PATH:
+        return get_settings().mailer == "capture"
     return path in PUBLIC_PATHS or path.startswith(PUBLIC_PREFIXES)
 
 
@@ -118,6 +121,9 @@ def create_app() -> FastAPI:
     app.include_router(metrics_router)
     app.include_router(setup_router)
     app.include_router(updates_router)
+    if settings.mailer == "capture":
+        # Journey tests read invitation emails here. Production refuses MAILER=capture.
+        app.include_router(e2e_mail.router)
     return app
 
 

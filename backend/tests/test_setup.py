@@ -593,3 +593,12 @@ def test_page_text_is_reduced_to_words():
         "<script>alert(1)</script></head><body><h1>Hello</h1></body></html>"
     )
     assert website._text(page) == "Northwind Churn tools Hello"
+
+
+def test_with_no_files_yet_the_chat_does_not_claim_to_have_read_any(client, make_company):
+    company = make_company("Kestrel Field")
+    r = client.post("/company/setup/start", headers=_h(company)).json()
+    assert r["messages"][0]["content"] == (
+        "Hi Owner. Two quick questions to set up Kestrel Field, and I'll work out the rest "
+        "from your first file. What are you aiming for in revenue this year?"
+    )

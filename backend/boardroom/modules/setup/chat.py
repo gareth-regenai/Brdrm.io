@@ -466,12 +466,24 @@ def month_span(first: str, last: str) -> str:
 
 def opening(facts: Facts) -> str:
     hello = f"Hi {facts.first_name}." if facts.first_name else "Hi."
+    if not facts.questions and not facts.file_kinds:
+        return (
+            f"{hello} {facts.company_name} is set up with defaults. Add your first file and "
+            "I'll work out the rest. You can change any of it by telling me."
+        )
     if not facts.questions:
         return (
             f"{hello} I've read your files and set up {facts.company_name}. Check what I've "
             "set up below. You can change any of it by telling me."
         )
     count = "just one question" if len(facts.questions) == 1 else "just two questions"
+    if not facts.file_kinds:
+        # Nothing read yet, so say so: the rest is set up once a file is added.
+        many = "One quick question" if len(facts.questions) == 1 else "Two quick questions"
+        return (
+            f"{hello} {many} to set up {facts.company_name}, and I'll work out the rest "
+            f"from your first file. {QUESTIONS[facts.questions[0]]}"
+        )
     return (
         f"{hello} I've read your files and set up most of {facts.company_name}, so there "
         f"are {count}. {QUESTIONS[facts.questions[0]]}"

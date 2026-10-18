@@ -135,6 +135,9 @@ def test_a_failed_send_is_retried(client, make_company, monkeypatch, owner_conn)
         ),
         ({"MAILER": "console"}, False),
         ({"MAILER": "disabled"}, True),
+        # The journey tests' capture mailer runs on a preview, never in production.
+        ({"MAILER": "capture"}, False),
+        ({"MAILER": "capture", "ENVIRONMENT": "staging"}, True),
     ],
 )
 def test_production_email_settings(monkeypatch, env, ok):
@@ -152,3 +155,24 @@ def test_production_email_settings(monkeypatch, env, ok):
                 get_settings()
     finally:
         get_settings.cache_clear()
+
+
+def test_the_capture_mailbox_exists_only_in_capture_mode(client, make_company, monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from boardroom.gateway.app import create_app
+
+    # Off: no such route, and it is not public.
+    assert client.get("/e2e/mail", params={"to": "a@b.co"}).status_code == 401
+    monkeypatch.setattr(get_settings(), "mailer", "capture")
+    with TestClient(create_app()) as capture:
+        company = make_company()
+        r = capture.post(
+            "/company/invitations",
+            headers=company.owner.auth(company.tenant_id),
+            json={"email": "Priya@Fund.example.com", "role": "investor"},
+        )
+        assert r.status_code == 201, r.text
+        [mail] = capture.get("/e2e/mail", params={"to": "priya@fund.example.com"}).json()
+        assert "invite?token=" in mail["body"]
+        assert capture.get("/e2e/mail", params={"to": "nobody@fund.example.com"}).json() == []

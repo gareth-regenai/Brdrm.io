@@ -36,7 +36,8 @@ class Settings(BaseSettings):
 
     # "console" prints emails, links included, so it is for development only.
     # "disabled" sends nothing until the email provider is chosen (OPEN.md).
-    mailer: Literal["console", "memory", "disabled", "smtp"] = "console"
+    # "capture" keeps emails in storage for the end-to-end journeys (E9). Never production.
+    mailer: Literal["console", "memory", "disabled", "smtp", "capture"] = "console"
     # Any SMTP server: an existing mailbox (Google Workspace or Gmail with an app
     # password), a provider, or Mailpit locally. The provider is open (OPEN.md).
     smtp_host: str = ""
@@ -151,8 +152,17 @@ def get_settings() -> Settings:
             raise RuntimeError("SKILL1_REPLAY_DIR is for development only")
         if settings.storage_backend != "s3":
             raise RuntimeError("STORAGE_BACKEND=s3 is required outside development")
-        if settings.mailer not in ("disabled", "smtp"):
-            raise RuntimeError("MAILER must be smtp or disabled outside development")
+        # A preview (staging) may capture email for the journey tests; production never.
+        allowed = (
+            ("disabled", "smtp", "capture")
+            if settings.environment == "staging"
+            else (
+                "disabled",
+                "smtp",
+            )
+        )
+        if settings.mailer not in allowed:
+            raise RuntimeError("MAILER must be smtp or disabled in production")
         if settings.mailer == "smtp":
             if not settings.smtp_host or not settings.smtp_from:
                 raise RuntimeError("MAILER=smtp needs SMTP_HOST and SMTP_FROM")
