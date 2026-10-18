@@ -15,6 +15,9 @@ import {
   ROLE_NAMES,
 } from "../api";
 import { useSubmit } from "./Auth";
+import { MetricsGrid } from "./Metrics";
+import { SetupChat } from "./Setup";
+import { FiguresSection, UploadsSection } from "./Uploads";
 
 interface Data {
   permissions: Permissions;
@@ -28,6 +31,8 @@ interface Data {
 export function CompanyPage({ me, membership }: { me: Me; membership: Membership }) {
   const tenant = membership.tenant_id;
   const [data, setData] = useState<Data | null>(null);
+  const [figuresVersion, setFiguresVersion] = useState(0);
+  const refreshFigures = useCallback(() => setFiguresVersion((v) => v + 1), []);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -68,14 +73,25 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
         {data.permissions.can_approve && <p className="small">You can approve this company's updates.</p>}
       </div>
 
-      <section className="card">
-        <h2>Updates</h2>
-        <p className="muted">
-          {isInvestor
-            ? "Every update the company shares will appear here. You will be able to trace each figure to its source and comment."
-            : "Files you add will become updates for your investors. Adding files arrives in the next release."}
-        </p>
-      </section>
+      {can("manage_settings") && <SetupChat tenant={tenant} userName={me.name} onChanged={refreshFigures} />}
+      {can("view_figures") && (
+        <MetricsGrid tenant={tenant} version={figuresVersion} canManage={can("manage_settings")} />
+      )}
+      {can("upload_files") ? (
+        <div className="grid-2">
+          <UploadsSection tenant={tenant} onSettled={refreshFigures} />
+          <FiguresSection tenant={tenant} onSaved={refreshFigures} />
+        </div>
+      ) : (
+        <section className="card">
+          <h2>Updates</h2>
+          <p className="muted">
+            {isInvestor
+              ? "Every update the company shares will appear here. You will be able to trace each figure to its source and comment."
+              : "Your role does not add files. Updates appear here once they are shared."}
+          </p>
+        </section>
+      )}
 
       <div className="grid-2">
         {can("view_team") && (
@@ -192,6 +208,20 @@ const ACTIONS: Record<string, string> = {
   "investor.removed": "Removed an investor",
   "investor.viewed": "Viewed the company",
   "settings.approval_changed": "Changed who can approve updates",
+  "upload.started": "Started adding a file",
+  "upload.added": "Added a file",
+  "upload.status_changed": "File moved to the next step",
+  "upload.question_answered": "Answered a question about a file",
+  "upload.mapped_by_hand": "Chose a file's columns by hand",
+  "figure.entered": "Entered a figure by hand",
+  "setup.started": "Opened setup",
+  "setup.reopened": "Reopened setup",
+  "setup.skipped": "Skipped setup",
+  "setup.message_sent": "Replied in setup",
+  "setup.settings_changed": "Changed company settings",
+  "setup.invites_sent": "Sent investor invitations from setup",
+  "setup.invites_discarded": "Did not invite investors from setup",
+  "metrics.setting_changed": "Changed how a figure is shown",
 };
 
 function describe(e: AuditEntry): string {

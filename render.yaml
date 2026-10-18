@@ -27,6 +27,26 @@ services:
         fromService: { type: keyvalue, name: boardroom-queue, property: connectionString }
       - key: WEB_ORIGIN
         sync: false
+      # File storage (provider open, see OPEN.md) and skill 1. Set in the dashboard.
+      - key: STORAGE_BUCKET
+        sync: false
+      - key: STORAGE_ENDPOINT
+        sync: false
+      - key: STORAGE_ACCESS_KEY
+        sync: false
+      - key: STORAGE_SECRET_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Email over SMTP from an existing mailbox. See docs/email.md.
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
 
   - type: worker
     name: boardroom-worker
@@ -46,6 +66,26 @@ services:
       - key: REDIS_URL
         fromService: { type: keyvalue, name: boardroom-queue, property: connectionString }
       - key: WEB_ORIGIN
+        sync: false
+      # File storage (provider open, see OPEN.md) and skill 1. Set in the dashboard.
+      - key: STORAGE_BUCKET
+        sync: false
+      - key: STORAGE_ENDPOINT
+        sync: false
+      - key: STORAGE_ACCESS_KEY
+        sync: false
+      - key: STORAGE_SECRET_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      # Email over SMTP from an existing mailbox. See docs/email.md.
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
         sync: false
 
   - type: keyvalue
@@ -95,6 +135,10 @@ envVarGroups:
       - key: DISPATCH_INLINE
         value: "false"
       - key: MAILER
-        value: disabled
+        value: smtp
+      - key: STORAGE_BACKEND
+        value: s3
+      - key: SCANNER
+        value: basic
       - key: PYTHON_VERSION
         value: 3.12.7

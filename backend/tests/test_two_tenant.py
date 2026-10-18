@@ -62,7 +62,8 @@ def test_database_rows_are_invisible_across_tenants(two_companies, owner_conn):
     a, b, people = two_companies
     tables = owner_conn.execute(
         "SELECT schemaname || '.' || tablename FROM pg_tables "
-        "WHERE schemaname IN ('identity', 'audit', 'events')"
+        "WHERE schemaname IN ('identity', 'audit', 'events', 'intake', 'metrics', 'setup') "
+        "AND has_table_privilege('br_app', schemaname || '.' || tablename, 'SELECT')"
     ).fetchall()
     owner = people[a.tenant_id]["owner"]
     with psycopg.connect(owner_conn.info.dsn, password=owner_conn.info.password) as conn:

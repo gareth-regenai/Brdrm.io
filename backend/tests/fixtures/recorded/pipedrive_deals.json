@@ -1,0 +1,238 @@
+{
+  "note": "Hand-written in the shape skill 1 returns, for replay in tests. The scheduled eval checks the real model.",
+  "columns": [
+    "Title",
+    "Value",
+    "Currency",
+    "Status",
+    "Stage",
+    "Expected close date",
+    "Won time",
+    "Lost time",
+    "Deal created",
+    "Last activity date",
+    "Probability",
+    "Owner",
+    "Organization",
+    "Person - Phone"
+  ],
+  "response": {
+    "file_kind": "sales",
+    "layout": "rows",
+    "label_column": null,
+    "currency": null,
+    "columns": [
+      {
+        "column": "Value",
+        "field": "amount",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.96,
+        "reason": "Deal value."
+      },
+      {
+        "column": "Currency",
+        "field": "currency",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.95,
+        "reason": "ISO code."
+      },
+      {
+        "column": "Status",
+        "field": "status",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.97,
+        "reason": "open, won or lost."
+      },
+      {
+        "column": "Stage",
+        "field": "stage",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.96,
+        "reason": "Pipeline stage."
+      },
+      {
+        "column": "Expected close date",
+        "field": "expected_close_date",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.96,
+        "reason": "Forecast close."
+      },
+      {
+        "column": "Won time",
+        "field": "closed_date",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.9,
+        "reason": "When won."
+      },
+      {
+        "column": "Lost time",
+        "field": "closed_date",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.9,
+        "reason": "When lost."
+      },
+      {
+        "column": "Deal created",
+        "field": "created_date",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.95,
+        "reason": "Created."
+      },
+      {
+        "column": "Last activity date",
+        "field": "last_activity_date",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.94,
+        "reason": "Latest activity."
+      },
+      {
+        "column": "Probability",
+        "field": "probability",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.9,
+        "reason": "Win probability as a fraction."
+      },
+      {
+        "column": "Owner",
+        "field": "owner",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.95,
+        "reason": "Owner."
+      },
+      {
+        "column": "Organization",
+        "field": "account",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.92,
+        "reason": "Customer company."
+      },
+      {
+        "column": "Title",
+        "field": "ignore",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.85,
+        "reason": "Deal title."
+      },
+      {
+        "column": "Person - Phone",
+        "field": "ignore",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.95,
+        "reason": "Contact detail, not needed."
+      }
+    ],
+    "row_labels": []
+  }
+}

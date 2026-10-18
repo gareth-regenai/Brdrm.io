@@ -8,7 +8,7 @@ from typing import Any
 
 from fastapi.routing import APIRoute
 
-from boardroom.gateway.app import PUBLIC_PATHS, app
+from boardroom.gateway.app import app, is_public
 from boardroom.gateway.deps import current_user
 from boardroom.permissions import Action
 
@@ -60,9 +60,7 @@ def tenant_routes() -> list[Route]:
 
 def unguarded_routes() -> list[Route]:
     return [
-        r
-        for r in all_routes()
-        if r.action is None and not r.user_level and r.path not in PUBLIC_PATHS
+        r for r in all_routes() if r.action is None and not r.user_level and not is_public(r.path)
     ]
 
 

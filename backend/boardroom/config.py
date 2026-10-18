@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://br_login:br_login@localhost:5432/boardroom"
     redis_url: str = "redis://localhost:6379/0"
 
-    jwt_secret: str = Field(default="dev-only-change-me", min_length=16)
+    jwt_secret: str = Field(default="dev-only-change-me-at-least-32-chars", min_length=32)
     jwt_issuer: str = "boardroom.io"
     access_token_minutes: int = 15
     refresh_token_days: int = 30
@@ -36,7 +36,17 @@ class Settings(BaseSettings):
 
     # "console" prints emails, links included, so it is for development only.
     # "disabled" sends nothing until the email provider is chosen (OPEN.md).
-    mailer: Literal["console", "memory", "disabled"] = "console"
+    mailer: Literal["console", "memory", "disabled", "smtp"] = "console"
+    # Any SMTP server: an existing mailbox (Google Workspace or Gmail with an app
+    # password), a provider, or Mailpit locally. The provider is open (OPEN.md).
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from: str = ""
+    smtp_from_name: str = "BoardRoom.io"
+    # "starttls" on 587, "ssl" on 465, "none" only for a local test inbox.
+    smtp_security: Literal["starttls", "ssl", "none"] = "starttls"
     # In development and tests events are delivered straight after commit.
     # In staging and production the worker delivers them.
     dispatch_inline: bool = True
@@ -46,6 +56,44 @@ class Settings(BaseSettings):
     removed_investor_keeps: Literal["nothing"] = "nothing"
 
     flags: FeatureFlags = Field(default_factory=FeatureFlags)
+
+    # Where the API is reached from outside, for signed upload links in development.
+    api_url: str = "http://localhost:8000"
+
+    # File intake limits (FR-11.7). Upload size moves to entitlements in E8.
+    max_file_mb: int = 25
+    max_rows: int = 200_000
+    max_columns: int = 200
+    max_cell_chars: int = 32_768
+    max_uncompressed_mb: int = 200
+    parse_memory_mb: int = 1024
+    parse_seconds: int = 60
+
+    # Storage provider is open (OPEN.md). Local is for development and tests only.
+    storage_backend: Literal["local", "s3"] = "local"
+    storage_root: str = ".storage"
+    storage_bucket: str = ""
+    storage_endpoint: str = ""
+    storage_region: str = "eu-west-2"
+    storage_access_key: str | None = None
+    storage_secret_key: str | None = None
+
+    # Malware scanner is open (OPEN.md). "basic" is not a real malware scan.
+    scanner: Literal["basic", "clamav"] = "basic"
+    clamav_host: str = "clamav"
+    clamav_port: int = 3310
+
+    # Skill 1, file understanding. Without a key, uploads go to manual mapping (FR-4.9).
+    ai_enabled: bool = True
+    anthropic_api_key: str | None = None
+    skill1_model: str = "claude-sonnet-5-5"
+    skill1_effort: Literal["low", "medium", "high"] = "medium"
+    # Skill 2, row selection.
+    skill2_model: str = "claude-sonnet-5-5"
+    # The setup chat.
+    setup_model: str = "claude-sonnet-5-5"
+    # Development only: replay recorded answers instead of calling the model.
+    skill1_replay_dir: str | None = None
 
     # On Render the app has the owner URL (for migrations) and the br_login password.
     # The app's own URL is the owner URL with br_login in place of the owner.
@@ -80,10 +128,19 @@ def _psycopg_driver(url: str) -> str:
 @lru_cache
 def get_settings() -> Settings:
     settings = Settings()
-    insecure = settings.jwt_secret == "dev-only-change-me"  # noqa: S105
+    insecure = settings.jwt_secret == "dev-only-change-me-at-least-32-chars"  # noqa: S105
     if settings.environment in ("staging", "production"):
         if insecure:
             raise RuntimeError("JWT_SECRET must be set outside development")
-        if settings.mailer != "disabled":
-            raise RuntimeError("Only MAILER=disabled is allowed until an email provider is chosen")
+        if settings.skill1_replay_dir:
+            raise RuntimeError("SKILL1_REPLAY_DIR is for development only")
+        if settings.storage_backend != "s3":
+            raise RuntimeError("STORAGE_BACKEND=s3 is required outside development")
+        if settings.mailer not in ("disabled", "smtp"):
+            raise RuntimeError("MAILER must be smtp or disabled outside development")
+        if settings.mailer == "smtp":
+            if not settings.smtp_host or not settings.smtp_from:
+                raise RuntimeError("MAILER=smtp needs SMTP_HOST and SMTP_FROM")
+            if settings.smtp_security == "none":
+                raise RuntimeError("SMTP_SECURITY=none is for a local test inbox only")
     return settings

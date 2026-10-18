@@ -3,6 +3,7 @@
 import psycopg
 import pytest
 
+from tests.conftest import upload_file
 from tests.routes import all_routes
 
 MUTATING = [r for r in all_routes() if r.method in ("POST", "PUT", "PATCH", "DELETE")]
@@ -17,7 +18,7 @@ def _audit_actions(owner_conn):
 
 
 @pytest.fixture
-def scenario(client, make_company, invite, owner_conn):
+def scenario(client, make_company, invite, owner_conn, recorded_ai):
     """Exercises every state-changing endpoint once and returns the audit actions it produced."""
     company = make_company()
     owner = company.owner
@@ -40,6 +41,40 @@ def scenario(client, make_company, invite, owner_conn):
     )
     client.post("/auth/refresh", json={"refresh_token": owner.refresh_token})
     client.post("/auth/logout", json={"refresh_token": lead.refresh_token})
+    # Intake: one file with a question, one mapped by hand, one typed-in figure.
+    asked = upload_file(client, company, "finance_ambiguous.csv")
+    client.post(
+        f"/company/uploads/{asked['id']}/answer",
+        headers=h,
+        json={"question_id": asked["question"]["id"], "answer": "yes"},
+    )
+    recorded_ai.override = {"not": "valid"}
+    manual = upload_file(client, company, "quickbooks_monthly.csv")
+    client.put(
+        f"/company/uploads/{manual['id']}/mapping",
+        headers=h,
+        json={"kind": "finance", "columns": [{"column": "Income", "field": "revenue"}]},
+    )
+    client.post(
+        "/company/figures",
+        headers=h,
+        json={"metric": "revenue", "period": "2026-12", "value": "1", "kind": "target"},
+    )
+    client.put("/company/metrics/settings/runway", headers=h, json={"band_offset": 1})
+    client.post("/company/setup/start", headers=h)
+    client.post("/company/setup/messages", headers=h, json={"text": "Looks right"})
+    owner_conn.execute(
+        "UPDATE setup.conversations SET pending_invites = '[\"a@fund.example.com\"]'"
+    )
+    client.post("/company/setup/invites", headers=h)
+    client.delete("/company/setup/invites", headers=h)
+    client.put("/company/settings/profile", headers=h, json={"reporting_currency": "EUR"})
+    client.put(
+        "/company/settings/targets",
+        headers=h,
+        json=[{"metric": "revenue", "period": "2026-12", "value": "90000"}],
+    )
+    client.post("/company/setup/skip", headers=h)
     client.delete("/company", headers=h)
     return _audit_actions(owner_conn)
 
@@ -56,9 +91,23 @@ EXPECTED = {
     ("POST", "/invitations/accept"): "invitation.accepted",
     ("DELETE", "/company/investors/{user_id}"): "investor.removed",
     ("PUT", "/company/settings/approval"): "settings.approval_changed",
+    ("POST", "/company/uploads"): "upload.started",
+    ("POST", "/company/uploads/{upload_id}/complete"): "upload.added",
+    ("POST", "/company/uploads/{upload_id}/answer"): "upload.question_answered",
+    ("PUT", "/company/uploads/{upload_id}/mapping"): "upload.mapped_by_hand",
+    ("POST", "/company/figures"): "figure.entered",
+    ("PUT", "/company/metrics/settings/{metric}"): "metrics.setting_changed",
+    ("POST", "/company/setup/start"): "setup.started",
+    ("POST", "/company/setup/messages"): "setup.message_sent",
+    ("POST", "/company/setup/skip"): "setup.skipped",
+    ("POST", "/company/setup/invites"): "setup.invites_sent",
+    ("DELETE", "/company/setup/invites"): "setup.invites_discarded",
+    ("PUT", "/company/settings/profile"): "setup.settings_changed",
+    ("PUT", "/company/settings/targets"): "setup.settings_changed",
 }
 # A refresh swaps tokens only; the sign-in it continues is already audited.
-NOT_STATE_CHANGES = {("POST", "/auth/refresh")}
+NOT_STATE_CHANGES = {("POST", "/auth/refresh"), ("PUT", "/storage/upload/{token}")}
+# The signed-link upload only places the file. Adding it is audited at /complete.
 
 
 def test_every_state_changing_endpoint_has_an_expected_audit_event():

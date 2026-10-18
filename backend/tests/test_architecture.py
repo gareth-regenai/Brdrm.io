@@ -56,12 +56,16 @@ SYSTEM_SESSION_ALLOWED = {
     ("modules/identity/service.py", "refresh"),
     ("modules/identity/service.py", "sign_out"),
     # The dispatcher reads every module's outbox.
-    ("events.py", "dispatch_pending"),
+    ("events.py", "_dispatch_round"),
+    # Platform admins reading the interpretation log (FR-4.10).
+    ("modules/intake/api.py", "interpretation_log"),
 }
 AS_SYSTEM_ALLOWED = {
     # Joining a company once its invitation is checked.
     ("modules/identity/service.py", "sign_up"),
     ("modules/identity/service.py", "accept_invitation"),
+    # Writing the interpretation log, which the app role cannot touch.
+    ("modules/intake/pipeline.py", "_log"),
 }
 
 
@@ -156,7 +160,8 @@ def test_production_refuses_the_console_mailer(monkeypatch):
     from boardroom import config
 
     monkeypatch.setenv("ENVIRONMENT", "production")
-    monkeypatch.setenv("JWT_SECRET", "a-real-secret-for-this-test")
+    monkeypatch.setenv("JWT_SECRET", "a-real-secret-for-this-test-of-32-chars")
+    monkeypatch.setenv("STORAGE_BACKEND", "s3")
     for mailer, ok in (("console", False), ("disabled", True)):
         monkeypatch.setenv("MAILER", mailer)
         config.get_settings.cache_clear()

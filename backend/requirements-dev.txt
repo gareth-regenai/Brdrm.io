@@ -1,3 +1,5 @@
+aiosmtpd==1.4.6
+    # via boardroom (pyproject.toml)
 alembic==1.20.0
     # via boardroom (pyproject.toml)
 amqp==5.4.1
@@ -6,9 +8,13 @@ annotated-doc==0.0.5
     # via fastapi
 annotated-types==0.8.0
     # via pydantic
+anthropic==1.15.0
+    # via boardroom (pyproject.toml)
 anyio==4.15.1
     # via
+    #   anthropic
     #   httpx
+    #   httpx2
     #   starlette
     #   watchfiles
 argon2-cffi==25.1.0
@@ -17,12 +23,22 @@ argon2-cffi-bindings==26.1.0
     # via argon2-cffi
 ast-serialize==0.13.1
     # via mypy
+atpublic==9.0.0
+    # via aiosmtpd
+attrs==26.1.0
+    # via aiosmtpd
 bandit==1.9.4
     # via boardroom (pyproject.toml)
 billiard==4.3.1
     # via celery
 boolean-py==5.0
     # via license-expression
+boto3==1.43.114
+    # via boardroom (pyproject.toml)
+botocore==1.43.114
+    # via
+    #   boto3
+    #   s3transfer
 cachecontrol==0.14.4
     # via pip-audit
 celery==5.6.3
@@ -57,8 +73,12 @@ defusedxml==0.7.1
     # via py-serializable
 dnspython==2.9.0
     # via email-validator
+docstring-parser==0.18.0
+    # via anthropic
 email-validator==2.3.0
     # via boardroom (pyproject.toml)
+et-xmlfile==2.0.0
+    # via openpyxl
 fastapi==0.143.5
     # via boardroom (pyproject.toml)
 filelock==4.2.2
@@ -68,21 +88,33 @@ greenlet==3.5.6
 h11==0.16.0
     # via
     #   httpcore
+    #   httpcore2
     #   uvicorn
 httpcore==1.0.9
     # via httpx
+httpcore2==2.13.1
+    # via httpx2
 httptools==0.9.0
     # via uvicorn
 httpx==0.28.1
     # via boardroom (pyproject.toml)
+httpx2==2.13.1
+    # via anthropic
 idna==3.20
     # via
     #   anyio
     #   email-validator
     #   httpx
+    #   httpx2
     #   requests
 iniconfig==2.3.1
     # via pytest
+jiter==0.17.0
+    # via anthropic
+jmespath==1.1.0
+    # via
+    #   boto3
+    #   botocore
 kombu==5.6.2
     # via celery
 librt==0.16.0
@@ -103,8 +135,12 @@ mypy==2.4.0
     # via boardroom (pyproject.toml)
 mypy-extensions==1.1.0
     # via mypy
+openpyxl==3.1.5
+    # via boardroom (pyproject.toml)
 opentelemetry-api==1.45.1
-    # via fastapi
+    # via
+    #   anthropic
+    #   fastapi
 packageurl-python==0.17.6
     # via cyclonedx-python-lib
 packaging==26.3
@@ -142,6 +178,7 @@ pycparser==3.11
 pydantic==2.14.1
     # via
     #   boardroom (pyproject.toml)
+    #   anthropic
     #   fastapi
     #   pydantic-settings
 pydantic-core==2.50.1
@@ -165,7 +202,9 @@ pytest==9.1.1
 pytest-cov==7.1.0
     # via boardroom (pyproject.toml)
 python-dateutil==2.9.0.post0
-    # via celery
+    # via
+    #   botocore
+    #   celery
 python-dotenv==1.2.4
     # via
     #   pydantic-settings
@@ -187,8 +226,12 @@ rich==15.0.0
     #   pip-audit
 ruff==0.17.1
     # via boardroom (pyproject.toml)
+s3transfer==0.19.2
+    # via boto3
 six==1.17.0
     # via python-dateutil
+sniffio==1.3.1
+    # via anthropic
 sortedcontainers==2.4.0
     # via cyclonedx-python-lib
 sqlalchemy==2.0.55
@@ -207,14 +250,20 @@ tomli==2.5.0
     # via pip-audit
 tomli-w==1.2.0
     # via pip-audit
+truststore==0.10.5
+    # via
+    #   httpcore2
+    #   httpx2
 types-pyyaml==6.0.12.20260906
     # via boardroom (pyproject.toml)
 typing-extensions==4.16.0
     # via
     #   alembic
+    #   anthropic
     #   anyio
     #   click-repl
     #   fastapi
+    #   httpx2
     #   mypy
     #   opentelemetry-api
     #   psycopg
@@ -234,7 +283,9 @@ tzdata==2026.5
 tzlocal==5.4.4
     # via celery
 urllib3==2.8.0
-    # via requests
+    # via
+    #   botocore
+    #   requests
 uvicorn==0.54.0
     # via boardroom (pyproject.toml)
 uvloop==0.23.0

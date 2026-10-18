@@ -163,6 +163,27 @@ def sign_out(refresh_token: str) -> None:
 # Membership lookups used by the gateway
 
 
+def is_platform_admin(session: Session, user_id: uuid.UUID) -> bool:
+    user = session.get(User, user_id)
+    return bool(user and user.is_platform_admin)
+
+
+@dataclass
+class Contact:
+    email: str
+    name: str
+    company_name: str
+
+
+def contact(session: Session, user_id: uuid.UUID, tenant_id: uuid.UUID) -> Contact | None:
+    """For emails sent by notify, which runs as br_system."""
+    user = session.get(User, user_id)
+    tenant = session.get(Tenant, tenant_id)
+    if user is None or tenant is None:
+        return None
+    return Contact(user.email, user.name, tenant.name)
+
+
 def user_exists(session: Session, user_id: uuid.UUID) -> bool:
     return session.get(User, user_id) is not None
 
@@ -305,6 +326,28 @@ def remove_investor(
         target_id=user_id,
         details={"keeps": get_settings().removed_investor_keeps},
     )
+
+
+def investor_emails(session: Session, tenant_id: uuid.UUID) -> list[str]:
+    """Investors in the company and those invited, for the setup chat."""
+    members = session.scalars(
+        select(User.email)
+        .join(Membership, Membership.user_id == User.id)
+        .where(
+            Membership.tenant_id == tenant_id,
+            Membership.role == Role.INVESTOR.value,
+            Membership.status == "active",
+        )
+    ).all()
+    invited = session.scalars(
+        select(Invitation.email).where(
+            Invitation.tenant_id == tenant_id,
+            Invitation.role == Role.INVESTOR.value,
+            Invitation.accepted_at.is_(None),
+            Invitation.revoked_at.is_(None),
+        )
+    ).all()
+    return sorted(set(members) | set(invited))
 
 
 def portfolio(session: Session, user_id: uuid.UUID) -> list[Tenant]:

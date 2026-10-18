@@ -17,6 +17,9 @@ dependencies = [
     "pyjwt==2.15.1",
     "argon2-cffi==25.1.0",
     "structlog==26.1.0",
+    "anthropic==1.15.0",
+    "openpyxl==3.1.5",
+    "boto3==1.43.114",
 ]
 
 [project.optional-dependencies]
@@ -30,6 +33,7 @@ dev = [
     "pip-audit==2.10.1",
     "pyyaml==6.0.3",
     "types-pyyaml==6.0.12.20260906",
+    "aiosmtpd==1.4.6",
 ]
 
 [build-system]

@@ -1,0 +1,62 @@
+{
+  "note": "Hand-written in the shape skill 1 returns, for replay in tests. The scheduled eval checks the real model.",
+  "columns": [
+    "Month",
+    "Revenue",
+    "Notes"
+  ],
+  "response": {
+    "file_kind": "finance",
+    "layout": "rows",
+    "label_column": null,
+    "currency": null,
+    "columns": [
+      {
+        "column": "Month",
+        "field": "period",
+        "transform": {
+          "type": "parse_date",
+          "date_format": "%Y-%m",
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.97,
+        "reason": "YYYY-MM."
+      },
+      {
+        "column": "Revenue",
+        "field": "revenue",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.95,
+        "reason": "Revenue."
+      },
+      {
+        "column": "Notes",
+        "field": "ignore",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.95,
+        "reason": "Free text notes, including text that looks like instructions."
+      }
+    ],
+    "row_labels": []
+  }
+}
