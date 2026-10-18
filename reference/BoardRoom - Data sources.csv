@@ -1,0 +1,21 @@
+﻿Source,Examples,What to pull,Board question it answers,"Connector status (checked 17 Oct 2026, not tested with data)"
+Accounting,"Xero, QuickBooks, Sage, FreeAgent","P&L, balance sheet, cash balance, budget vs actual, aged receivables and payables, VAT and tax liabilities","How are we doing against plan, and how long is the runway?","Connector exists for Xero, QuickBooks, Zoho Books. Not installed. Sage and FreeAgent not found."
+Banking,"Open Banking feeds, Revolut","Live balances, money in and out by day, large payments","What is cash today, not at month end?",Not found in directory search
+Payments and billing,"Stripe, GoCardless, Metronome, Mollie","MRR, new and lost revenue, churn, failed and late payments, invoice status",Is revenue growing and is it being collected?,Connector exists for Stripe and Mollie. Not installed. GoCardless and Metronome not found.
+Payroll,"Rippling, Gusto, BrightPay, Deel","Headcount, payroll cost, starters and leavers, pension and PAYE due","What does the team cost, and is it changing?",Connector exists for Deel. Not installed. Others not found.
+Expenses and spend,"Pleo, Ramp, Expensify","Spend by team, category and supplier, subscriptions, pending approvals","Where is money going, and what is new?",Not found in directory search
+CRM,"Pipedrive, HubSpot, Salesforce, Zoho CRM","Pipeline value by stage, deals won and lost, close dates, ageing deals, forecast","Will we hit the number, and what is stuck?","Pipedrive working now in this session. HubSpot, Salesforce, Zoho CRM exist but not installed."
+Marketing,"HubSpot, Google Analytics, LinkedIn Ads, Meta Ads","Spend, leads, cost per lead, top channels, website traffic",Is spend producing pipeline?,"HubSpot connector exists, not installed. Others not found."
+Sales engagement,"Apollo, Salesfinity","Calls, emails, meetings booked, conversion by step",Is activity turning into meetings?,Working now in this session
+Support,"Zendesk, Intercom","Ticket volume, response and resolution times, satisfaction, repeat issues","Are customers happy, and what keeps breaking?",Not found in directory search
+Work tracking,"Monday, Jira, Asana, Linear, ClickUp, Notion","Items by status, owner and due date, overdue work, blocked items, milestones","Is delivery on track, and what is blocked?","Jira and Notion working now. Monday, Asana, Linear, ClickUp exist but not installed."
+Code and releases,"GitHub, GitLab","Releases shipped, open pull requests, time to merge",Is engineering shipping?,Not found in directory search
+Product usage,"Mixpanel, Amplitude, PostHog","Active users, feature adoption, retention",Do customers use what we built?,Not found in directory search
+Uptime and incidents,"Statuspage, PagerDuty, Datadog","Incidents, downtime, time to fix",Is the product reliable?,Not found in directory search
+HR,"BambooHR, Personio, HiBob","Attrition, open roles, time to hire, absence",Is the team stable?,"BambooHR connector exists, not installed. Others not found."
+Contracts and signatures,"DocuSign, PandaDoc","Awaiting signature, renewals and expiries coming up","What commitments are due, and what is unsigned?",Not found in directory search
+Company filings,Companies House,"Accounts and confirmation statement deadlines, filing history, officers",Are we compliant and on time?,Not found in directory search
+Compliance,"Vanta, Drata","Control status, failing checks, audit dates",Are we audit ready?,Not found in directory search
+"Email, calendar and chat","Outlook, Teams, Slack, Gmail","Open asks, promises made, replies owed, decisions, meetings","What has leadership committed to, and what is slipping?","Microsoft 365 needs re-authorising. Slack and Gmail connectors exist, not installed."
+Docs and drives,"Google Drive, SharePoint, Notion, Confluence","Plans, board papers, policy documents, last-updated dates","What does the board already know, and is it current?","Drive, Notion, Confluence working now. SharePoint via Microsoft 365."
+Meeting notes,"Fireflies, Otter, Teams transcripts, tl;dv","Decisions, action items, owners",Which decisions never became tasks?,"tl;dv connector exists, not installed. Teams transcripts via Microsoft 365."

@@ -1,0 +1,49 @@
+<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pack tiles with minimised source</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF3F4;--surface:#fff;--ink:#123C4A;--ink-muted:#4A6670;--border-subtle:#D6E1E4;--ok:#16666C;--ok-bg:#DCEEEF;--accent-ink:#9A3A1B;--warn-bg:#FBE6DE;--brand-fill:#123C4A}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Nunito Sans',system-ui,sans-serif;font-size:15px;line-height:1.5;padding:24px 16px}
+.wrap{max-width:720px;margin:0 auto}
+.band{background:var(--brand-fill);color:#fff;border-radius:3px;padding:16px 20px;margin-bottom:16px}
+.band .k{font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.8;font-weight:700}
+.band h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:26px;margin:2px 0 0}
+.card{background:var(--surface);border:1px solid var(--border-subtle);border-radius:3px;padding:14px 20px 12px;margin-bottom:12px}
+.t{font-weight:700}
+.fig{font-family:'Outfit',sans-serif;font-weight:600;font-size:34px;line-height:1.1;margin-top:4px}
+.unit{font-size:15px;color:var(--ink-muted);font-family:'Nunito Sans',sans-serif;font-weight:600}
+.d{margin:6px 0 8px}
+details.src{border-top:1px solid var(--border-subtle);padding-top:6px;font-size:12.5px;color:var(--ink-muted)}
+details.src summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;min-height:24px}
+details.src summary::-webkit-details-marker{display:none}
+details.src summary::before{content:"\25B8";font-size:11px}
+details.src[open] summary::before{content:"\25BE"}
+details.src summary:focus-visible{outline:2px solid #E0613C;outline-offset:2px}
+.pill{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;padding:2px 6px;border-radius:2px}
+.p-up{background:var(--ok-bg);color:var(--ok)}.p-hand{background:var(--warn-bg);color:var(--accent-ink)}
+details.src dl{margin:6px 0 4px;display:grid;grid-template-columns:auto 1fr;gap:2px 12px}
+details.src dt{font-weight:700}details.src dd{margin:0;color:var(--ink)}
+</style></head><body><div class="wrap">
+<div class="band"><div class="k">Q3 board pack, Kestrel Field (mock data)</div><h1>Cash, pipeline and outlook</h1></div>
+
+<div class="card"><div class="t">Runway</div><div class="fig">17.6 <span class="unit">months</span></div>
+<p class="d">The company can fund 17.6 months at its recent spending rate: £1.378m cash over £78.1k average monthly burn.</p>
+<details class="src" open><summary>Source <span class="pill p-up">From upload</span></summary>
+<dl><dt>File</dt><dd>finance_q3.csv, columns cash_balance and net_burn</dd><dt>Formula</dt><dd>Runway v3</dd><dt>Check</dt><dd>Passed</dd></dl></details></div>
+
+<div class="card"><div class="t">Pipeline coverage</div><div class="fig">2.4<span class="unit">x</span></div>
+<p class="d">Open deals expected to close this quarter are 2.4 times what is still needed to hit target. Above the 2x line.</p>
+<details class="src"><summary>Source <span class="pill p-up">From upload</span></summary>
+<dl><dt>File</dt><dd>hubspot_deals_q3.csv, column arr_gbp</dd><dt>Check</dt><dd>Passed</dd></dl></details></div>
+
+<div class="card"><div class="t">Q4 outlook: enterprise deals</div><div class="fig">2 <span class="unit">deals, about £180k</span></div>
+<p class="d">Two enterprise contracts are expected to sign by 12 December. Both are past legal review.</p>
+<details class="src" open><summary>Source <span class="pill p-hand">Entered by hand</span></summary>
+<dl><dt>Entered by</dt><dd>The CEO, 18 Oct 2026</dd><dt>Check</dt><dd>Not checked against data</dd></dl></details></div>
+
+<div class="card"><div class="t">What changed</div>
+<p class="d">Runway is 17.6 months and pipeline coverage is 2.4x. Both are inside plan. The two expected enterprise deals are the CEO's own outlook and are not counted in coverage.</p>
+<details class="src"><summary>Source <span class="pill p-up">Drafted by Claude</span></summary>
+<dl><dt>Check</dt><dd>4 of 4 figures match</dd><dt>Approved by</dt><dd>The CEO</dd></dl></details></div>
+</div></body></html>

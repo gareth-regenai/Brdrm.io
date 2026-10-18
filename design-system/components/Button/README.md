@@ -1,0 +1,3 @@
+A button runs a command. Primary is `primary` with `on-primary` text; secondary is outlined with `border-strong`; danger is outlined in `accent-ink`.
+
+The consumer provides the label (a verb naming the result) and the handler. Use one primary button per view, and the danger variant only for irreversible actions such as revoking an investor's access. Disabled buttons keep their label and explain why in nearby text. Corners are 3px bevelled, labels are 700 weight, the small size drops to 13px with 2px corners. The focus state is a solid 3px `focus-ring` outline with a 2px offset on every variant.

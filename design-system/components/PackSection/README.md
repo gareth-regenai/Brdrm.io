@@ -1,0 +1,3 @@
+A pack section is one department's page in a board pack: status, a headline, the commentary, the section's figures and the actions.
+
+The consumer provides the department, the status, the headline, the commentary text, the authorship line and the figures. The authorship line must say who drafted and who edited the text, and whether every figure was matched to the data. Show the primary action for the user's role only: department leads see "Submit for approval", the CEO sees "Approve cycle and push to investors". Commentary is written at board level: what it is, why it matters, what it moves, status against plan.

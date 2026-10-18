@@ -1,0 +1,27 @@
+<!-- @dsCard group="Data" height=250 subtitle="One calculated figure, comparison and source" -->
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,500;6..12,700&display=swap">
+<style>
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 15px/23px var(--font-sans);padding:var(--space-5)}
+*{box-sizing:border-box}
+[class]{corner-shape:bevel}
+.cap{font:700 11px/16px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);margin:0 0 var(--space-2)}
+.row{display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;margin-bottom:var(--space-5)}
+.note{font:400 13px/18px var(--font-sans);color:var(--ink-muted);margin:var(--space-3) 0 0}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-3)}
+.tile{background:var(--surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:var(--space-4)}
+.tile:hover{border-color:var(--brand)}
+.k{font:700 11px/16px var(--font-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);margin:0 0 var(--space-1)}
+.v{font:600 27px/32px var(--font-display);color:var(--ink);margin:0;font-variant-numeric:tabular-nums}
+.v small{font:400 13px/18px var(--font-sans);color:var(--ink-muted);margin-left:4px}
+.d{font:400 13px/18px var(--font-sans);color:var(--ink-muted);margin:var(--space-1) 0 0}
+.d.bad{color:var(--accent-ink);font-weight:700}
+.src{font:400 12px/16px var(--font-sans);color:var(--ink-muted);margin:var(--space-3) 0 0}
+</style></head><body>
+<div class="tiles">
+<div class="tile"><p class="k">ARR</p><p class="v">£1.24m</p><p class="d bad">92% of plan</p><p class="src">hubspot_deals_q3.csv, arr_gbp</p></div>
+<div class="tile"><p class="k">Cash</p><p class="v">£1.378m</p><p class="d">17.6 months runway</p><p class="src">xero_pl_jul_sep_export.csv</p></div>
+<div class="tile"><p class="k">Gross margin</p><p class="v">85.3%</p><p class="d">Target 85%</p><p class="src">xero_pl_jul_sep_export.csv</p></div></div>
+<p class="note">Sample figures, Kestrel Field Ltd.</p>
+</body></html>

@@ -1,0 +1,93 @@
+<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BoardRoom flow example</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF3F4;--surface:#fff;--ink:#123C4A;--muted:#4A6670;--line:#D6E1E4;--ok:#16666C;--okbg:#DCEEEF;--warn:#9A3A1B;--warnbg:#FBE6DE;--err:#9A2B2B;--errbg:#F7E1E1;--info:#1F5F8F;--infobg:#E0EDF7;--fill:#123C4A}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Nunito Sans',system-ui,sans-serif;font-size:14px;line-height:1.45;padding:20px 14px}
+.wrap{max-width:720px;margin:0 auto}
+.band{background:var(--fill);color:#fff;border-radius:3px;padding:14px 18px;margin-bottom:16px}
+.band h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:22px;margin:0}
+.band p{margin:2px 0 0;opacity:.85;font-size:13px}
+.step{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted);margin:18px 0 6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:14px 16px;margin-bottom:10px}
+.line{font-weight:700}
+.line small{display:block;font-weight:400;color:var(--muted);font-size:13px;margin-top:2px}
+.read{margin-top:10px;padding:8px 10px;background:var(--infobg);color:var(--info);border-radius:2px;font-size:13px}
+.p{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:2px;white-space:nowrap}
+.low{background:var(--okbg);color:var(--ok)}.med{background:var(--warnbg);color:var(--warn)}.high{background:var(--errbg);color:var(--err)}
+.co{padding:0}
+.cohead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.cohead b{font-family:'Outfit',sans-serif;font-weight:600;font-size:16px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.m{padding:9px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.m:nth-child(4n){border-right:0}.m:nth-last-child(-n+4){border-bottom:0}
+.m .k{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.m .v{font-family:'Outfit',sans-serif;font-weight:600;font-size:17px;line-height:1.2;margin:2px 0 4px}
+@media(max-width:560px){.grid{grid-template-columns:repeat(2,1fr)}.m:nth-child(4n){border-right:1px solid var(--line)}.m:nth-child(2n){border-right:0}.m:nth-last-child(-n+4){border-bottom:1px solid var(--line)}.m:nth-last-child(-n+2){border-bottom:0}}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.tiles{grid-template-columns:1fr}}
+.tile .t{font-weight:700}.tile .f{font-family:'Outfit',sans-serif;font-weight:600;font-size:28px;line-height:1.1}
+.tile .u{font-size:14px;color:var(--muted);font-weight:600;font-family:'Nunito Sans',sans-serif}
+.tile .s{margin-top:8px;border-top:1px solid var(--line);padding-top:5px;font-size:12px;color:var(--muted)}
+.cm{margin-top:8px;padding:9px 11px;background:var(--bg);border-radius:2px}.cm b{font-size:13px}.cm span{color:var(--muted);font-size:12px}
+.box{margin-top:8px;border:1px solid var(--line);border-radius:3px;padding:8px 10px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.btn{background:var(--fill);color:#fff;font-weight:700;font-size:12px;padding:4px 10px;border-radius:2px;white-space:nowrap}
+.mock{font-size:12px;color:var(--muted);margin-top:14px}
+</style></head><body><div class="wrap">
+<div class="band"><h1>How it looks</h1><p>Mock data. Three companies, one investor.</p></div>
+
+<div class="step">1. The company adds data</div>
+<div class="card">
+ <div class="line">CEO Sam Hart added new financials<small>Data true as of 17 Oct 2026. Subject to change and may be edited.</small></div>
+ <div class="read">Read as: revenue, cost of sales, operating expenses, cash. Ignored 3 columns (salary, bonus, date_of_birth). They were not saved.</div>
+</div>
+
+<div class="step">2. The investor logs in: their portfolio, highest risk first</div>
+
+<div class="card co"><div class="cohead"><b>Alder Labs</b><span class="p high">High risk</span></div><div class="grid">
+<div class="m"><div class="k">Cash</div><div class="v">£38,400</div><span class="p med">Medium</span></div>
+<div class="m"><div class="k">Runway</div><div class="v">4.1 months</div><span class="p high">High</span></div>
+<div class="m"><div class="k">Net burn</div><div class="v">£9,300</div><span class="p med">Medium</span></div>
+<div class="m"><div class="k">Revenue v plan</div><div class="v">62.0%</div><span class="p high">High</span></div>
+<div class="m"><div class="k">Pipeline coverage</div><div class="v">0.9x</div><span class="p high">High</span></div>
+<div class="m"><div class="k">Delivery v plan</div><div class="v">71.0%</div><span class="p med">Medium</span></div>
+<div class="m"><div class="k">Headcount v plan</div><div class="v">4 of 5</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Last update</div><div class="v">41 days</div><span class="p high">High</span></div>
+</div></div>
+
+<div class="card co"><div class="cohead"><b>Kestrel Field</b><span class="p med">Medium risk</span></div><div class="grid">
+<div class="m"><div class="k">Cash</div><div class="v">£1.378m</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Runway</div><div class="v">17.6 months</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Net burn</div><div class="v">£78.1k</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Revenue v plan</div><div class="v">91.6%</div><span class="p med">Medium</span></div>
+<div class="m"><div class="k">Pipeline coverage</div><div class="v">2.4x</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Delivery v plan</div><div class="v">88.0%</div><span class="p med">Medium</span></div>
+<div class="m"><div class="k">Headcount v plan</div><div class="v">23 of 24</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Last update</div><div class="v">1 day</div><span class="p low">Low</span></div>
+</div></div>
+
+<div class="card co"><div class="cohead"><b>Northpath</b><span class="p low">Low risk</span></div><div class="grid">
+<div class="m"><div class="k">Cash</div><div class="v">£6.42m</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Runway</div><div class="v">15.6 months</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Net burn</div><div class="v">£412k</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Revenue v plan</div><div class="v">101.3%</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Pipeline coverage</div><div class="v">3.1x</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Delivery v plan</div><div class="v">94.0%</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Headcount v plan</div><div class="v">61 of 60</div><span class="p low">Low</span></div>
+<div class="m"><div class="k">Last update</div><div class="v">9 days</div><span class="p low">Low</span></div>
+</div></div>
+
+<div class="step">3. The investor opens Kestrel Field: view and comment</div>
+<div class="card">
+ <div class="line">CEO Sam Hart added new financials<small>Data true as of 17 Oct 2026. Subject to change and may be edited.</small></div>
+ <div class="tiles" style="margin-top:10px">
+  <div class="card tile" style="margin:0"><div class="t">Runway</div><div class="f">17.6 <span class="u">months</span></div><div class="s">▸ Source</div></div>
+  <div class="card tile" style="margin:0"><div class="t">Pipeline coverage</div><div class="f">2.4<span class="u">x</span></div><div class="s">▸ Source</div></div>
+ </div>
+ <div class="cm"><b>Investor 1</b> <span>18 Oct, 09:02</span><br>Is the Q4 pipeline all enterprise?</div>
+ <div class="cm"><b>CEO Sam Hart</b> <span>18 Oct, 09:40</span><br>Two enterprise deals, the rest mid-market.</div>
+ <div class="box"><span>Add a comment</span><span class="btn">Send</span></div>
+</div>
+<p class="mock">Names and figures are mock data.</p>
+</div></body></html>

@@ -1,0 +1,3 @@
+A metric tile shows one calculated figure: label, value, change against plan or the previous period, and a source line.
+
+The consumer provides the metric key, the value with its unit, the comparison and the lineage text. The label is `label` style, the value is Outfit 600 (`figure-xl` in a pack, 27px in the app grid). An off-plan tile switches the change line to `accent-ink` and says how far off plan. A tile is a button: clicking it opens the figure's trace (source file, cell, calculation, check). Never show a figure without its source line, and never type a figure in by hand: it must come from the metrics service.

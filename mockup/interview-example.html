@@ -1,0 +1,47 @@
+<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Setup chat example</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF3F4;--surface:#fff;--ink:#123C4A;--muted:#4A6670;--line:#D6E1E4;--fill:#123C4A;--okbg:#DCEEEF;--ok:#16666C}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Nunito Sans',system-ui,sans-serif;font-size:15px;line-height:1.45;padding:20px 14px}
+.wrap{max-width:520px;margin:0 auto}
+.band{background:var(--fill);color:#fff;border-radius:3px;padding:14px 18px;margin-bottom:14px}
+.band h1{font-family:'Outfit',sans-serif;font-weight:600;font-size:21px;margin:0}
+.band p{margin:2px 0 0;opacity:.85;font-size:13px}
+.chat{display:flex;flex-direction:column;gap:10px}
+.b{max-width:86%;padding:10px 13px;border-radius:3px}
+.ai{background:var(--surface);border:1px solid var(--line);align-self:flex-start}
+.me{background:var(--fill);color:#fff;align-self:flex-end}
+.who{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted);margin:0 0 2px}
+.me .who{color:#BCD3D9}
+.set{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 14px;align-self:stretch}
+.set h2{font-family:'Outfit',sans-serif;font-weight:600;font-size:16px;margin:0 0 6px}
+.row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
+.row span:first-child{color:var(--muted)}.row span:last-child{font-weight:700;text-align:right}
+.btn{display:inline-block;margin-top:10px;background:var(--fill);color:#fff;font-weight:700;font-size:13px;padding:7px 14px;border-radius:2px}
+.in{margin-top:14px;border:1px solid var(--line);background:var(--surface);border-radius:3px;padding:10px 12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.skip{font-weight:700;color:var(--ink)}
+.note{font-size:12px;color:var(--muted);margin-top:12px}
+</style></head><body><div class="wrap">
+<div class="band"><h1>Setting up Kestrel Field</h1><p>A short chat instead of a form. Mock data.</p></div>
+<div class="chat">
+<div class="b ai"><p class="who">BoardRoom</p>Hi Sam. I'll set up Kestrel Field with a few questions. What currency do you report in?</div>
+<div class="b me"><p class="who">Sam</p>Pounds, though a couple of customers pay in dollars.</div>
+<div class="b ai"><p class="who">BoardRoom</p>No problem, I'll convert the dollar ones for you. What are you aiming for in revenue this year?</div>
+<div class="b me"><p class="who">Sam</p>About 5.4 million.</div>
+<div class="b ai"><p class="who">BoardRoom</p>And how many people do you want by December?</div>
+<div class="b me"><p class="who">Sam</p>24.</div>
+<div class="b ai"><p class="who">BoardRoom</p>Last one. What share of planned tasks should the product team finish each month?</div>
+<div class="b me"><p class="who">Sam</p>90%.</div>
+<div class="b ai"><p class="who">BoardRoom</p>That's everything. You can change any of it by telling me.</div>
+<div class="set"><h2>Set up for you</h2>
+<div class="row"><span>Reporting currency</span><span>GBP (dollars converted)</span></div>
+<div class="row"><span>Revenue target</span><span>£5.4m this year</span></div>
+<div class="row"><span>Headcount target</span><span>24 by December</span></div>
+<div class="row"><span>Delivery target</span><span>90% of planned tasks</span></div>
+<span class="btn">Add your first file</span></div>
+</div>
+<div class="in"><span>Type your answer</span><span class="skip">Skip</span></div>
+<p class="note">Names and figures are mock data.</p>
+</div></body></html>

@@ -1,0 +1,332 @@
+<title>BoardRoom MVP Spec Redline</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+/* Layout: one reading column of spec sections; red marks every change, struck red marks what was removed, a "Why" note under each section explains the logic. */
+:root{
+  --bg:#F3F6F7; --surface:#FFFFFF; --ink:#123C4A; --muted:#4A6670; --line:#D3DEE2;
+  --red:#B3261E; --red-bg:#FBEAE8; --why-bg:#E7EFF1;
+  --display:'Outfit',system-ui,sans-serif; --body:'Nunito Sans',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1A1E; --surface:#15252B; --ink:#E4EDEF; --muted:#9BB2B9; --line:#2A3D44;
+  --red:#FF8F84; --red-bg:#3A1F1E; --why-bg:#1B2F36; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1A1E; --surface:#15252B; --ink:#E4EDEF; --muted:#9BB2B9; --line:#2A3D44;
+  --red:#FF8F84; --red-bg:#3A1F1E; --why-bg:#1B2F36; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--display);font-weight:600;text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:32px}
+h2{font-size:22px}
+h3{font-size:16px;margin-top:6px}
+p{margin:0;max-width:68ch}
+ul,ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;max-width:72ch}
+.meta{color:var(--muted);font-size:14px}
+header{display:flex;flex-direction:column;gap:10px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted);padding-top:4px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+ins,.new{color:var(--red);text-decoration:none;font-weight:600}
+del{color:var(--red);opacity:.75;text-decoration:line-through;text-decoration-thickness:1.5px}
+.chip{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:2px 7px;border-radius:2px}
+.chip.c{background:var(--red-bg);color:var(--red)}
+.chip.u{background:var(--why-bg);color:var(--muted)}
+section{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:22px clamp(16px,4vw,28px);display:flex;flex-direction:column;gap:12px;min-width:0}
+.sh{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.why{background:var(--why-bg);border-radius:2px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:15px}
+.why b{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tbl{overflow-x:auto;min-width:0}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums}
+.logic{display:flex;flex-direction:column;gap:10px}
+.logic li b{font-family:var(--display);font-weight:600}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>BoardRoom.io MVP Spec: changes</h1>
+  <p class="meta">Revised 18 October 2026. Build only. Pricing and commercials are out of scope.</p>
+  <div class="legend">
+    <span><ins>Red</ins> new or changed</span>
+    <span><del>Struck red</del> removed from the previous version</span>
+    <span>Plain text, unchanged</span>
+    <span><span class="chip u">Why</span> the logic behind the change</span>
+  </div>
+</header>
+
+<section>
+  <h2>The logic change in one place</h2>
+  <ol class="logic">
+    <li><b>From rules to AI.</b> The previous version boxed the AI into two narrow jobs behind strict templates and rejections. BoardRoom is AI-native: the AI reads whatever the company has, and rules exist only where a figure must be exact.</li>
+    <li><b>The AI picks the rows, code runs fixed formulas.</b> Fixed formulas on fixed columns break on real data, and formulas that change per company break comparison. The AI picks which rows feed each standard formula, code does the maths, and the AI never gives a number from its head.</li>
+    <li><b>From locked cycles to dated updates.</b> No Draft, Review, Approved, Published states, no lock, no versions. An update is a dated line, "true as of [date], subject to change", and can be edited, showing a "Last edited" date.</li>
+    <li><b>From per-pack grants to standing access.</b> The CEO invites an investor once. Investors get a portfolio overview across every company they back, in the MVP, and only view and comment.</li>
+    <li><b>From forms to a setup chat.</b> No plan file and no settings forms. The AI makes most setup assumptions itself, confirms them, and asks only what it cannot find.</li>
+    <li><b>Nothing can be out.</b> Commentary figures must be normal rounding of the real figure, the exact figure is one click away, and display precision scales with the company's revenue.</li>
+  </ol>
+</section>
+
+<section>
+  <div class="sh"><h2>Summary and scope</h2><span class="chip c">Changed</span></div>
+  <p>The MVP lets a company <del>upload one CSV per department, turns them into a validated and calculated board pack, and shares each approved cycle with investors through a read-only view.</del> <ins>drop in whatever financial, sales, delivery and people files it already has. The AI works out what is in them, code calculates the figures, and the company's investors see them as tiles they can trace to the source.</ins> It is built as Python microservices on Render, with <del>two Claude skills</del> <ins>the AI</ins> doing the work that needs judgement.</p>
+  <ul>
+    <li><strong>Who it serves:</strong> company teams (the CEO and department leads) and <del>their investors</del> <ins>the investors who back them. One investor can back many companies and sees them as one portfolio.</ins> M&amp;A deal teams ship after the MVP.</li>
+    <li><strong>The core promise:</strong> <del>upload, validate, map if the file is off-spec, calculate, draft the pack, CEO approves, investors view.</del> <ins>upload anything, see figures, and investors see them too. Little to set up and nothing to prepare.</ins></li>
+    <li><del><strong>Claude skill 1, mapping:</strong> when a CSV does not match the template, the skill proposes a column mapping that a person confirms before anything is used.</del><br><ins>AI intake: the AI reads every file, works out what each column is, ignores what it does not need and never stores pay data. A person is asked one plain question only when a figure cannot be worked out without it.</ins></li>
+    <li><ins>AI calculations: each tile has a fixed formula. The AI decides which of the company's rows feed it, and code runs it, so the arithmetic is exact and every company's figures compare.</ins></li>
+    <li><strong>AI commentary:</strong> writes the commentary from the calculated figures, and a check rejects any figure that does not match.</li>
+    <li><strong>Stack:</strong> Python (FastAPI), Postgres, a Render Key Value queue, S3-compatible storage, the Frankfurt region and a React single-page app. Unchanged.</li>
+  </ul>
+  <h3>Proposed success criteria</h3>
+  <ul>
+    <li>A company goes from first upload to <del>an approved, shareable pack</del> <ins>its investors seeing figures</ins> in under 30 minutes.</li>
+    <li>Most <del>off-spec CSVs map correctly with at most a few corrections</del> <ins>real files are understood with no correction</ins>, measured on a labelled sample.</li>
+    <li>Automated tests show no cross-tenant data access.</li>
+    <li>Every figure traces back to <del>an uploaded row</del> <ins>its source, either an uploaded row or a named person who entered it</ins>.</li>
+  </ul>
+  <p><ins><strong>MVP phases:</strong> phase 1 is the MVP: finance and sales pipeline files, targets from the setup chat, and reporting in one currency. That covers six of the eight overview measures. Phase 2 follows straight after launch: product delivery, people and currency conversion.</ins></p>
+  <p><strong>Out of scope:</strong> live integrations <ins>(the first connector, such as Xero, is a candidate to pull forward)</ins>, M&amp;A deal rooms, benchmarking, SSO, custom pack designs beyond a logo and colours, and a mobile app.</p>
+  <div class="why"><b>Why</b>This is a low-friction product for small companies that have almost nothing to give us. Every template, required column and confirmation step in the previous version was work pushed onto the customer that the AI can do.</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Users, tenants and roles</h2><span class="chip c">Changed</span></div>
+  <div class="tbl"><table>
+    <tr><th>Tenant type</th><th>Who it is</th><th>MVP status</th></tr>
+    <tr><td>Company</td><td>A business that <del>uploads department data and publishes board packs</del> <ins>adds its data and shares it with its investors</ins></td><td>Ships</td></tr>
+    <tr><td>Investor</td><td>An angel, syndicate lead, fund or solo capitalist <ins>who backs one or more companies</ins></td><td><del>Read-only viewing ships; portfolio dashboards and sponsor billing come later</del> <ins>Ships: portfolio overview, company view and comments</ins></td></tr>
+    <tr><td>Deal team</td><td>An M&amp;A team running packs across target or acquired businesses</td><td>Reserved in the model; ships after the MVP</td></tr>
+  </table></div>
+  <div class="tbl"><table>
+    <tr><th>Role</th><th>Scope</th><th>Can do</th></tr>
+    <tr><td>Owner</td><td>Company</td><td>Everything, including <del>billing and</del> deleting the workspace</td></tr>
+    <tr><td><del>CEO approver</del> <ins>CEO</ins></td><td>Company</td><td><del>Approve and publish cycles, invite investors, set the plan targets</del> <ins>Upload, edit and approve updates, invite investors, set targets</ins></td></tr>
+    <tr><td>Department lead</td><td>One or more departments</td><td>Upload <del>and map their department's CSVs</del> <ins>their department's files</ins> and edit their section<del>, submit for approval</del></td></tr>
+    <tr><td>Contributor</td><td>One department</td><td>Upload files and comment<del>, but not submit</del></td></tr>
+    <tr><td><del>Investor viewer</del> <ins>Investor</ins></td><td><del>Company packs they are invited to</del> <ins>Every company that has invited them</ins></td><td><del>View published packs and the lineage of each figure, and comment</del> <ins>See the portfolio overview, open each company's updates, trace a figure and comment</ins></td></tr>
+    <tr><td>Platform admin</td><td>BoardRoom.io staff</td><td>Support access, time-limited, logged and visible to the customer</td></tr>
+  </table></div>
+  <ul>
+    <li><del>Investor access is always per company and per pack, never account-wide.</del></li>
+    <li><ins>The CEO invites each investor once. That invite is their standing access, and every update reaches them. No per-update grants, no hold-backs, no cap table in the platform.</ins></li>
+    <li><ins>An investor sees every company that has invited them as one portfolio. Co-investors in the same company can see each other. Nothing crosses between companies.</ins></li>
+    <li><ins>A company team sees its own company only. Investors view and comment only; they approve nothing.</ins></li>
+    <li><ins>Who can approve an update is a permission set per company. The default is the CEO.</ins></li>
+    <li>A user can belong to several tenants, and the active tenant is part of every request.</li>
+  </ul>
+  <div class="why"><b>Why</b>Investors are on the cap table and CEOs are open with them. Ticking every investor on every pack means one forgotten tick leaves an investor with nothing, and they chase by email, which is the problem this product exists to remove. An investor backing several companies needs one login across all of them.</div>
+</section>
+
+<section>
+  <div class="sh"><h2>How it works</h2><span class="chip c">Rewritten</span></div>
+  <p><del>A company's data moves from upload to an investor's screen in nine steps and two checks. Code does the parsing, the mapping and every calculation, Claude makes two suggestions, and a person approves each one before anything is published.</del></p>
+  <ol>
+    <li><ins>Set up: a short AI chat confirms what the AI assumed about the company and asks only what it cannot find. It can be skipped.</ins></li>
+    <li><ins>Add files: the CEO or a department lead drops in any file, such as a finance export, a pipeline report, a budget or a team list.</ins></li>
+    <li><ins>Understand: the AI works out what each column is and ignores the rest. Pay data is dropped and never stored.</ins></li>
+    <li><ins>Calculate: for each tile the AI picks the rows that feed its fixed formula, and code runs it. Each figure keeps its source.</ins></li>
+    <li><ins>Describe: the AI drafts commentary from the figures.</ins> A failed number check gets one automatic retry, then a person writes the section.</li>
+    <li><ins>Share: the update goes to investors as a dated line, "CEO X added new financials, true as of [date], subject to change." Investors view and comment.</ins></li>
+  </ol>
+  <div class="why"><b>Why</b>A person approving every AI suggestion turns the AI into a form the customer has to check. People are asked only when the AI is stuck, and the company stays in charge of what goes out.</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Files and intake</h2><span class="chip c">Was "Data model"</span></div>
+  <p>The <del>MVP defines five CSV templates</del> <ins>five departments stay as the guide to what helps. They are guidance, not a gate: no file is rejected for not matching a template.</ins> <del>Files are UTF-8 with a header row, ISO dates (YYYY-MM-DD) and one currency per file.</del></p>
+  <div class="tbl"><table>
+    <tr><th>Department</th><th>One row per</th><th><del>Required / optional columns</del> <ins>Columns that help</ins></th></tr>
+    <tr><td>Finance</td><td>Month</td><td>period, revenue, cost of sales, operating expenses, cash balance. Also payroll total, capex, debt, ARR, deferred revenue, currency</td></tr>
+    <tr><td>Sales pipeline</td><td>Deal</td><td>deal id, account, stage, amount, status, created date. Also expected close, closed date, probability, source, owner, last activity</td></tr>
+    <tr><td>Product delivery</td><td>Work item</td><td>item id, title, status, <del>points</del> <ins>due date, completed date, planned period. The measure is tasks completed against tasks planned</ins></td></tr>
+    <tr><td>People</td><td>Role</td><td>department, role title, status, start date. Also end date, requisition opened date, location</td></tr>
+    <tr><td>Plan</td><td>Metric and period</td><td><del>metric_key, period, target_value, uploaded as a file</del> <ins>Targets from the setup chat, or from any budget or forecast the AI finds in an upload</ins></td></tr>
+  </table></div>
+  <ul>
+    <li><del>Columns that look like salary, bonus, bank details, national insurance numbers or dates of birth are rejected at upload and are not stored.</del><br><ins>Those columns are dropped on upload, never stored and never sent to the AI. The file is still accepted.</ins></li>
+    <li><ins>Any file: the AI works out what each column is, whatever tool it came from, and asks one plain question only when a figure cannot be calculated without it.</ins></li>
+    <li><ins>Currency (phase 2): any currency, per row, converted to the company's reporting currency with a published rate for the period. The click view shows the original amount, the rate and its source, and the company can override a rate. Money is never added across companies. Needs a rates feed.</ins></li>
+    <li><ins>Hand-entered figures: a person can type in a figure or forecast, labelled "Entered by [name], [date]". It has no file source and is not checked against data.</ins></li>
+    <li><ins>No plan means no "against plan" figure. The tile reads "No plan set" and nothing is blocked.</ins></li>
+    <li>If the AI is unavailable, the manual mapping screen takes over.</li>
+    <li><ins>What the AI understood and ignored is logged for our dev team only. The CEO and investors never see it.</ins></li>
+  </ul>
+  <div class="why"><b>Why</b>Real exports never match a template, and rejecting a file makes the CEO fix it by hand. Pay is still never stored, so the privacy promise holds; only the friction goes. Most small teams do not use points but do have tasks. Many start-ups invoice in more than one currency.</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Figures and metrics</h2><span class="chip c">Changed</span></div>
+  <p>Each metric is a versioned formula in a registry, so every figure shows which formula version produced it. <ins>The formulas below are fixed, so every company's figures mean the same thing. The AI chooses which of the company's rows feed each formula, and code runs it. A company-specific method is allowed only where the standard formula cannot work, and it is flagged on the figure.</ins></p>
+  <div class="tbl"><table>
+    <tr><th>Metric</th><th>Default definition</th></tr>
+    <tr><td>Revenue and growth</td><td>Revenue for the period and month-on-month change</td></tr>
+    <tr><td>Gross margin</td><td>(revenue − cost of sales) ÷ revenue</td></tr>
+    <tr><td>Net burn</td><td>cost of sales + operating expenses − revenue</td></tr>
+    <tr><td>Runway</td><td>Latest cash balance ÷ average net burn of the last three months, or "cash-generative"</td></tr>
+    <tr><td>Pipeline, coverage, win rate, stalled deals</td><td>As before</td></tr>
+    <tr><td>Delivery vs plan</td><td><del>Completed points ÷ planned points</del> <ins>Tasks completed ÷ tasks planned</ins> in the period</td></tr>
+    <tr><td>Slippage, headcount, open roles, attrition</td><td>As before</td></tr>
+    <tr><td>Variance vs plan</td><td>Actual minus target, for any metric <del>that has a plan row</del> <ins>with a target</ins></td></tr>
+  </table></div>
+  <p><strong>The number check:</strong> a figure in commentary must match a computed metric <del>within the rounding rules</del> <ins>as normal rounding at the precision written. No tolerance band: £1.4m passes for £1.378m, £1.5m fails. Dates, quarters and counts are ignored.</ins></p>
+  <p><ins>Click view: clicking a figure opens its exact value, its source (rows, formula and check, or who entered it), what it moves (cash moves runway) and its risk level. On each tile the source sits behind a small, minimised "Source" line.</ins></p>
+  <p><ins>Display precision, set by annual revenue and adjustable in settings:</ins></p>
+  <div class="tbl"><table>
+    <tr><th>Annual revenue</th><th>Money shown as</th><th>Example</th></tr>
+    <tr class="new"><td>Under £100k, including pre-revenue</td><td>Whole pounds</td><td class="num">£4,210</td></tr>
+    <tr class="new"><td>£100k to £1m</td><td>£k, 1 decimal</td><td class="num">£78.1k</td></tr>
+    <tr class="new"><td>£1m to £10m</td><td>£m, 3 decimals over £1m; £k, 1 decimal below</td><td class="num">£1.378m</td></tr>
+    <tr class="new"><td>£10m to £100m</td><td>£m, 2 decimals over £1m; £k whole below</td><td class="num">£13.78m</td></tr>
+    <tr class="new"><td>Over £100m</td><td>£m, 1 decimal</td><td class="num">£137.8m</td></tr>
+  </table></div>
+  <p><ins>Months and percentages always show one decimal. Each figure carries High, Medium or Low from warning lines; defaults ship in config (in place of the fixed flags such as runway under 12 months) and each company can change what it sees in settings.</ins></p>
+  <div class="why"><b>Why</b>For a small company a few thousand pounds is the difference between making payroll or not, and that is what investors look at, so a figure can never be "near enough". Rounding is for reading only, and the exact figure is always one click away. Precision follows company size because £1m is large for an incubator start-up.</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Updates and approvals</h2><span class="chip c">Replaces "Cycles and versions"</span></div>
+  <p><del>A cycle is one reporting period, monthly or quarterly. It moves through Draft, In review, Approved and Published, and a published cycle is immutable. A correction creates a new version with a change note, and investors see the latest published version with its history.</del></p>
+  <ul>
+    <li><ins>A company adds data whenever it has it, and each addition is an update: "CEO Sam Hart added new financials. Data true as of 17 Oct 2026. Subject to change and may be edited."</ins></li>
+    <li><ins>An update can be edited after it goes out. No version process and no per-item marks, but a changed update shows "Last edited [date]" so investors can see a figure moved.</ins></li>
+    <li><ins>Any approval happens on the company side. Who approves is a permission per company, default the CEO.</ins></li>
+    <li><ins>Commentary speaks as the company ("we") by default, with a setting for third person.</ins> Labels such as "Drafted by Claude" stay.</li>
+    <li><ins>Investors comment on an update and the company replies in the same thread.</ins></li>
+    <li>Every figure stores its lineage, so any number can be traced to its source.</li>
+  </ul>
+  <div class="why"><b>Why</b>Locking a pack and versioning a typo is process for its own sake. CEOs are transparent with their investors, and a dated line marked "subject to change" is honest and simple. Founders write to investors as "we".</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Investor portfolio overview</h2><span class="chip c">New in MVP</span></div>
+  <p><ins>On login an investor sees one card per company, highest risk first: a top-level overview with the same eight measures and the same High, Medium and Low lines for every company. The CEO never sees it. Clicking a company opens its own section. Until phase 2, delivery and headcount show "Coming in phase 2".</ins></p>
+  <div class="tbl"><table>
+    <tr><th>#</th><th>Measure</th><th>From</th></tr>
+    <tr class="new"><td>1</td><td>Cash balance</td><td>Finance</td></tr>
+    <tr class="new"><td>2</td><td>Runway (months)</td><td>Finance</td></tr>
+    <tr class="new"><td>3</td><td>Net monthly burn</td><td>Finance</td></tr>
+    <tr class="new"><td>4</td><td>Revenue against plan</td><td>Finance, Plan</td></tr>
+    <tr class="new"><td>5</td><td>Pipeline coverage</td><td>Sales pipeline, Plan</td></tr>
+    <tr class="new"><td>6</td><td>Delivery against plan</td><td>Product delivery</td></tr>
+    <tr class="new"><td>7</td><td>Headcount against plan</td><td>People</td></tr>
+    <tr class="new"><td>8</td><td>Last update (days ago)</td><td>Update record</td></tr>
+  </table></div>
+  <div class="why"><b>Why</b>This was Phase 3 in the previous roadmap. An investor logging in should see the whole portfolio and who needs attention first. The same measures and lines across companies make them comparable; the detail lives in each company's section.</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Setup chat</h2><span class="chip c">New</span></div>
+  <ul>
+    <li><ins>The AI infers currency from the files, what the business does from its website and data, revenue lines from the revenue rows, targets from any budget, and display scale from revenue.</ins></li>
+    <li><ins>It states its assumptions and lets the CEO correct them, then asks only what it cannot find, usually targets and which investors to invite.</ins></li>
+    <li><ins>It can be skipped and repeated ("update my targets"). Assumptions cover setup only, never the figures.</ins></li>
+  </ul>
+  <div class="why"><b>Why</b>A plan file and settings forms are work the customer should not have to do. The AI should make about 80% of the assumptions itself.</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Tiers and limits</h2><span class="chip c">Parked</span></div>
+  <p><del>Growth (£59) and Scale (£129) tiers with limits on users, investor viewers, uploads, AI assists and history; single approver on Growth and multi-step on Scale; the AI cost estimate.</del></p>
+  <p><ins>Pricing, tiers and limits are parked for a separate commercial review. Keep entitlements as named keys checked at the point of use, and Stripe as the billing route. Whether a limit warns or blocks is an open decision.</ins></p>
+  <div class="why"><b>Why</b>Commercials are reviewed separately. Approval is a permission, not something tied to a price tier.</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Architecture and services</h2><span class="chip c">Changed</span></div>
+  <p>The shape stays: the browser talks only to the gateway, everything else is private, workers pull from the queue, files upload with signed links. <ins>Whether to start with separate services or one app plus a worker is an open decision.</ins></p>
+  <div class="tbl"><table>
+    <tr><th>Service</th><th>Change</th></tr>
+    <tr><td>api-gateway, billing, notify</td><td>Unchanged in shape</td></tr>
+    <tr><td>identity</td><td><ins>Standing investor invites per company; permissions hold who can approve</ins></td></tr>
+    <tr><td>intake</td><td><ins>Accepts any file, drops pay columns, converts currency</ins></td></tr>
+    <tr><td><del>mapping</del> <ins>understanding</ins></td><td><ins>The AI reads every file, not only off-spec ones; manual mapping is the fallback</ins></td></tr>
+    <tr><td>metrics</td><td><ins>Stores the AI's row selections for fixed formulas; adds display precision and risk levels</ins></td></tr>
+    <tr><td>insights</td><td><ins>Number check uses normal rounding; voice setting</ins></td></tr>
+    <tr><td><del>pack</del> <ins>updates</ins></td><td><ins>Updates, comments, approvals, PDF export, investor overview. Replaces cycles and versions</ins></td></tr>
+    <tr><td><ins>setup</ins></td><td><ins>New: the setup chat</ins></td></tr>
+  </table></div>
+  <ul>
+    <li><strong>Skill 1, file understanding</strong> <del>(runs only when validation fails; a person confirms the proposal in the web app)</del> <ins>runs on every upload. A low-confidence column that blocks a figure becomes one plain question.</ins> Deterministic Python applies the result and confirmed layouts are saved.</li>
+    <li><ins><strong>Skill 2, row selection (new):</strong> picks which rows feed each tile's fixed formula, using a closed set of filters. A custom method is allowed only where the standard one cannot work, and it is flagged.</ins></li>
+    <li><strong>Skill 3, board commentary</strong> <ins>(was skill 2)</ins>: sees computed figures, targets and <del>rule-based flags</del> <ins>risk levels</ins>, never raw rows or employee data.</li>
+  </ul>
+  <div class="why"><b>Why</b>The services follow the logic changes: the pack becomes updates, mapping becomes understanding on every file, and a setup service carries the chat. The AI does more, so fewer human confirmation screens are built.</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Security and data protection</h2><span class="chip c">Small changes</span></div>
+  <div class="tbl"><table>
+    <tr><th>Area</th><th>Control</th></tr>
+    <tr><td>Tenant isolation, file handling, secrets, backup, supply chain</td><td>Unchanged</td></tr>
+    <tr><td>Authentication and roles</td><td>Short-lived JWTs, one shared role check, investor access <del>per company and per pack</del> <ins>per company, standing from one invite</ins></td></tr>
+    <tr><td>Sensitive columns</td><td>Dropped at intake, never stored or sent to the AI. <ins>The rest of the file is kept.</ins></td></tr>
+    <tr><td>AI data handling</td><td>Headers, redacted samples and aggregates only. <ins>Row selections use a closed set of filters, so no AI-written code is run.</ins></td></tr>
+    <tr><td>Audit</td><td>Logins, uploads, <del>mappings, approvals, publishes</del> <ins>approvals, edits to updates</ins> and every investor view</td></tr>
+    <tr><td>Privacy and compliance</td><td>As before. <ins>Data roles and retention to be confirmed with a solicitor.</ins></td></tr>
+  </table></div>
+  <div class="why"><b>Why</b>Keeping the AI to row selection means no AI-written code runs. The audit follows the new update model.</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Infrastructure on Render</h2><span class="chip u">Unchanged</span></div>
+  <p>Frankfurt region, private services, Key Value queue, one Postgres instance, S3-compatible storage in the UK or EU, Blueprint environments, Hobby then Pro. <ins>The Blueprint and starting cost follow whatever service count is chosen.</ins></p>
+</section>
+
+<section>
+  <div class="sh"><h2>Build plan and testing plan</h2><span class="chip c">Reordered</span></div>
+  <p><ins>Build the AI intake first, keep the app thin, and demo working software at the end of every step. Before any rule, rejection or required field is built, it answers one question: why can't the AI handle this?</ins> The test layers are unchanged.</p>
+  <div class="tbl"><table>
+    <tr><th>Step</th><th>Was</th><th>Now</th></tr>
+    <tr><td>M0</td><td>Foundations</td><td>Foundations</td></tr>
+    <tr><td>M1</td><td>Identity and tenancy</td><td>Identity and tenancy <ins>with standing investor invites</ins></td></tr>
+    <tr><td>M2</td><td><del>Intake: five templates, validation reports</del></td><td><ins>AI intake: finance and pipeline files, skill 1, pay drop, fallback</ins></td></tr>
+    <tr><td>M3</td><td>Metrics engine</td><td><ins>Calculations: skill 2 row selection,</ins> lineage<ins>, precision, risk levels</ins></td></tr>
+    <tr><td>M4</td><td><del>Mapping skill</del></td><td><ins>Setup chat</ins></td></tr>
+    <tr><td>M5</td><td><del>Pack service: cycles, versions, grants</del></td><td><ins>Updates and comments</ins></td></tr>
+    <tr><td>M6</td><td>Analytics skill</td><td>Commentary <ins>with the rounding check and voice setting</ins></td></tr>
+    <tr><td>M7</td><td>Billing and tiers</td><td><ins>Investor portfolio overview</ins></td></tr>
+    <tr><td>M8</td><td>Web app</td><td><ins>Billing (entitlements only)</ins></td></tr>
+    <tr><td>M9</td><td>Hardening and beta</td><td>Web app, built alongside</td></tr>
+    <tr><td>M10</td><td></td><td>Hardening and beta</td></tr>
+    <tr><td><ins>Phase 2</ins></td><td></td><td><ins>Delivery and people files, currency conversion, the last two overview measures</ins></td></tr>
+  </table></div>
+  <p><strong>Six journeys:</strong> <ins>Set up through the chat. Upload a clean file and see tiles. Upload a messy file and see tiles with at most one question.</ins> Draft commentary that passes the check. <ins>Send an update and edit it. Log in as an investor, see the portfolio, open a company,</ins> trace a figure <ins>and comment</ins>.</p>
+  <div class="why"><b>Why</b>The AI intake is the product, so it is built and shown first. A demo at every step catches any drift back to rigid rules in weeks, not months.</div>
+</section>
+
+<section>
+  <div class="sh"><h2>Risks and open decisions</h2><span class="chip c">Changed</span></div>
+  <h3>Open decisions</h3>
+  <div class="tbl"><table>
+    <tr><th>Decision</th><th>Status</th></tr>
+    <tr><td>Who builds it, and how many engineers</td><td>Settle first</td></tr>
+    <tr><td><ins>Service count</ins></td><td><ins>To propose; keep the app thin</ins></td></tr>
+    <tr><td><ins>First connector (for example Xero)</ins></td><td><ins>To decide</ins></td></tr>
+    <tr><td><ins>Limits warn or block</ins></td><td><ins>To decide</ins></td></tr>
+    <tr><td><ins>Named check on cash, burn and runway</ins></td><td><ins>To decide</ins></td></tr>
+    <tr><td><ins>Warning-line defaults</ins></td><td><ins>To propose and agree</ins></td></tr>
+    <tr><td><ins>Allowed row filters for skill 2; rates feed</ins></td><td><ins>To propose</ins></td></tr>
+    <tr><td>Authentication, front end, storage, job framework, PDF, AI data path, name</td><td>As before</td></tr>
+    <tr><td><del>Currency: GBP only and one currency per file</del></td><td><ins>Decided: any currency, converted</ins></td></tr>
+    <tr><td><del>Prices: validate before building billing</del></td><td><ins>Parked with commercials</ins></td></tr>
+  </table></div>
+  <h3>Risks</h3>
+  <div class="tbl"><table>
+    <tr><th>Risk</th><th>Mitigation</th></tr>
+    <tr><td><ins>The build drifts back to rigid rules and templates</ins></td><td><ins>The test for every gate, AI intake first, a demo at every step</ins></td></tr>
+    <tr><td><ins>The AI misreads a column or picks the wrong rows</ins></td><td><ins>Closed transforms, fixed formulas with closed row filters, the method shown in the click view, the number check, evals that block a release</ins></td></tr>
+    <tr><td>Too many services slow a small team</td><td><ins>Start thin,</ins> shared template, review after M5</td></tr>
+    <tr><td>The product is easy to copy</td><td>Compete on <del>lineage, the approval workflow and investor access</del> <ins>traceable figures, near-zero setup and the investor portfolio view</ins></td></tr>
+    <tr><td><del>Costs creep beyond the $192 base</del></td><td><del>Entitlement limits on AI use</del> <ins>Parked with commercials</ins></td></tr>
+    <tr><td>Isolation bugs, hostile cells, data retention, one region</td><td>As before</td></tr>
+  </table></div>
+</section>
+</div>

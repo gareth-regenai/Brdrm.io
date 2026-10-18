@@ -1,0 +1,1146 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+/* status pills and icons: tint fill, matching text, no outlines, same in both modes */
+.pill,.tag{border:1px solid transparent}
+.pill.ok{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.pill.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.pill.off{background:var(--err-bg);color:var(--err);border-color:transparent}
+.pill.rev{background:var(--info-bg);color:var(--info);border-color:transparent}
+.pill.appr{background:var(--ok);color:#fff;border-color:transparent}
+:root[data-theme="dark"] .pill.appr{color:#0B1A20}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pill.appr{color:#0B1A20}}
+:root[data-theme="dark"] .pill.warn,:root[data-theme="dark"] .ic.w{color:var(--warn)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pill.warn,:root:not([data-theme="light"]) .ic.w{color:var(--warn)}}
+.ic.ok{background:var(--ok-bg);color:var(--ok)}
+.ic.w{background:var(--warn-bg);color:var(--warn)}
+.ic.e{background:var(--err-bg);color:var(--err)}
+.stepper span.now{background:var(--accent);color:#fff;border-color:var(--accent)}
+.stepper span.done{background:transparent;color:var(--ink);border-color:var(--ink)}
+.tag{background:var(--info-bg);color:var(--info)}
+.skill{background:transparent;color:var(--accent-ink);border:1px solid var(--accent)}
+:root[data-theme="dark"] .skill{color:var(--accent);border-color:var(--accent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .skill{color:var(--accent);border-color:var(--accent)}}
+.drop{border-color:var(--border)}
+
+/* full pass: corners, gantt, matrix, notes, icons */
+[class]{border-radius:0!important}
+.av,.ic,.sw .tr,.sw .th{border-radius:50%!important}
+.ic.e{border-radius:50%!important}
+.gb.active{background:var(--brand-fill);color:var(--on-brand)}
+.gb.done{background:var(--ok-bg);color:var(--ok);border:0}
+.gb.target{background:var(--accent);color:#fff}
+.gb.gate{background:var(--ink);color:var(--bg)}
+.gb.def{border:1px dashed var(--border);color:var(--ink-muted)}
+.note{background:var(--warn-bg);color:var(--warn)}
+.mc.lo{background:var(--ok-bg)}.mc.md{background:var(--warn-bg)}.mc.hi{background:var(--err-bg)}
+.mc b{background:var(--ink);color:var(--bg)}
+.frame{box-shadow:0 20px 48px rgba(0,0,0,.12)}
+.furl{border:1px solid var(--border-subtle)}
+.mbar select{border-radius:0}
+.pill,.tag,.gb,.stepper span{font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.gb{letter-spacing:.04em;font-size:10.5px}
+
+.pill{background:var(--bg);border-color:transparent;color:var(--ink-muted)}
+.pill.ok,.pill.warn,.pill.off,.pill.rev,.pill.appr{border-color:transparent}
+</style></head><body>
+<title>BoardRoom.io Mockup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,300;6..12,400;6..12,500;6..12,600;6..12,700&display=swap">
+<style>
+:root{
+  --seat:#8AA0A8;--navy:#123C4A;--red:#8E2F20;--slate:#4C6B76;--peach:#E0613C;--pale:#EEF3F4;
+  --bg:#EEF3F4;--surface:#FFFFFF;--ink:#123C4A;--ink-muted:#4C6B76;--border:#B8C9CF;--border-subtle:#D4DFE2;
+  --brand:#123C4A;--on-brand:#FFFFFF;--brand-fill:#123C4A;--accent:#E0613C;--on-accent:#FFFFFF;--accent-ink:#B3421F;
+  --highlight:#E0613C;--on-highlight:#FFFFFF;--solid:#123C4A;--on-solid:#FFFFFF;--focus:#E0613C;--ok:#1E7F86;--ok-bg:#D8ECEE;--warn:#B3421F;--warn-bg:#FBE3DA;--err:#8E2F20;--err-bg:#F3D2CA;--info:#2E6E86;--info-bg:#DCEAF0;
+  --c1:#123C4A;--c2:#8AA0A8;--c3:#E0613C;--c4:#8E2F20;--c5:#2E7A94;--c6:#B9C9CE;--c7:#D9A08C;--c8:#4C6B76;--c9:#7E5FA8;--c10:#1F7A5C;--serif:'Outfit',system-ui,sans-serif;--sans:'Nunito Sans',system-ui,sans-serif;--mono:'Nunito Sans',system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#131516;--surface:#1C1F21;--ink:#FFFFFF;--ink-muted:#C3CBCE;--border:#3E4448;--border-subtle:#2A2E31;
+  --brand:#8FD0E6;--on-brand:#FFFFFF;--brand-fill:#26333A;--accent:#F4AB93;--on-accent:#131516;--accent-ink:#F4AB93;--focus:#F4AB93;
+  --ok:#84D3D9;--ok-bg:#17343A;--warn:#F4AB93;--warn-bg:#362622;--err:#FFBBAB;--err-bg:#3E2220;--info:#8FD0E6;--info-bg:#1C3038;--solid:#FFFFFF;--on-solid:#131516;--c1:#FFFFFF;--c2:#9AA4A9;--c3:#F2A58C;--c4:#FFB4A3;--c5:#6FB5CC;--c6:#C3CBCE;--c7:#D9A08C;--c8:#4A565C;--c9:#B79AD6;--c10:#5CC79B;--seat:#F2A58C;--highlight:#E0613C;--on-highlight:#FFFFFF;--peach:#E0613C;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131516;--surface:#1C1F21;--ink:#FFFFFF;--ink-muted:#C3CBCE;--border:#3E4448;--border-subtle:#2A2E31;
+  --brand:#8FD0E6;--on-brand:#FFFFFF;--brand-fill:#26333A;--accent:#F4AB93;--on-accent:#131516;--accent-ink:#F4AB93;--focus:#F4AB93;
+  --ok:#84D3D9;--ok-bg:#17343A;--warn:#F4AB93;--warn-bg:#362622;--err:#FFBBAB;--err-bg:#3E2220;--info:#8FD0E6;--info-bg:#1C3038;--solid:#FFFFFF;--on-solid:#131516;--c1:#FFFFFF;--c2:#9AA4A9;--c3:#F2A58C;--c4:#FFB4A3;--c5:#6FB5CC;--c6:#C3CBCE;--c7:#D9A08C;--c8:#4A565C;--c9:#B79AD6;--c10:#5CC79B;--seat:#F2A58C;--highlight:#E0613C;--on-highlight:#FFFFFF;--peach:#E0613C;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px));padding-block:0 48px;margin:0;overflow-x:clip}
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,5cqw,3.4rem)}h2{font-size:1.6rem}h3{font-size:1.15rem}
+p{margin:0}a{color:var(--ink)}
+.mono{font-family:var(--mono)}.muted{color:var(--ink-muted)}.small{font-size:13px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto}
+button{font:inherit;cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:6px;border:1.5px solid var(--border);background:transparent;color:var(--ink);font-weight:600;text-decoration:none}
+.btn.pri{background:var(--brand-fill);color:var(--on-brand);border-color:var(--brand-fill)}
+:root[data-theme="dark"] .btn.pri{background:var(--highlight);color:var(--on-highlight);border-color:var(--highlight)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.pri{background:var(--highlight);color:var(--on-highlight);border-color:var(--highlight)}}
+.btn.dng{border-color:var(--accent-ink);color:var(--accent-ink)}
+.btn.sm{padding:6px 12px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+/* mock bar */
+.mbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--ink);color:var(--bg);margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-left,0px));display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:13px}
+.mbar b{font-family:var(--mono);font-weight:500;letter-spacing:.06em;text-transform:uppercase;font-size:11px}
+.mbar button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:999px;padding:3px 12px;font-size:13px}
+.mbar button[aria-pressed=true]{background:var(--bg);color:var(--ink)}
+.mbar .sp{flex:1}
+.sw{display:inline-flex;align-items:center;gap:8px;background:transparent;border:0;color:inherit;padding:0;font-size:13px}
+.sw .tr{position:relative;width:52px;height:26px;border-radius:999px;background:var(--bg);color:var(--ink);display:block}
+.sw .th{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:var(--ink);transition:transform .2s;display:grid;place-items:center;font-size:12px;line-height:1;color:var(--bg)}
+.sw[aria-checked=true] .th{transform:translateX(26px)}
+.mbar button.sw{border:0;border-radius:0;padding:0}
+/* logo */
+.logo{display:inline-flex;align-items:center;gap:10px;font-family:var(--serif);font-weight:600;font-size:1.25rem;color:var(--ink);text-decoration:none}
+.logo svg{width:30px;height:30px}
+/* website */
+.nav{display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding-block:18px}
+.nav .sp{flex:1}.nav a.l{text-decoration:none;font-weight:500;cursor:pointer}
+.nav a.l[aria-current=page]{border-bottom:2px solid var(--accent-ink)}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;padding-block:48px 56px}
+.hero p.lead{font-size:1.15rem;margin-block:18px 26px;max-width:46ch;color:var(--ink-muted)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:12px}
+.card{background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px;padding:20px;min-width:0}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.band{background:var(--brand-fill);color:var(--on-brand);border-radius:12px;padding:36px;margin-block:32px}
+:root[data-theme="dark"] .band{background:var(--surface);color:var(--ink)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .band{background:var(--surface);color:var(--ink)}}
+.band .muted{color:inherit;opacity:.85}
+.steps{counter-reset:s;display:grid;gap:16px;grid-template-columns:repeat(3,1fr)}
+.steps .card::before{counter-increment:s;content:counter(s,decimal-leading-zero);font-family:var(--mono);color:var(--accent-ink);font-size:13px;display:block;margin-bottom:8px}
+.price{font-family:var(--serif);font-size:2.4rem;font-weight:600}
+.price small{font-size:14px;font-family:var(--sans);font-weight:400;color:var(--ink-muted)}
+.card ul{margin:12px 0 0;padding-left:18px}.card li{margin-block:4px}
+.card.feat{border:2px solid var(--brand)}
+.tag{display:inline-block;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--highlight);color:var(--on-highlight)}
+footer.f{border-top:1px solid var(--border-subtle);margin-top:56px;padding-top:20px;display:flex;gap:20px;flex-wrap:wrap;color:var(--ink-muted);font-size:13px}
+.field{display:grid;gap:6px;margin-bottom:14px}
+.field label{font-weight:600;font-size:13px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--border);border-radius:6px;padding:9px 12px;width:100%}
+textarea{min-height:110px;resize:vertical}
+/* app shell */
+.shell{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px;padding-top:20px}
+.side{display:flex;flex-direction:column;gap:4px;position:sticky;top:60px;align-self:start}
+.side .logo{margin-bottom:14px}
+.side button{text-align:left;background:none;border:0;color:var(--ink);padding:9px 12px;border-radius:6px;font-weight:500}
+.side button[aria-current=page]{background:var(--surface);box-shadow:inset 3px 0 0 var(--accent-ink);font-weight:600}
+.side .co{margin-top:18px;padding:12px;border:1px solid var(--border-subtle);border-radius:8px;font-size:13px}
+.main{min-width:0;grid-template-columns:minmax(0,1fr);width:100%;display:grid;gap:20px;align-content:start}
+.ph{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;justify-content:space-between}
+.stepper{display:flex;gap:6px;flex-wrap:wrap}
+.stepper span{font:500 12px var(--mono);padding:5px 10px;border-radius:999px;border:1px solid var(--border);color:var(--ink-muted)}
+.stepper span.done{background:var(--solid);color:var(--on-solid);border-color:var(--solid)}
+.stepper span.now{background:var(--highlight);color:var(--on-highlight);border-color:var(--highlight)}
+.pill{display:inline-block;font:500 12px var(--mono);padding:2px 10px;border-radius:999px;border:1.5px solid var(--border);color:var(--ink);white-space:nowrap}
+.pill.rev{background:var(--highlight);color:var(--on-highlight);border-color:var(--highlight)}
+.pill.ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.pill.off{background:var(--err-bg);color:var(--accent-ink);border-color:var(--accent-ink)}
+.pill.appr{background:var(--solid);color:var(--on-solid);border-color:var(--solid)}
+.pill.warn{background:var(--warn-bg);color:var(--ink);border-color:var(--peach)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px;padding:14px;cursor:pointer;text-align:left;color:var(--ink);font:inherit}
+.tile .k{font-size:12px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.06em}
+.tile .v{font-family:var(--serif);font-size:1.7rem;font-weight:600;line-height:1.2}
+.tile .d{font:12px var(--mono);color:var(--ink-muted)}.tile .d.bad{color:var(--accent-ink);font-weight:500}
+.tile:hover{border-color:var(--brand)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+.tw{overflow-x:auto}
+th{text-align:left;font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-muted);padding:8px 10px;border-bottom:1.5px solid var(--border)}
+td{padding:10px;border-bottom:1px solid var(--border-subtle);vertical-align:middle}
+td.n,th.n{text-align:right;font-family:var(--mono)}
+.drop{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;color:var(--ink-muted)}
+.skill{display:inline-flex;align-items:center;gap:6px;font:500 11px var(--mono);letter-spacing:.04em;padding:3px 9px;border-radius:4px;background:var(--highlight);color:var(--on-highlight)}
+.map{display:grid;grid-template-columns:1fr 36px 1fr auto;gap:8px 10px;align-items:center}
+.map .arrow{text-align:center;color:var(--ink-muted)}
+.conf{font:12px var(--mono);color:var(--ink-muted)}
+.chk{display:grid;grid-template-columns:28px 1fr auto;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-subtle);align-items:start}
+.ic{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:600 12px var(--sans)}
+.ic.ok{background:var(--ok-bg);color:var(--ok)}.ic.w{background:var(--highlight);color:var(--on-highlight)}.ic.e{background:var(--err-bg);color:var(--accent-ink)}
+.sec{display:grid;gap:14px}
+.comm{border-left:4px solid var(--peach);padding:4px 0 4px 14px;display:grid;gap:8px}
+.comm[contenteditable=true]{outline:2px solid var(--focus);outline-offset:4px}
+.bars{width:100%;height:auto}
+.trace{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:16px;width:min(360px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:2px solid var(--brand);border-radius:10px;padding:16px;z-index:60;box-shadow:0 8px 28px rgba(4,31,44,.28)}
+.trace h3{margin-bottom:8px}
+.trace dl{margin:0;display:grid;grid-template-columns:90px 1fr;gap:6px 10px;font-size:13px}
+.trace dt{color:var(--ink-muted);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding-top:2px}
+.trace dd{margin:0}
+.paper{background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px;padding:clamp(16px,4cqw,36px);display:grid;gap:26px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.av{width:34px;height:34px;border-radius:50%;background:var(--slate);color:#fff;display:inline-grid;place-items:center;font:600 13px var(--sans)}
+:root[data-theme="dark"] .av{color:#041F2C}
+.card summary{cursor:pointer}
+.hubtop{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1.5px solid var(--border-subtle);margin-bottom:18px}
+.tab{background:none;border:0;color:var(--ink-muted);padding:9px 14px;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-1.5px}
+.tab[aria-current=page]{color:var(--ink);border-bottom-color:var(--accent-ink)}
+.pb{display:grid;grid-template-columns:minmax(120px,220px) 1fr 80px;gap:12px;align-items:center;margin-top:12px;font-size:13px}
+.pbt{height:6px;background:var(--border-subtle);border-radius:3px;overflow:hidden;display:block}.pbt span{display:block;height:100%}
+.pbv{text-align:right;font-size:12px}
+.lc{display:block;width:100%}.hero2{border-left:4px solid var(--peach)}
+.note{background:var(--warn-bg);border-radius:8px;padding:10px 14px;font-size:13px}
+.dev{font:12px var(--mono);color:var(--ink-muted)}
+.tile.static{cursor:default}.tile.static:hover{border-color:var(--border-subtle)}
+.hubtop .sp{flex:1}
+.tabs.sub{margin-top:-6px;border-bottom-style:dashed}
+.tab{white-space:nowrap}
+.tabs{overflow-x:auto;flex-wrap:nowrap}
+.ic2{display:block}
+.gantt{min-width:640px;display:grid;gap:4px}
+.gr{display:grid;grid-template-columns:190px repeat(6,1fr);gap:4px;align-items:center}
+.gh span{font:500 11px var(--mono);color:var(--ink-muted);text-transform:uppercase;letter-spacing:.07em;text-align:center}
+.gg span{grid-column:1/-1;font:600 12px var(--serif);padding:8px 0 2px;color:var(--ink)}
+.gl{font-size:12px;color:var(--ink)}
+.gb{font:500 11px var(--mono);padding:5px 8px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gb.active{background:var(--brand-fill);color:var(--on-brand)}
+:root[data-theme="dark"] .gb.active{background:var(--c8);color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .gb.active{background:var(--c8);color:#fff}}
+.gb.gate{background:var(--accent);color:var(--on-accent)}
+.gb.target{background:var(--highlight);color:var(--on-highlight)}
+.gb.done{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok)}
+.gb.def{border:1.5px dashed var(--border);color:var(--ink-muted)}
+.donut{display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.donut svg{width:190px;height:190px;flex:none}
+.legend{display:grid;gap:6px;font-size:13px;min-width:0}
+.legend .lg{display:flex}.legend .mono{margin-left:auto;padding-left:16px}
+.sw2{width:12px;height:12px;border-radius:2px;display:inline-block}
+.eq{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:12px;font-size:1.4rem}
+.eq div{display:grid;text-align:center}.eq b{font-family:var(--serif);font-size:1.6rem}.eq span{font:11px var(--mono);color:var(--ink-muted)}
+.matrix{display:grid;grid-template-columns:18px repeat(5,1fr);gap:3px;max-width:300px}
+.mc{aspect-ratio:1;border-radius:3px;display:flex;flex-wrap:wrap;gap:2px;align-items:center;justify-content:center;font:600 10px var(--mono)}
+.mc.lo{background:var(--ok-bg)}.mc.md{background:var(--warn-bg)}.mc.hi{background:var(--err-bg)}
+.mc b{background:var(--ink);color:var(--bg);border-radius:3px;padding:0 3px}
+.ax{font:10px var(--mono);color:var(--ink-muted);display:grid;place-items:center}
+.gaprow{display:grid;grid-template-columns:minmax(120px,1.4fr) 1.4fr 36px auto;gap:12px;align-items:center;width:100%;background:none;border:0;border-bottom:1px solid var(--border-subtle);padding:9px 4px;color:var(--ink);text-align:left;font-size:13px}
+.gaprow[aria-pressed=true]{background:var(--bg)}
+.task{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-subtle);font-size:14px}
+.task input{width:18px;height:18px;padding:0;accent-color:var(--brand-fill)}
+.addsec{border:2px dashed var(--border);background:transparent;text-align:center;padding:24px}
+.pgbody{gap:18px}
+.risk .row{gap:16px}
+@keyframes dr{from{stroke-dasharray:0 var(--C)}}
+@keyframes fin{from{opacity:0;transform:translateY(6px)}}
+.seg{animation:dr .8s cubic-bezier(.2,.7,.2,1) both;transition:stroke-width .15s}
+.seg[data-drill]{cursor:pointer}.seg[data-drill]:hover,.seg[data-drill]:focus{stroke-width:22;outline:none}
+.drillin{animation:fin .35s ease both}
+.lg{display:flex;gap:8px;align-items:center;background:none;border:0;color:var(--ink);font:inherit;text-align:left;padding:2px 0}
+.lg.dr{cursor:pointer;font-weight:600;text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px}
+.lnk{background:none;border:0;color:var(--ink);font:inherit;font-weight:600;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
+@media (prefers-reduced-motion:reduce){.seg,.drillin{animation:none}}
+
+.dseg{transition:stroke-dasharray .9s cubic-bezier(.2,.7,.2,1),stroke-width .15s;pointer-events:stroke}
+.dseg.dr{cursor:pointer}.dseg:hover{stroke-width:23}
+.legend button{display:flex;gap:8px;align-items:center;background:none;border:0;color:var(--ink);padding:2px 0;font:inherit;font-size:13px;text-align:left;width:100%}
+.legend button.dr{cursor:pointer;font-weight:600}.legend button.dr::after{content:'›';margin-left:6px;color:var(--ink-muted)}
+.legend button:not(.dr){cursor:default}
+.srow{display:grid;grid-template-columns:minmax(120px,1.2fr) 2fr auto 14px;gap:12px;align-items:center;width:100%;background:none;border:0;border-bottom:1px solid var(--border-subtle);border-left:3px solid transparent;padding:10px 8px;color:var(--ink);text-align:left;font-size:14px}
+.srow.cl{cursor:pointer}.srow.cl:hover,.srow.on{background:var(--bg)}.srow.on{border-left-color:var(--accent-ink)}
+.srow .nm{display:flex;gap:8px;align-items:center;min-width:0;flex-wrap:wrap}
+.srow .bar{height:6px;border-radius:3px;display:block;transition:width .7s cubic-bezier(.2,.7,.2,1)}
+.srow .amt{font-family:var(--mono);font-size:13px;text-align:right}
+.toolp{border-left:4px solid var(--accent-ink)}
+.toolp dl{display:grid;grid-template-columns:120px 1fr;gap:6px 14px;margin:12px 0 0;font-size:14px}.toolp dt{font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);padding-top:3px}.toolp dd{margin:0}
+.curve svg{width:100%;height:auto;display:block;min-width:620px}
+.curve .cv{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.8s .2s ease-out forwards}
+.curve .pt{opacity:0;animation:fade .5s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}@keyframes fade{to{opacity:1}}
+.curve .halo{transform-box:fill-box;transform-origin:center;animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:.55;transform:scale(1.6)}}
+@media (prefers-reduced-motion:reduce){.curve .cv{animation:none;stroke-dashoffset:0}.curve .pt{animation:none;opacity:1}.curve .halo{animation:none}.dseg,.srow .bar{transition:none}}
+
+.display{font-size:clamp(2.4rem,5.4cqw,4.3rem);line-height:1.04;letter-spacing:-.02em}
+.display u{text-decoration:none;color:var(--accent)}
+.btn.big{padding:13px 24px;font-size:16px}
+.hero-big{display:grid;grid-template-columns:1fr 1.12fr;gap:56px;align-items:center;padding-block:44px 28px;position:relative}
+.hero-big .lead{font-size:1.2rem;margin-block:20px 26px;max-width:48ch;color:var(--ink-muted)}
+.bgmark{position:absolute;right:0;top:50%;transform:translateY(-50%);width:min(560px,90%);height:auto;aspect-ratio:1;opacity:.07;pointer-events:none;z-index:0}
+.hcopy,.hvis{position:relative;z-index:1;min-width:0}.hvis::before{content:"";position:absolute;inset:-8% 0;background:radial-gradient(closest-side,color-mix(in srgb,var(--highlight) 38%,transparent),transparent);z-index:-1;pointer-events:none}
+.frame{background:var(--surface);border:1px solid var(--border-subtle);border-radius:12px;box-shadow:0 28px 60px -24px rgba(4,31,44,.45);overflow:hidden;min-width:0}
+.fbar{display:flex;gap:6px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border-subtle);background:var(--bg)}
+.fbar i{width:10px;height:10px;border-radius:50%;background:var(--slate);opacity:.55;display:block}
+.furl{margin-left:10px;font-size:11px;color:var(--ink-muted);background:var(--surface);border-radius:999px;padding:2px 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.fbody{padding:18px;min-width:0}
+.mtabs{display:flex;gap:14px;font:600 12px var(--sans);color:var(--ink-muted);margin-top:10px;border-bottom:1px solid var(--border-subtle);overflow:hidden;white-space:nowrap}
+.mtabs span{padding:6px 0}.mtabs .on{color:var(--ink);border-bottom:2px solid var(--accent-ink)}
+.float{position:absolute;white-space:nowrap;background:var(--surface);border:1px solid var(--border-subtle);border-radius:10px;padding:10px 14px;box-shadow:0 14px 30px -12px rgba(4,31,44,.4);font-size:13px;display:flex;gap:8px;align-items:center;max-width:300px}
+.float.f1{left:-24px;bottom:-26px}.float.f2{right:-10px;top:-30px;display:block;transform:rotate(1.5deg)}.float.f3{right:36px;bottom:-30px}.hvis{padding-bottom:34px;padding-top:22px}
+.sect{padding-block:56px 8px}.sect.narrow{max-width:760px;margin-inline:auto}
+.sh{text-align:center;margin-bottom:26px}.sh h2{font-size:clamp(1.7rem,3.2cqw,2.4rem)}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ba1{background:transparent;border:1.5px dashed var(--border)}.ba2{background:var(--brand-fill);color:var(--on-brand);border:0}
+:root[data-theme="dark"] .ba2{background:var(--surface);color:var(--ink);border:1px solid var(--border-subtle)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ba2{background:var(--surface);color:var(--ink);border:1px solid var(--border-subtle)}}
+.ba2 .eyebrow{color:inherit;opacity:.85}
+.ba ul{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}.ba li{padding-left:26px;position:relative}
+.ba ul.x li::before{content:'×';position:absolute;left:4px;color:var(--accent-ink);font-weight:700}
+.ba ul.v li::before{content:'✓';position:absolute;left:4px;font-weight:700}
+.steps4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.svis{margin-top:10px;font-size:13px;min-width:0}.svis .chk>span{min-width:0;overflow-wrap:anywhere}.svis .chk .pill{white-space:normal;text-align:right}.svis .chk{padding:7px 0}.svis .drop{font-size:12px}
+.svis.big2{margin:0;font-size:14px;padding:22px}
+.mrow{display:grid;grid-template-columns:1fr 14px 1fr auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border-subtle);font-size:13px}
+.showtabs{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.showtabs .tab{border-radius:999px;border:1.5px solid var(--border-subtle);margin:0;padding:7px 16px;background:var(--surface)}
+.showtabs .tab[aria-current=page]{background:var(--solid);color:var(--on-solid);border-color:var(--solid)}
+#showin{transition:opacity .15s}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.split.rev2>div:first-child{order:2}
+.stepsec{padding-block:36px;border-bottom:1px solid var(--border-subtle)}
+.bignum{font:600 4.5rem/1 var(--serif);color:var(--highlight);-webkit-text-stroke:1px var(--ink-muted)}
+.tracecard{border-left:4px solid var(--accent-ink)}
+.trd{display:grid;grid-template-columns:80px 1fr;gap:8px 12px;margin:12px 0 0;font-size:14px}.trd dt{font:500 11px var(--mono);text-transform:uppercase;color:var(--ink-muted);padding-top:3px}.trd dd{margin:0}
+.role{position:relative;padding-top:34px}.seat{position:absolute;top:-14px;left:20px;width:30px;height:30px;border-radius:50%;border:3px solid var(--bg)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+.stats b{display:block;font:600 2.4rem/1.1 var(--serif)}.stats span{font-size:13px;opacity:.88}
+.band.cta{text-align:center;position:relative;overflow:hidden;margin-top:56px}.band.cta .bgmark{right:-60px;top:50%;width:420px;height:420px;opacity:.1}
+.band.cta>*:not(.bgmark){position:relative}
+.ft{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:24px;margin-top:56px;padding-top:28px;border-top:1px solid var(--border-subtle);font-size:14px}
+.ft div{display:grid;gap:8px;align-content:start}.ft b{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted)}.ft a,.ft span{color:var(--ink);text-decoration:none;cursor:pointer}
+.ft .ftb{grid-column:1/-1;border-top:1px solid var(--border-subtle);padding-top:14px}
+
+@media(max-width:640px){.mbar{gap:6px;padding-block:6px}.mbar b{display:none}.mbar button,.mbar select{padding:2px 10px;font-size:12px}}
+/* ---- adaptive layout: container queries so the width preview works ---- */
+#vp{container-type:inline-size;width:min(100%,var(--vpw,100%));margin:0 auto}
+#vp.sim{outline:2px dashed var(--border);outline-offset:8px;border-radius:6px;margin-block:14px}
+.mbar select{background:transparent;color:inherit;border:1px solid currentColor;border-radius:999px;padding:3px 10px;font-size:13px;width:auto}
+.mbar select option{color:#08415C;background:#fff}
+.ico{width:22px;height:22px;flex:none}
+.nav .menu{display:none;background:none;border:1.5px solid var(--border);color:var(--ink);border-radius:8px;width:44px;height:44px;place-items:center}
+.nav .links{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.side button{display:flex;gap:10px;align-items:center}
+.side .logo .lt{display:inline}
+.shell{display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px}
+@media (pointer:coarse){.btn{min-height:44px}.btn.sm{min-height:42px}.tab{min-height:44px}input,select{min-height:44px}.srow,.gaprow,.task{min-height:48px}.mbar button,.mbar select{min-height:34px}}
+@container (max-width:1100px){
+ .shell{grid-template-columns:76px minmax(0,1fr);gap:16px}
+ .side{gap:4px}.side .logo{justify-content:center;margin-bottom:10px}.side .logo .lt{display:none}.side .co{display:none}
+ .side button{flex-direction:column;gap:3px;font-size:11px;padding:10px 2px;text-align:center;justify-content:center;border-radius:10px}
+ .side button[aria-current=page]{box-shadow:inset 0 -3px 0 var(--accent-ink)}
+ .main .g3,.main .g4{grid-template-columns:repeat(2,1fr)}
+ .steps4{grid-template-columns:repeat(2,1fr)}
+ .hero-big{gap:32px}.nav .links{gap:14px}.nav .l{font-size:14px}
+ .gr{grid-template-columns:150px repeat(6,1fr)}
+}
+@container (max-width:760px){
+ .hero,.g2,.g3,.g4,.steps{grid-template-columns:1fr}
+ .map{grid-template-columns:1fr 24px 1fr}.map .conf{grid-column:1/-1}
+ .band{padding:22px}
+ .hero-big,.ba,.split,.stats{grid-template-columns:1fr}
+ .split.rev2>div:first-child{order:0}.split{gap:20px}
+ .float{position:static;margin-top:10px;max-width:none;transform:none!important;white-space:normal}
+ .ft{grid-template-columns:1fr 1fr}
+ .gr{grid-template-columns:130px repeat(6,1fr)}.gaprow{grid-template-columns:1fr 60px 30px}.gaprow .pill{display:none}
+ .srow{grid-template-columns:1fr auto 14px}.srow .bar{display:none}.toolp dl{grid-template-columns:1fr}
+}
+@container (max-width:640px){
+ .nav{position:relative}
+ .nav .menu{display:grid}
+ .nav .links{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:30;flex-direction:column;align-items:stretch;gap:0;background:var(--surface);border:1px solid var(--border-subtle);border-radius:12px;padding:8px;box-shadow:0 18px 40px -16px rgba(4,31,44,.45)}
+ .nav.open .links{display:flex}
+ .nav .links .l{padding:12px;border-bottom:1px solid var(--border-subtle);font-size:16px}
+ .nav .links .btn{justify-content:center;margin-top:8px}
+ .shell{display:flex;flex-direction:column;gap:12px;padding-bottom:0}
+ .side{align-self:stretch;order:2;position:sticky;top:auto;bottom:0;z-index:40;flex-direction:row;justify-content:space-around;background:var(--surface);border:1px solid var(--border-subtle);border-radius:14px;padding:6px;margin-top:8px;box-shadow:0 -10px 30px -14px rgba(4,31,44,.35)}
+ .side .logo{display:none}
+ .side button{flex:1;padding:6px 2px;min-width:0}
+ .side button[aria-current=page]{box-shadow:inset 0 3px 0 var(--accent-ink);background:var(--bg)}
+ .steps4{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.ft{grid-template-columns:1fr}
+ .stepper{flex-wrap:nowrap;overflow-x:auto}.stepper span{flex:none}
+ .ph{gap:8px}.ph .btn.pri{width:100%;justify-content:center}
+ .hubtop select{max-width:100%!important;flex:1 1 100%}
+ .eq{font-size:1.1rem;gap:8px}
+ .tiles{grid-template-columns:1fr 1fr}
+ .display{font-size:clamp(2.1rem,9cqw,3rem)}
+}
+
+/* ── Direction v2: Outfit + Nunito Sans, deep ocean and coral, square corners ── */
+h1,h2,h3{font-weight:600;letter-spacing:-.02em}
+.logo{font-weight:600}
+.btn,.card,.band,.tag,input,select,textarea,.side button,.side .co,.stepper span,.pill,.tile,.drop,.skill,.trace,.paper,.pbt,.mbar button,.band.cta,.ic.e{border-radius:0!important}
+.mbar button,.pill,.tag,.stepper span,.eyebrow,.skill,.mbar b{font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:11px}
+.mbar button{letter-spacing:.02em;text-transform:none;font-size:13px;font-weight:600}
+.btn{font-weight:700;border-width:1px}
+.nav a.l[aria-current=page]{border-bottom-color:var(--accent)}
+.comm{border-left-color:var(--accent)}
+.hero2{border-left-color:var(--accent)}
+.pill.warn{border-color:transparent;background:var(--warn-bg);color:#B6791F}
+:root[data-theme="dark"] .pill.warn{color:#E0B35A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pill.warn{color:#E0B35A}}
+.skill{background:transparent;color:var(--accent-ink);border:1px solid var(--accent);padding:3px 8px}
+.ic.w{background:var(--warn-bg);color:#B6791F}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-dash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="5" rx="1.5"/><rect x="13.5" y="11.5" width="7.5" height="9.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/></symbol><symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 15v4a1 1 0 001 1h14a1 1 0 001-1v-4"/></symbol><symbol id="i-pack" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M9 17v-4M12 17V9M15 17v-2"/></symbol><symbol id="i-team" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.5 0 4.5 2 4.5 5"/></symbol><symbol id="i-bill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 10h19M6 15h4"/></symbol><symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol><symbol id="mark" viewBox="0 0 64 64"><circle cx="32" cy="32" r="16" fill="var(--ink)"/><circle cx="32" cy="7" r="6.2" fill="var(--accent)"/><circle cx="53.65" cy="19.5" r="6.2" fill="var(--seat)"/><circle cx="53.65" cy="44.5" r="6.2" fill="var(--seat)"/><circle cx="32" cy="57" r="6.2" fill="var(--seat)"/><circle cx="10.35" cy="44.5" r="6.2" fill="var(--seat)"/><circle cx="10.35" cy="19.5" r="6.2" fill="var(--seat)"/></symbol></svg>
+
+<div class="mbar" role="toolbar" aria-label="Mockup controls">
+  <b>Mockup · sample data</b>
+  <button data-area="web" aria-pressed="true">Website</button>
+  <button data-area="app" aria-pressed="false">App (CEO)</button>
+  <button data-area="inv" aria-pressed="false">Investor view</button>
+  <span class="sp"></span>
+  <select id="vps" aria-label="Preview width" title="Preview a device width"><option value="">View: this screen</option><option value="360">Fold cover (360)</option><option value="400">Phone (400)</option><option value="720">Fold unfolded, narrow (720)</option><option value="980">Fold unfolded, wide (980)</option><option value="1280">Laptop (1280)</option></select>
+  <button id="resetBtn" aria-label="Reset the mockup">Reset</button>
+  <button id="theme" class="sw" role="switch" aria-checked="false" aria-label="Dark mode"><span id="thl">Light</span><span class="tr"><span class="th" id="thi">☀</span></span></button>
+</div>
+
+<div id="vp"><div class="wrap">
+
+<!-- ================= WEBSITE ================= -->
+<div id="web">
+ <nav class="nav" aria-label="Site">
+  <a class="logo" data-go="w-home" href="#" onclick="return false"><svg><use href="#mark"/></svg>BoardRoom.io</a>
+  <span class="sp"></span>
+  <button class="menu" data-menu aria-expanded="false" aria-label="Menu"><svg class="ico"><use href="#i-menu"/></svg></button>
+  <div class="links"><a class="l" data-go="w-how">How it works</a><a class="l" data-go="w-inv">For investors</a><a class="l" data-go="w-sec">Security</a><a class="l" data-go="w-price">Pricing</a>
+  <a class="btn sm" data-go="w-signup">Sign in</a><a class="btn pri sm" data-go="w-signup">Get started</a></div>
+ </nav>
+
+ <section id="w-home" class="view"></section>
+
+ <section id="w-how" class="view" hidden></section>
+
+ <section id="w-inv" class="view" hidden>
+  <div class="hero"><div><p class="eyebrow">For investors and angels</p><h1>Every company you back, one calm view.</h1><p class="lead">Stop chasing PDFs. Founders you sponsor publish approved packs here, in the same format every quarter.</p><div class="row"><a class="btn pri" data-go="w-signup">Create investor account</a><a class="btn" data-go="w-price">See plans</a></div></div>
+   <div class="card"><b>Portfolio · sample</b><div class="tw"><table style="margin-top:8px"><thead><tr><th>Company</th><th class="n">Runway</th><th>Latest</th></tr></thead><tbody>
+    <tr><td>Kestrel Field</td><td class="n">17.6 mo</td><td><span class="pill appr">Q3 approved</span></td></tr>
+    <tr><td>Fenwick Labs</td><td class="n">9 mo</td><td><span class="pill appr">Q3 approved</span></td></tr>
+    <tr><td>Harbour Foods</td><td class="n">5 mo</td><td><span class="pill off">Runway low</span></td></tr>
+    <tr><td>Lumen Health</td><td class="n">—</td><td><span class="pill rev">Awaiting CEO</span></td></tr></tbody></table></div></div></div>
+  <div class="grid g3"><div class="card"><h3>Approved only</h3><p class="muted">No drafts, no half-finished numbers.</p></div><div class="card"><h3>Trace any figure</h3><p class="muted">One click to the source file and calculation.</p></div><div class="card"><h3>Priced for portfolios</h3><p class="muted">Five companies for £59 a month, or let a company sponsor your seat.</p></div></div>
+ </section>
+
+ <section id="w-sec" class="view" hidden>
+  <div style="padding-block:40px 20px"><p class="eyebrow">Security and data</p><h1>Board numbers are sensitive. We treat them that way.</h1></div>
+  <div class="grid g2">
+   <div class="card"><h3>Hosting</h3><p class="muted">UK/EU customers are served from Frankfurt. Encryption in transit and at rest.</p></div>
+   <div class="card"><h3>Access</h3><p class="muted">Role-based, per-section. Every approval and edit is written to an audit log.</p></div>
+   <div class="card"><h3>No pay data</h3><p class="muted">Salary columns in HR exports are detected and dropped before anything is stored.</p></div>
+   <div class="card"><h3>AI features, explained</h3><p class="muted">Mapping and commentary use Claude. Turn them off and the core flow still works with templates.</p></div>
+   <div class="card"><h3>Retention</h3><p class="muted">Raw CSVs are deleted after processing on request. Approved packs are kept until you delete them.</p></div>
+  </div>
+  <p class="small muted" style="margin-top:12px">Mockup copy. Final wording depends on open data-retention decisions.</p>
+ </section>
+
+ <section id="w-price" class="view" hidden>
+  <div style="padding-block:40px 20px"><p class="eyebrow">Pricing</p><h1>Pay when the board pack matters.</h1></div>
+  <h3 style="margin-bottom:10px">For founders</h3>
+  <div class="grid g2">
+   <div class="card feat"><span class="tag">Most chosen</span><br><b>Growth</b><div class="price">£59<small> /month, annual billing</small></div><ul><li>5 internal users, 10 investor viewers</li><li>All 5 department templates</li><li>30 uploads and 30 AI mapping assists a month</li><li>10 AI commentary drafts per cycle</li><li>Last 12 cycles kept</li></ul></div>
+   <div class="card"><b>Scale</b><div class="price">£129<small> /month, annual billing</small></div><ul><li>15 internal users, 25 investor viewers</li><li>100 uploads and 100 AI mapping assists a month</li><li>30 AI commentary drafts per cycle</li><li>Unlimited cycle history</li><li>Files up to 50 MB, 500k rows</li></ul></div>
+  </div>
+  <h3 style="margin:26px 0 10px">For investors</h3>
+  <div class="grid g2">
+   <div class="card"><b>Angel</b><div class="price">£59<small> /month</small></div><p class="muted">Up to 5 companies (£11.80 each). Read-only portfolio view.</p></div>
+   <div class="card"><b>Sponsor</b><div class="price">Talk to us</div><p class="muted">Fund your portfolio's seats and get cross-company reporting.</p></div>
+  </div>
+  <p class="small muted" style="margin-top:12px">Example pricing for the mockup. Not final.</p>
+  <div class="card" style="margin-top:20px"><h3>Compare</h3><div class="tw"><table><thead><tr><th>Limit</th><th>Growth</th><th>Scale</th></tr></thead><tbody>
+   <tr><td>Price a month (annual)</td><td>£59</td><td>£129</td></tr><tr><td>Internal users</td><td>5</td><td>15</td></tr><tr><td>Investor viewers</td><td>10</td><td>25</td></tr><tr><td>Departments</td><td>All 5 templates</td><td>All 5 templates</td></tr><tr><td>Uploads a month</td><td>30</td><td>100</td></tr><tr><td>Max file size and rows</td><td>25 MB, 200k</td><td>50 MB, 500k</td></tr><tr><td>AI mapping assists a month</td><td>30</td><td>100</td></tr><tr><td>AI commentary drafts</td><td>10 per cycle</td><td>30 per cycle</td></tr><tr><td>Cycle history kept</td><td>Last 12</td><td>Unlimited</td></tr></tbody></table></div></div>
+ </section>
+
+ <section id="w-signup" class="view" hidden>
+  <div class="grid g2" style="padding-block:40px;align-items:start">
+   <div><p class="eyebrow">Get started</p><h1>Set up your board room.</h1><p class="lead muted" style="margin-top:14px;max-width:40ch">Takes about five minutes. Bring exports from Xero, HubSpot, Jira or HiBob if you have them handy.</p></div>
+   <form class="card" id="signup">
+    <div class="field"><label for="e1">Work email</label><input id="e1" type="email" value="ellie@kestrelfield.example"></div>
+    <div class="field"><label for="c1">Company</label><input id="c1" value="Kestrel Field Ltd"></div>
+    <div class="field"><label for="r1">I am a</label><select id="r1"><option>Founder or CEO</option><option>Department lead</option><option>Investor</option></select></div>
+    <button class="btn pri" type="submit">Create workspace</button>
+   </form>
+  </div>
+ </section>
+ <footer class="ft"><div class="ftc"><a class="logo"><svg><use href="#mark"/></svg>BoardRoom.io</a><p class="small muted" style="margin-top:8px;max-width:30ch">Board packs built from the numbers your team already has.</p></div>
+ <div><b>Product</b><a data-go="w-how">How it works</a><a data-go="w-price">Pricing</a><a data-go="w-sec">Security</a></div>
+ <div><b>For</b><a data-go="w-signup">Founders and CEOs</a><a data-go="w-inv">Investors</a><a data-go="w-signup">Department leads</a></div>
+ <div><b>Company</b><span>About</span><span>Contact</span><span>Privacy</span><span>Terms</span></div><div class="ftb small muted">© 2026 BoardRoom.io · Hosted in Frankfurt · Mockup</div></footer>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app" hidden>
+ <div class="shell">
+  <aside class="side" aria-label="App">
+   <a class="logo"><svg><use href="#mark"/></svg><span class="lt">BoardRoom.io</span></a>
+   <button data-go="a-dash" aria-current="page"><svg class="ico"><use href="#i-dash"/></svg><span>Dashboard</span></button>
+   <button data-go="a-upload"><svg class="ico"><use href="#i-up"/></svg><span>Upload</span></button>
+   <button data-go="a-pack"><svg class="ico"><use href="#i-pack"/></svg><span>Board pack</span></button>
+   <button data-go="a-team"><svg class="ico"><use href="#i-team"/></svg><span>Team</span></button>
+   <button data-go="a-bill"><svg class="ico"><use href="#i-bill"/></svg><span>Billing</span></button>
+   <div class="co"><b>Kestrel Field Ltd</b><br><span class="muted">Growth plan · you are Ellie (CEO)</span></div>
+  </aside>
+  <div class="main">
+   <div class="card" style="padding:12px 16px"><div class="stepper" id="stepper"></div></div>
+
+   <section id="a-dash" class="view">
+    <div class="ph"><div><h2>Good afternoon, Ellie</h2><p class="muted">Q3 2026 board meeting is on 23 October. Data current as of 30 September.</p></div><button class="btn pri" data-go="a-upload">Continue the Q3 cycle</button></div>
+    <div class="card" style="margin-top:16px"><div class="row" style="justify-content:space-between"><h3>Q3 2026 cycle</h3><span id="dashPill" class="pill rev">Collecting data</span></div>
+     <div class="tw"><table style="margin-top:8px"><thead><tr><th>Section</th><th>Owner</th><th>File</th><th>Status</th></tr></thead><tbody id="deptRows"></tbody></table></div></div>
+    <div class="grid g2" style="margin-top:16px">
+     <div class="card"><h3>Past cycles</h3><table><tbody>
+      <tr><td>Q2 2026</td><td><span class="pill appr">Approved</span></td><td class="n"><a data-go="i-pack" href="#" onclick="return false">View</a></td></tr>
+      <tr><td>Q1 2026</td><td><span class="pill appr">Approved</span></td><td class="n"><a data-go="i-pack" href="#" onclick="return false">View</a></td></tr>
+      <tr><td>Q4 2025</td><td><span class="pill appr">Approved</span></td><td class="n"><a data-go="i-pack" href="#" onclick="return false">View</a></td></tr></tbody></table></div>
+     <div class="card"><h3>Needs attention</h3><div class="chk"><span class="ic w">!</span><span>Finance file is off-spec. Mapping needs confirmation.</span><span></span></div><div class="chk"><span class="ic e">×</span><span>Tech file (Jira export) is 2 days overdue.</span><span></span></div><div class="chk"><span class="ic w">!</span><span>1 proposed risk is waiting for your decision.</span><span></span></div></div>
+    </div>
+   </section>
+
+   <section id="a-upload" class="view" hidden>
+    <div class="ph"><div><h2>Upload section files</h2><p class="muted">Q3 2026 · period 1 Jul to 30 Sep</p></div><button class="btn sm">Download templates</button></div>
+    <div class="drop" style="margin-top:16px">Drop CSV files here or choose files<br><span class="small">Sample files are loaded for this mockup.</span></div>
+    <div class="card" style="margin-top:16px"><div class="tw"><table><thead><tr><th>File</th><th>Section</th><th class="n">Rows</th><th>Template check</th></tr></thead><tbody>
+     <tr><td class="mono">xero_pl_jul_sep_export.csv</td><td>Cashflow</td><td class="n">412</td><td><span class="pill warn">Off-spec · 7 columns differ</span></td></tr>
+     <tr><td class="mono">hubspot_deals_q3.csv</td><td>Sales and market</td><td class="n">17</td><td><span class="pill ok">Matches template</span></td></tr>
+     <tr><td class="mono">product_items_q3.csv</td><td>Product</td><td class="n">6</td><td><span class="pill ok">Matches template</span></td></tr>
+     <tr><td class="mono">jira_epics_q3.csv</td><td>Tech</td><td class="n">10</td><td><span class="pill ok">Matches template</span></td></tr>
+     <tr><td class="mono">hibob_headcount_q3.csv</td><td>Team</td><td class="n">20</td><td><span class="pill warn">1 pay column dropped</span></td></tr></tbody></table></div>
+    <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn pri" data-go="a-map">Process files</button></div></div>
+   </section>
+
+   <section id="a-map" class="view" hidden>
+    <div class="ph"><div><h2>Confirm column mapping</h2><p class="muted">xero_pl_jul_sep_export.csv does not match the Cashflow template.</p></div><span class="skill">◆ CSV mapping skill</span></div>
+    <div class="card" style="margin-top:16px">
+     <div class="map" id="mapRows"></div>
+     <div class="note" style="margin-top:16px">Low confidence mappings need a human. Once confirmed, this layout is remembered for next quarter, so Finance will not see this screen again unless the export changes.</div>
+     <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" data-go="a-upload">Back</button><button class="btn pri" data-go="a-validate">Confirm mapping</button></div>
+    </div>
+   </section>
+
+   <section id="a-validate" class="view" hidden>
+    <div class="ph"><div><h2>Validation report</h2><p class="muted">Checked by code in 2.1 seconds. 12 passed, 3 to review, 0 blocking.</p></div></div>
+    <div class="card" style="margin-top:16px">
+     <div class="chk"><span class="ic ok">✓</span><span>Revenue by month (£98.2k, £101.4k, £103.3k) sums to Xero total £302,900</span><span class="pill ok">Pass</span></div>
+     <div class="chk"><span class="ic ok">✓</span><span>Spend by category sums to total out £537,200</span><span class="pill ok">Pass</span></div>
+     <div class="chk"><span class="ic ok">✓</span><span>Bank balance £1,378,000 equals opening £1.61m minus net burn £234.3k</span><span class="pill ok">Pass</span></div>
+     <div class="chk"><span class="ic ok">✓</span><span>Open pipeline in HubSpot (£264.8k) equals sum of 9 open deals</span><span class="pill ok">Pass</span></div>
+     <div class="chk"><span class="ic ok">✓</span><span>Story points delivered (351) match Jira done states across 10 epics</span><span class="pill ok">Pass</span></div>
+     <div class="chk"><span class="ic w">!</span><span>A salary column was found in hibob_headcount_q3.csv and dropped. Payroll appears as one Xero line only.</span><span class="pill warn">Handled</span></div>
+     <div class="chk"><span class="ic w">!</span><span>Contractor spend rose from £9.0k in July to £16.2k in September. Confirm it is not a duplicate.<br><button class="btn sm" style="margin-top:6px">Mark as expected</button></span><span class="pill warn">Review</span></div>
+     <div class="chk"><span class="ic w">!</span><span>Keystone Building Services (£27k) has had no activity for 34 days but is counted in Q4 coverage.</span><span class="pill warn">Review</span></div>
+     <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn pri" data-go="a-pack">Build the pack</button></div>
+    </div>
+   </section>
+
+   <section id="a-pack" class="view" hidden>
+    <div class="ph"><div><h2>Q3 2026 board pack</h2><p class="muted">Draft · last edited by Hana Okafor 12 minutes ago</p></div><div class="row"><span id="packPill" class="pill rev">In draft</span><button class="btn pri" id="submitBtn">Submit for approval</button></div></div>
+    <div id="packBody" style="margin-top:16px"></div>
+   </section>
+
+   <section id="a-approve" class="view" hidden>
+    <div class="ph"><div><h2>Approve Q3 2026</h2><p class="muted">Waiting on you, Ellie. Submitted by Jo Whitfield today at 16:22.</p></div></div>
+    <div class="card" style="margin-top:16px">
+     <div class="chk"><span class="ic ok">✓</span><span>All five sections submitted</span><span></span></div>
+     <div class="chk"><span class="ic ok">✓</span><span>Validation: 0 blocking, 3 reviewed</span><span></span></div>
+     <div class="chk"><span class="ic ok">✓</span><span>Commentary number check: 41 of 41 figures match</span><span></span></div>
+     <div class="chk"><span class="ic w">!</span><span>Burn is 11% over budget and ARR is 8% under the Q3 target. You will be asked about both.</span><span class="pill off">Off-plan</span></div>
+     <div class="chk"><span class="ic" id="riskIc">!</span><span id="riskTxt"></span><span><button class="btn sm" id="goRisk">Decide</button></span></div>
+     <div class="row" style="margin-top:16px"><button class="btn" data-go="a-pack">Review pack</button><button class="btn dng">Request changes</button><span style="flex:1"></span><button class="btn pri" id="approveBtn">Approve cycle and push to investors</button></div>
+     <div id="approveDone" hidden class="note" style="margin-top:14px;background:var(--ok-bg);color:var(--ok)">Published. 4 investors were sent a read-only link. <a data-go="i-pack" href="#" onclick="return false" style="color:inherit;font-weight:600">View as investor</a></div>
+    </div>
+   </section>
+
+   <section id="a-team" class="view" hidden>
+    <div class="ph"><h2>Team and roles</h2><button class="btn pri sm">Invite someone</button></div>
+    <div class="card" style="margin-top:16px"><div class="tw"><table><thead><tr><th>Person</th><th>Role</th><th>Can edit</th><th></th></tr></thead><tbody>
+     <tr><td><span class="av">EM</span> Ellie Marsh</td><td>CEO · approver</td><td>All sections</td><td></td></tr>
+     <tr><td><span class="av">JW</span> Jo Whitfield</td><td>Finance lead</td><td>Cashflow</td><td class="n"><button class="btn sm">Edit</button></td></tr>
+     <tr><td><span class="av">HO</span> Hana Okafor</td><td>Head of Sales</td><td>Sales, market validation</td><td class="n"><button class="btn sm">Edit</button></td></tr>
+     <tr><td><span class="av">IF</span> Isla Ford</td><td>Head of Product</td><td>Product</td><td class="n"><button class="btn sm">Edit</button></td></tr>
+     <tr><td><span class="av">SI</span> Sam Ibbotson</td><td>CTO</td><td>Tech</td><td class="n"><button class="btn sm">Edit</button></td></tr>
+     <tr><td><span class="av">MH</span> Martin Hale</td><td>Chair</td><td>Read-only</td><td class="n"><button class="btn sm">Edit</button></td></tr>
+     <tr><td><span class="av">NA</span> Northbank Angels</td><td>Investor</td><td>Read-only, approved cycles</td><td class="n"><button class="btn sm">Edit</button></td></tr></tbody></table></div></div>
+   </section>
+
+   <section id="a-bill" class="view" hidden>
+    <h2>Billing and plan</h2>
+    <div class="grid g2" style="margin-top:16px">
+     <div class="card"><span class="tag">Current</span><div class="price" style="margin-top:6px">Growth <small>£59 /month</small></div><p class="muted">Next invoice 1 November 2026</p><div class="row" style="margin-top:12px"><button class="btn sm">Change plan</button><button class="btn sm">Invoices</button></div></div>
+     <div class="card"><h3>Usage this cycle</h3><p class="muted" style="margin-top:6px">Internal users 5 of 5 · Investor viewers 2 of 10 · Uploads 5 of 30 · AI mapping assists 1 of 30 · Commentary drafts 9 of 10 this cycle</p></div>
+    </div>
+   </section>
+  </div>
+ </div>
+</div>
+
+<!-- ================= INVESTOR ================= -->
+<div id="inv-area" hidden>
+ <section id="i-pack" class="view">
+  <nav class="nav"><a class="logo"><svg><use href="#mark"/></svg>BoardRoom.io</a><span class="sp"></span><span class="muted small">Northbank Angels Syndicate · Investor · read-only</span></nav>
+  <div class="row" style="margin:6px 0 16px"><select style="max-width:260px" aria-label="Company"><option>Kestrel Field Ltd</option><option disabled>Fenwick Labs (Q2 2026)</option></select><select style="max-width:200px" aria-label="Cycle"><option>Q3 2026 · Approved</option><option>Q2 2026</option><option>Q1 2026</option></select><span class="pill appr">Approved by E. Marsh</span></div>
+  <div id="invBody"></div>
+ </section>
+</div>
+
+</div>
+</div>
+<div class="trace" id="trace" hidden role="dialog" aria-label="Figure lineage">
+ <div class="row" style="justify-content:space-between"><h3 id="trTitle">Revenue</h3><button class="btn sm" id="trClose">Close</button></div>
+ <dl id="trBody"></dl>
+</div>
+<div class="mspop" id="msPop" hidden role="dialog" aria-modal="true" aria-labelledby="msTitle">
+ <div class="msbox">
+  <div class="row" style="justify-content:space-between;align-items:flex-start;gap:12px"><div><p class="eyebrow" id="msTrack" style="margin-bottom:6px"></p><h3 id="msTitle" style="margin:0"></h3></div><button class="btn sm" id="msClose">Close</button></div>
+  <div class="row" id="msMeta" style="margin:12px 0 14px"></div>
+  <dl><dt>What it is</dt><dd id="msWhat"></dd><dt>Why it matters</dt><dd id="msWhy"></dd><dt>What it moves</dt><dd id="msMoves"></dd><dt>Status</dt><dd id="msStat"></dd><dt>Owner</dt><dd id="msOwn"></dd><dt>Source</dt><dd id="msSrc" class="mono"></dd></dl>
+  <p class="small muted" style="margin:14px 0 0">Written for the board: what it is, why it matters, what it moves. Ticket and row ids stay in the source line. Every figure is read from the workbook row cited and checked before publishing.</p>
+ </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+let stage=0;
+const STEPS=['Upload','Map','Validate','Pack','Approve','Published'];
+const ST={risk:'pending',done:new Set()};
+const fmtK=v=>'£'+(v>=1000?(v/1000).toFixed(2)+'m':v.toFixed(1)+'k');
+
+/* ---------- figure lineage ---------- */
+const FIG={
+ arr:{k:'ARR',v:'£1.24m',d:'92% of £1.35m plan',bad:1,src:'hubspot_deals_q3.csv',cell:'column “arr_gbp”, 96 active customers',how:'Sum of annualised recurring value across active accounts at 30 Sep.',chk:'Matches CRM account count'},
+ newarr:{k:'New ARR in Q3',v:'£88.2k',d:'plan £120k',bad:1,src:'hubspot_deals_q3.csv',cell:'rows with stage “Closed won”, 4 deals',how:'Sum of ARR on deals closed won between 1 Jul and 30 Sep.',chk:'Matches 4 won deals'},
+ cust:{k:'Customers',v:'96',d:'up from 92',src:'hubspot_deals_q3.csv',cell:'distinct active accounts',how:'Count of active accounts at 30 Sep.',chk:'Calculated'},
+ rev:{k:'Revenue Q3',v:'£302.9k',d:'budget £315.0k',bad:1,src:'xero_pl_jul_sep_export.csv',cell:'account group “Revenue”, Jul to Sep',how:'Sum of 3 monthly revenue totals. Mapped from “Credit” by the mapping skill, confirmed by Jo.',chk:'Equals Xero P&L total'},
+ gm:{k:'Gross margin',v:'85.3%',d:'target 85%',src:'xero_pl_jul_sep_export.csv',cell:'rows “Revenue” and “Cost of sales”',how:'(Revenue − cost of sales) ÷ revenue, calculated in Python.',chk:'Recomputed twice'},
+ cash:{k:'Cash at 30 Sep',v:'£1.378m',d:'Xero bank balance',src:'xero_pl_jul_sep_export.csv',cell:'bank account line, 30 Sep',how:'Closing balance at period end.',chk:'Opening £1.612m − net burn £234.3k'},
+ burn:{k:'Avg monthly burn',v:'£78.1k',d:'budget £70.3k',bad:1,src:'xero_pl_jul_sep_export.csv',cell:'revenue and total out by month',how:'(Total out £537.2k − revenue £302.9k) ÷ 3.',chk:'Reconciles to cash movement'},
+ run:{k:'Runway',v:'17.6 mo',d:'plan 20 months',bad:1,src:'Derived',cell:'cash ÷ average burn',how:'£1.378m ÷ £78.1k, one decimal.',chk:'Calculated'},
+ pipe:{k:'Open pipeline',v:'£265k',d:'9 open deals',src:'hubspot_deals_q3.csv',cell:'deals not closed, all open stages',how:'Sum of deal value across open stages.',chk:'Sum of 9 deals = £264.8k'},
+ wtd:{k:'Weighted pipeline',v:'£109k',d:'by stage probability',src:'hubspot_deals_q3.csv',cell:'columns “value”, “stage_prob”',how:'Σ value × stage probability.',chk:'Calculated'},
+ win:{k:'Q3 win rate',v:'80%',d:'4 won, 1 lost',src:'hubspot_deals_q3.csv',cell:'deals reaching a decision in Q3',how:'Won ÷ (won + lost).',chk:'Calculated'},
+ nrr:{k:'Net revenue retention',v:'108%',d:'trailing 12 months',src:'hubspot_deals_q3.csv',cell:'columns “start_arr”, “end_arr”',how:'End ARR of cohort ÷ start ARR.',chk:'Calculated'},
+ pts:{k:'Points delivered',v:'351 / 430',d:'82% of Q3 required',bad:1,src:'jira_epics_q3.csv',cell:'columns “points_done”, “points_req”',how:'Sum across 10 epics.',chk:'Matches Jira done states'},
+ cost:{k:'Cost to date',v:'£204.9k',d:'£520 blended day rate',src:'jira_epics_q3.csv',cell:'column “days_logged”',how:'Logged days × £520.',chk:'Calculated'},
+ fcast:{k:'Forecast cost',v:'£291.7k',d:'budget £247.0k',bad:1,src:'jira_epics_q3.csv',cell:'columns “cost_to_date”, “forecast_remaining”',how:'Cost to date plus remaining forecast per epic.',chk:'Calculated'},
+ over:{k:'Overrun',v:'+£44.7k',d:'18% over, mostly SSO',bad:1,src:'jira_epics_q3.csv',cell:'forecast − budget',how:'£291.7k − £247.0k.',chk:'Calculated'},
+ hc:{k:'Headcount',v:'20',d:'plan 23 by 30 Sep',bad:1,src:'hibob_headcount_q3.csv',cell:'20 active rows',how:'Count of active employees at 30 Sep. Pay columns excluded.',chk:'Matches payroll lines in Xero'},
+ open:{k:'Open roles',v:'3',d:'longest open 91 days',src:'hibob_headcount_q3.csv',cell:'rows with status “Open”',how:'Count of open requisitions.',chk:'Calculated'},
+ leav:{k:'Leavers in Q3',v:'1',d:'senior backend engineer',src:'hibob_headcount_q3.csv',cell:'rows with end date in Q3',how:'Count of end dates in the quarter.',chk:'Calculated'},
+ enps:{k:'eNPS',v:'22',d:'Q2 was 31, target 30',bad:1,src:'hibob_headcount_q3.csv',cell:'survey column “enps”',how:'Promoters minus detractors, September survey.',chk:'Calculated'},
+ cp12:{k:'CP12 adoption',v:'63%',d:'target 40%',src:'product_items_q3.csv',cell:'column “adoption_pct”, item P-02',how:'Accounts using the builder ÷ active accounts.',chk:'Calculated'}
+};
+function tile(id){const f=FIG[id];return `<button class="tile" data-trace="${id}"><div class="k">${f.k}</div><div class="v">${f.v}</div><div class="d ${f.bad?'bad':''}">${f.d}</div></button>`}
+const st=(k,v,d,bad)=>`<div class="tile static"><div class="k">${k}</div><div class="v">${v}</div><div class="d ${bad?'bad':''}">${d||''}</div></div>`;
+const tiles=a=>`<div class="tiles">${a.join('')}</div>`;
+const ids=a=>tiles(a.map(tile));
+
+/* ---------- small renderers ---------- */
+function bar(label,pct,val,bad){return `<div class="pb"><span class="pbl">${label}</span><span class="pbt"><span style="width:${Math.min(pct,100)}%;background:${bad?'var(--accent)':'var(--brand)'}"></span></span><span class="pbv mono">${val}</span></div>`}
+const PREVBARS=bar('ARR, plan £1.35m',92,'£1.24m')+bar('Product items, plan 4',75,'3 of 4')+bar('Burn, budget £70.3k',111,'£78.1k',1);
+function ic(title,pill,txt,meta,kind){return `<div class="card ic2"><div class="row" style="justify-content:space-between;align-items:flex-start"><div class="dev">${meta||''}</div><span class="pill ${kind||''}">${pill||''}</span></div><h3 style="margin:6px 0">${title}</h3><p class="muted small">${txt}</p></div>`}
+const grid=(a,c)=>`<div class="grid ${c||'g2'}">${a.join('')}</div>`;
+function sh(t,sub){return `<div style="margin:6px 0 -2px"><h3 style="font-size:1.25rem">${t}</h3>${sub?`<p class="muted small">${sub}</p>`:''}</div>`}
+function colChart(labels,series,o={}){const W=360,H=170,pb=26,pt=20,max=o.max||Math.max(...series.flatMap(s=>s.v))*1.15,n=labels.length,gw=(W-40)/n;const bw=Math.min(28,(gw-12)/series.length);
+ let g=`<svg class="bars" viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.aria||'Chart'}">`;
+ [0,.5,1].forEach(t=>{const y=H-pb-t*(H-pb-pt);g+=`<line x1="34" x2="${W}" y1="${y}" y2="${y}" stroke="var(--border-subtle)"/><text x="30" y="${y+3}" text-anchor="end" font-size="9" fill="var(--ink-muted)" font-family="Nunito Sans">${Math.round(max*t/1.15*1)}</text>`});
+ labels.forEach((l,i)=>{const x0=40+i*gw+(gw-bw*series.length)/2;series.forEach((s,j)=>{const h=s.v[i]/max*(H-pb-pt);g+=`<rect x="${x0+j*bw}" y="${H-pb-h}" width="${bw-2}" height="${h}" fill="${s.c}"/><text x="${x0+j*bw+bw/2-1}" y="${H-pb-h-4}" text-anchor="middle" font-size="8.5" fill="var(--ink)" font-family="Nunito Sans">${s.v[i]}</text>`});g+=`<text x="${40+i*gw+gw/2}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--ink-muted)" font-family="Nunito Sans">${l}</text>`});
+ g+=series.length>1||o.legend?`<g font-size="10" fill="var(--ink-muted)">${series.map((s,i)=>`<rect x="${40+i*95}" y="2" width="9" height="9" fill="${s.c}"/><text x="${54+i*95}" y="10">${s.n}</text>`).join('')}</g>`:'';
+ return g+'</svg>'}
+function lineChart(labels,series,o={}){const W=360,H=170,pb=26,pt=20,all=series.flatMap(s=>s.v.filter(x=>x!=null)),mx=o.max||Math.max(...all)*1.05,mn=o.min!=null?o.min:0,n=labels.length,gx=(W-56)/(n-1);
+ const X=i=>46+i*gx,Y=v=>H-pb-(v-mn)/(mx-mn)*(H-pb-pt);
+ let g=`<svg class="bars" viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.aria||'Line chart'}">`;
+ [0,.5,1].forEach(t=>{const v=mn+(mx-mn)*t,y=Y(v);g+=`<line x1="40" x2="${W}" y1="${y}" y2="${y}" stroke="var(--border-subtle)"/><text x="36" y="${y+3}" text-anchor="end" font-size="9" fill="var(--ink-muted)" font-family="Nunito Sans">${v.toFixed(o.dec||1)}</text>`});
+ labels.forEach((l,i)=>g+=`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--ink-muted)" font-family="Nunito Sans">${l}</text>`);
+ series.forEach(s=>{const pts=s.v.map((v,i)=>v==null?null:`${X(i)},${Y(v)}`).filter(Boolean);g+=`<polyline points="${pts.join(' ')}" fill="none" stroke="${s.c}" stroke-width="2.2" ${s.dash?'stroke-dasharray="5 4"':''}/>`;s.v.forEach((v,i)=>{if(v!=null&&!s.nodot)g+=`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${s.c}"/>`})});
+ g+=`<g font-size="10" fill="var(--ink-muted)">${series.map((s,i)=>`<rect x="${46+i*110}" y="2" width="9" height="9" fill="${s.c}"/><text x="${60+i*110}" y="10">${s.n}</text>`).join('')}</g>`;
+ return g+'</svg>'}
+const PAL=['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)','var(--c6)','var(--c7)','var(--c8)','var(--c9)','var(--c10)'];
+function donut(items,total,center,sub){const C=2*Math.PI*40;let acc=0;
+ const segs=items.map((it,i)=>{const len=it.v/total*C,g=Math.min(1.6,len/3),da=`${Math.max(len-g,.1)} ${C}`,o=`<circle class="dseg ${it.dr?'dr':''}" ${it.dr?`data-drill="${it.n}" tabindex="0" role="button"`:''} cx="60" cy="60" r="40" fill="none" stroke="${it.c}" stroke-width="18" style="stroke-dasharray:0 ${C};transition-delay:${i*70}ms" data-da="${da}" stroke-dashoffset="${-acc}" transform="rotate(-90 60 60)"><title>${it.n} · £${it.v.toLocaleString()} (${(it.v/total*100).toFixed(1)}%)</title></circle>`;acc+=len;return o}).join('');
+ return `<div class="donut"><svg viewBox="0 0 120 120" role="img" aria-label="Spend breakdown"><circle cx="60" cy="60" r="40" fill="none" stroke="var(--border-subtle)" stroke-width="18"/>${segs}<text x="60" y="58" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)" font-family="Nunito Sans">${center}</text><text x="60" y="71" text-anchor="middle" font-size="6.5" fill="var(--ink-muted)">${sub}</text></svg>
+ <div class="legend">${items.map(it=>`<button ${it.dr?`class="dr" data-drill="${it.n}"`:''}><span class="sw2" style="background:${it.c}"></span>${it.n}<span class="mono" style="margin-left:auto;padding-left:16px">£${it.v.toLocaleString()}</span></button>`).join('')}</div></div>`}
+const SPENDQ={
+ all:{t:537200,d:[['Payroll',364300],['Hosting & COGS',44600],['Contractors',39700],['Marketing',33300],['Rent',22500],['Software',19500],['Other',13300]]},
+ jul:{t:170100,d:[['Payroll',118000],['Hosting & COGS',14100],['Marketing',11000],['Contractors',9000],['Rent',7500],['Software',6200],['Other',4300]]},
+ aug:{t:177900,d:[['Payroll',121500],['Hosting & COGS',14600],['Contractors',14500],['Marketing',9500],['Rent',7500],['Software',6400],['Other',3900]]},
+ sep:{t:189200,d:[['Payroll',124800],['Contractors',16200],['Hosting & COGS',15900],['Marketing',12800],['Rent',7500],['Software',6900],['Other',5100]]}};
+const CATC={Payroll:'var(--c1)','Hosting & COGS':'var(--c5)',Contractors:'var(--c4)',Marketing:'var(--c2)',Rent:'var(--c8)',Software:'var(--c7)',Other:'var(--c6)'};
+const OTHER=[['Insurance',3600],['Accountancy',2700],['Legal',2100],['Travel',1850],['Recruitment ads',1450],['Training',900],['Bank and FX fees',400],['Sundry',300]];
+const TECH=[['HubSpot',4950,'ok','Active'],['Jira + Confluence',2700,'warn','Review'],['HiBob',2250,'ok','Active'],['Google Workspace',1980,'ok','Active'],['Intercom',1950,'warn','Overlap'],['Slack',1620,'ok','Active'],['Figma',1350,'warn','Seats'],['GitHub',1170,'ok','Active'],['Sentry',990,'ok','Active'],['Xero',540,'ok','Active']];
+const TOOLI={
+ 'HubSpot':['CRM, sales pipeline, marketing email and a service hub with shared inbox and ticketing.','Source of the pipeline, win rate and coverage figures in this pack. Used by sales and customer success.','Intercom','The service hub already covers the shared inbox that Intercom provides.'],
+ 'Jira + Confluence':['Jira for epics, sprints and story points. Confluence for documentation.','Source of the tech roadmap: points required, points delivered and epic dates. Confluence is barely used.','Google Docs','Confluence has 11 pages, last edited in March. Moving to a Jira-only plan saves about £260 a month.'],
+ 'HiBob':['HR platform for people records, time off, onboarding and engagement surveys.','Source of headcount, open roles, leavers and eNPS. Pay data stays in HiBob and is never shown here.','None','No overlaps.'],
+ 'Google Workspace':['Email, calendar, Drive and Docs.','Core communication and document storage.','None','No overlaps. Essential.'],
+ 'Intercom':['In-app chat and support inbox.','Used for in-app chat with contractors’ office staff.','HubSpot service hub','Moving chat into HubSpot keeps every conversation on one customer record and saves about £650 a month.'],
+ 'Slack':['Team messaging.','Internal communication. Will carry the approval queue alert from Jira.','None','No overlaps.'],
+ 'Figma':['Product design tool.','Used by the product designer and Head of Product.','None','Six paid seats, two active editors. Four seats can move to free view access.'],
+ 'GitHub':['Code hosting, reviews and deployment pipelines.','Source of truth for all code.','None','No overlaps.'],
+ 'Sentry':['Error monitoring for web and mobile apps.','Alerts engineering to crashes in the engineer app before customers report them.','None','No overlaps.'],
+ 'Xero':['Accounting, invoicing and bank feeds.','Source of every figure on the Cashflow page.','None','No overlaps. Essential.']};
+function spendView(h){
+ const Q=SPENDQ[h.month],dr=h.drill;let items,title,sub,ltitle,center,csub,total,cl=false;
+ if(!dr){total=Q.t;items=Q.d.map(x=>({n:x[0],v:x[1],c:CATC[x[0]],dr:x[0]==='Other'||x[0]==='Software'}));title='All spend';sub=`£${Q.t.toLocaleString()} total · click Other or Software on the wheel to drill in`;ltitle='Full spend list';center='£'+(Q.t/1000).toFixed(1)+'k';csub=h.month==='all'?'Jul to Sep':h.month}
+ else if(dr==='Other'){total=13300;items=OTHER.map((x,i)=>({n:x[0],v:x[1],c:PAL[i]}));title='Other costs breakdown';sub='£13,300 across Q3';ltitle='Other · itemised';center='£13.3k';csub='other'}
+ else{total=19500;items=TECH.map((x,i)=>({n:x[0],v:x[1],c:PAL[i],badge:[x[2],x[3]]}));title='Software and tools';sub='£19,500 across 10 tools · click any row for details';ltitle='Software stack';center='£19.5k';csub='software';cl=true}
+ const mx=Math.max(...items.map(x=>x.v));
+ const tool=dr==='Software'&&h.tool?TOOLI[h.tool]:null,tr=tool?TECH.find(x=>x[0]===h.tool):null;
+ return `<div class="row" style="justify-content:space-between"><div><h3 style="font-size:1.3rem">${title}</h3><p class="muted small">${sub}</p></div>
+  <div class="row">${dr?'<button class="btn sm" data-back="1">← Back</button>':['all','jul','aug','sep'].map(m=>`<button class="btn sm ${h.month===m?'pri':''}" data-month="${m}">${m==='all'?'All':m[0].toUpperCase()+m.slice(1)}</button>`).join('')}</div></div>
+  <div class="card">${donut(items,total,center,csub)}${dr?'':'<p class="pie-hint small muted" style="margin-top:8px">👆 Click <b>Other</b> or <b>Software</b> on the wheel to drill in</p>'}</div>
+  ${tool?`<div class="card toolp"><div class="row" style="justify-content:space-between"><h3>${h.tool}</h3><button class="btn sm" data-tool="">Close</button></div><div class="row" style="margin-top:4px"><span class="mono">£${tr[1].toLocaleString()} Q3 total</span><span class="pill ${tr[2]}">${tr[3]}</span></div><dl><dt>What it does</dt><dd>${tool[0]}</dd><dt>Role in the stack</dt><dd>${tool[1]}</dd><dt>Overlaps with</dt><dd>${tool[2]==='None'?'None':`<span class="pill warn">${tool[2]}</span>`} ${tool[3]}</dd></dl></div>`:''}
+  <div class="card"><h3>${ltitle}</h3><p class="muted small">${cl?'Click any row for details and overlap analysis':!dr?'Click Other or Software to see what is inside':''}</p><div style="margin-top:8px">${items.map(x=>{const act=cl,d2=!dr&&(x.n==='Other'||x.n==='Software');return `<button class="srow ${act||d2?'cl':''} ${h.tool===x.n?'on':''}" ${act?`data-tool="${x.n}"`:d2?`data-drill="${x.n}"`:''}><span class="nm"><span class="sw2" style="background:${x.c}"></span>${x.n}${x.badge?`<span class="pill ${x.badge[0]}">${x.badge[1]}</span>`:''}</span><span class="bar" style="width:${Math.round(x.v/mx*100)}%;background:${x.c}"></span><span class="amt">£${x.v.toLocaleString()}</span><span>${act||d2?'›':''}</span></button>`}).join('')}</div></div>`}
+function radar(labels,now,after){const cx=110,cy=100,R=70,n=labels.length;const P=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n;return [cx+Math.cos(a)*R*v/100,cy+Math.sin(a)*R*v/100]};
+ let g=`<svg class="bars" viewBox="0 0 220 200" role="img" aria-label="Capability radar">`;
+ [25,50,75,100].forEach(r=>g+=`<polygon points="${labels.map((_,i)=>P(i,r).join(',')).join(' ')}" fill="none" stroke="var(--border-subtle)"/>`);
+ labels.forEach((l,i)=>{const [x,y]=P(i,118);g+=`<text x="${x}" y="${y+3}" text-anchor="middle" font-size="8" fill="var(--ink-muted)">${l}</text>`});
+ g+=`<polygon points="${after.map((v,i)=>P(i,v).join(',')).join(' ')}" fill="none" stroke="var(--slate)" stroke-width="1.6" stroke-dasharray="4 3"/>`;
+ g+=`<polygon points="${now.map((v,i)=>P(i,v).join(',')).join(' ')}" fill="var(--c3)" fill-opacity=".45" stroke="var(--brand)" stroke-width="2"/>`;
+ return g+'</svg>'}
+function gantt(rows){let grp='';return `<div class="tw"><div class="gantt"><div class="gr gh"><span></span>${['Oct','Nov','Dec','Jan','Feb','Mar'].map(m=>`<span>${m}</span>`).join('')}</div>${rows.map(r=>r.g?(grp=r.g,`<div class="gr gg"><span>${r.g}</span></div>`):`<div class="gr"><span class="gl" role="button" tabindex="0" data-ms="${r.t}" title="Open context">${r.t}</span><span class="gb ${r.k}" role="button" tabindex="0" data-ms="${r.t}" title="${r.t}" style="grid-column:${r.a+1}/${r.b+2}">${r.l}</span></div>`).join('')}</div></div><p class="small muted ghint">Select any bar or label for the context behind it: what it is, why it matters, who owns it and where the figures come from.</p>`}
+
+/* ---------- ownership and commentary ---------- */
+const ROLES={ceo:'Ellie Marsh · CEO (edit all)',finance:'Jo Whitfield · Finance lead',sales:'Hana Okafor · Head of Sales',product:'Isla Ford · Head of Product',tech:'Sam Ibbotson · CTO',investor:'Northbank Angels · Investor (read only)'};
+const OWN={overview:['Ellie Marsh','ceo'],'rm-overview':['Ellie Marsh','ceo'],'rm-product':['Isla Ford','product'],'rm-tech':['Sam Ibbotson','tech'],'rm-sales':['Hana Okafor','sales'],'rm-cash':['Jo Whitfield','finance'],'rm-team':['Ellie Marsh','ceo'],product:['Isla Ford','product'],cf:['Jo Whitfield','finance'],market:['Hana Okafor','sales'],risks:['Ellie Marsh','ceo'],lead:['Ellie Marsh','ceo']};
+const COMM={
+ overview:'We shipped three of the four product items we promised and CP12 adoption is well ahead of plan. The enterprise path slipped: single sign-on moved from 30 September to 21 November after our lead backend engineer left in August. Burn ran 11% over budget because contractors covered the gap. Win rate is 80%, so the issue is pipeline volume, not conversion.',
+ 'rm-product':'Three of four items shipped. Smart Scheduling v2 is behind on adoption at 41% against 50%. SSO slipped seven weeks and holds £122k of pipeline. The customer portal is proposed for 2027, which releases £41.6k of engineering budget for SSO and the maintenance module.',
+ 'rm-tech':'Delivery reached 82% of required points. The overrun of £44.7k is concentrated in SSO, which lost its lead engineer on 15 August and is now forecast to ship on 21 November. SOC 2 Type I is forecast two weeks late against Unity Facilities’ December ask.',
+ 'rm-sales':'We won four of five deals that reached a decision. Q4 pipeline closing this year is £200.8k against a £180k target, which is 1.1x coverage against a 3x plan. Half of it sits in two enterprise deals that depend on SSO.',
+ 'rm-cash':'Burn ran £23.3k over budget across Q3. Contractors account for £15.7k of it. Payroll ran £4.7k under budget because hires were late, so the hiring gap cost money rather than saving it.',
+ 'rm-team':'Headcount is 20 against a plan of 23. Two offers were declined on salary and the band was reviewed in September. eNPS fell to 22, lowest in engineering, with on-call load the main theme.',
+ product:'Customers close 81% of jobs first time and engineers average 5.4 jobs a day, up from 4.6. 212 certificates fall due in the next 60 days, and automatic renewal booking is the feature customers cite most.',
+ cf:'Kestrel Field holds £1.378m in cash with £1.24m of ARR across 96 customers. Q3 burn averaged £78.1k a month against a £70.3k budget, driven by contractors covering an engineering gap. The seed extension is a runway buffer and funds the planned maintenance build. The business does not depend on it to reach March.',
+ market:'Coverage is the problem, not conversion. We won four of five deals that reached a decision. Two deals worth £122k are gated on SSO and one proposal has been stalled for 34 days.'};
+
+/* ---------- page definitions ---------- */
+const PAGES=[['overview','Overview'],['roadmap','Roadmap'],['product','Product'],['cf','Cashflow'],['market','Market validation'],['risks','Risk register'],['lead','CEO development']];
+const SUBS={roadmap:[['overview','Overview'],['product','Product'],['tech','Tech'],['sales','Sales'],['cash','Cash'],['team','Team']],cf:[['overview','Overview'],['spend','Spend'],['income','Income'],['balance','Balance'],['stack','Stack optimisation']]};
+const HUB={app:{page:'overview',sub:{roadmap:'overview',cf:'overview'},role:'ceo',month:'all',gap:0,drill:null},inv:{page:'overview',sub:{roadmap:'overview',cf:'overview'},role:'investor',month:'all',gap:0,drill:null}};
+const LOG=['Today 16:22 · Jo Whitfield submitted the cycle for approval','Today 15:58 · Hana Okafor edited Market validation commentary','Today 14:10 · Claude drafted commentary for 9 pages (number check passed)','Today 11:40 · Salary column dropped from hibob_headcount_q3.csv','Yesterday · Cashflow mapping confirmed by Jo Whitfield'];
+
+const DR={
+ Software:[['HubSpot',[2.7,2.8,2.9]],['GitHub and CI',[2.2,2.2,2.2]],['Other tools',[1.9,2.0,2.1]],['Google Workspace',[1.4,1.4,1.4]],['Jira + Confluence',[.9,.9,.9]],['Intercom',[.65,.65,.65]],['Figma',[.45,.45,.45]]],
+ Other:[['SOC 2 audit fee',[0,0,9.5]],['Recruitment fees',[3.0,3.2,2.5]],['Travel',[2.4,2.6,2.8]],['Insurance',[2.2,2.2,2.2]],['Trade show',[0,0,1.5]],['Training',[1.3,1.4,1.2]],['Bank and finance fees',[.9,1.0,1.0]]],
+ Contractors:[['Keel Dev Ltd',[1.0,14.5,16.2]],['Brightline Design',[6.0,0,0]],['Compliance consultant',[2.0,0,0]]]};
+const DRN={Software:'Xero software line, split by supplier. Intercom, Confluence and Figma seats are the savings candidates on the Stack tab.',Other:'Everything not in a named category. September is high because the £9.5k SOC 2 audit fee landed in Xero.',Contractors:'Non-payroll people costs. Keel Dev nearly doubled in two months and ends when the backend hires start.'};
+function okey(h){return h.page==='roadmap'?'rm-'+h.sub.roadmap:h.page}
+function canEdit(h){const o=OWN[okey(h)];return h.role==='ceo'||(o&&o[1]===h.role)}
+function commBox(key,h,ro){const t=COMM[key];if(!t)return '';const ed=!ro&&canEdit(h);
+ return `<div class="comm"><div class="row"><span class="skill">◆ Drafted by Claude</span>${ro?'':'<span class="pill ok">Number check: matched</span>'}</div><p id="comm-${ro?'inv':'app'}" contenteditable="false">${t}</p>${ed?`<div class="row"><button class="btn sm" data-edit="${ro?'inv':'app'}">Edit text</button><button class="btn sm" data-regen="${ro?'inv':'app'}">Redraft</button></div>`:''}</div>`}
+
+function pgOverview(h,ro){
+ const cards=[['roadmap','6-Month Roadmap','Q3 delivery against Plan v3 and the plan across product, tech, sales, cash and team to March 2027.',['£1.6m ARR','SSO + SOC 2','Plan v3']],['product','Product','How customers use it, what it gives back, renewals and account intelligence.',['81% first-time fix','96 customers']],['cf','Cashflow','Xero actuals July to September against budget. Burn, runway, spend and stack optimisation.',['£1.38m cash','17.6 months runway']],['market','Market validation','Pipeline by stage, Q3 wins, customer proof and channels.',['£265k pipeline','4 wins in Q3']],['risks','Risk register','Every open risk with owner, score and history. Raised by rules, proposed by the team, decided by the CEO.',['7 open','3 rising',ST.risk==='pending'&&!ro?'1 proposed':'0 proposed']],['lead','CEO development','Self and board assessment, growth plan, 30-day playbook and operating rhythm.',['Gap map','30-day plan']]];
+ return `<div class="card hero2"><p class="eyebrow">Kestrel Field Ltd · Investor dashboard · mock data</p><h1 style="font-size:2.2rem">The Full Picture</h1><p class="muted">Q3 2026 · Confidential · Northbank Angels Syndicate · data current as of 30 September 2026</p></div>
+ <div class="grid g3">${cards.map(c=>`<button class="tile lc" data-page="${c[0]}"><div class="v" style="font-size:1.2rem">${c[1]}</div><p class="small muted" style="margin:6px 0 10px">${c[2]}</p><div class="row">${c[3].map(t=>`<span class="pill">${t}</span>`).join('')}</div></button>`).join('')}</div>
+ <div class="card"><h3>Progress to Q3 plan targets</h3><p class="muted small">Where we landed at 30 September against Plan v3</p>
+  ${bar('ARR, target £1.35m',92,'£1.24m')}${bar('New ARR in Q3, target £120k',74,'£88.2k')}${bar('Product items shipped, target 4',75,'3 of 4')}${bar('Tech points delivered vs required',82,'351 of 430')}${bar('Headcount, target 23',87,'20 of 23')}${bar('Q4 pipeline coverage, target 3x',37,'1.1x',1)}${bar('Monthly burn, budget £70.3k',111,'£78.1k',1)}${bar('Gross margin, target 85%',100,'85.3%')}
+  <p class="dev" style="margin-top:12px">Sources: Xero P&L Jul to Sep, HubSpot deals, Jira epics, HiBob headcount, product tool. Plan figures from Plan v3.</p></div>
+ ${ids(['arr','rev','cash','run'])}
+ <div class="sec"><h3>Founder update · Q3 against plan</h3>${commBox('overview',h,ro)}</div>`}
+
+function curveCard(){
+ const T=(x,y,t,o={})=>`<text x="${x}" y="${y}" font-size="${o.s||11}" fill="${o.f||'var(--ink)'}" text-anchor="${o.a||'start'}" ${o.w?`font-weight="${o.w}"`:''} font-family="Nunito Sans">${t}</text>`;
+ return `<div class="card curve"><h3>Where we are</h3><p class="muted small">Entrepreneur curve · Kestrel Field position, September 2026</p><div class="tw"><svg viewBox="0 0 760 250" role="img" aria-label="Entrepreneur curve with Kestrel Field positioned between the crisis of meaning and informed optimism">
+  <defs><marker id="ar" markerWidth="7" markerHeight="7" refX="4" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="var(--ink)"/></marker></defs>
+  <line x1="0" y1="226" x2="760" y2="226" stroke="var(--border)"/>
+  <path d="M 350,155 C 368,175 388,205 405,222" fill="none" stroke="var(--accent-ink)" stroke-width="1.6" stroke-dasharray="4 3" opacity=".7"/>
+  <path d="M 405,222 C 370,236 180,236 95,204" fill="none" stroke="var(--accent-ink)" stroke-width="1" stroke-dasharray="3 3" opacity=".4"/>
+  <path class="cv" pathLength="1" d="M 30,180 C 80,160 130,80 200,70 C 260,62 300,120 350,155 C 400,178 480,148 560,108 C 640,68 710,32 745,20" fill="none" stroke="var(--brand)" stroke-width="3" stroke-linecap="round"/>
+  <g class="pt" style="animation-delay:.5s"><circle cx="80" cy="150" r="5" fill="var(--slate)"/>${T(20,132,'1. Uninformed',{f:'var(--ink-muted)'})}${T(20,144,'Optimism',{f:'var(--ink-muted)'})}</g>
+  <g class="pt" style="animation-delay:.9s"><circle cx="200" cy="70" r="5" fill="var(--ink)"/>${T(200,40,'2. Informed',{a:'middle'})}${T(200,52,'Pessimism',{a:'middle'})}</g>
+  <g class="pt" style="animation-delay:1.2s"><circle cx="350" cy="155" r="5" fill="var(--ink)"/>${T(336,186,'3. Crisis of',{a:'end'})}${T(336,198,'meaning',{a:'end'})}</g>
+  <g class="pt" style="animation-delay:1.4s"><circle cx="405" cy="222" r="4" fill="var(--accent-ink)"/>${T(418,214,'4. Crash and burn (path not taken)',{s:9,f:'var(--accent-ink)'})}</g>
+  <g class="pt" style="animation-delay:1.6s"><circle cx="560" cy="108" r="5" fill="var(--ink)"/><line x1="560" y1="103" x2="588" y2="88" stroke="var(--ink)" stroke-dasharray="2 2" opacity=".5"/>${T(590,70,'5. Informed',{a:'middle'})}${T(590,82,'Optimism',{a:'middle'})}</g>
+  <g class="pt" style="animation-delay:1.8s"><circle cx="745" cy="20" r="5" fill="var(--ink)"/>${T(732,16,'6. Achievement',{a:'end'})}</g>
+  <g class="pt" style="animation-delay:2s"><circle class="halo" cx="470" cy="153" r="11" fill="var(--highlight)"/><circle cx="470" cy="153" r="6" fill="var(--highlight)" stroke="var(--ink)" stroke-width="2"/>
+   <line x1="470" y1="141" x2="470" y2="112" stroke="var(--ink)" stroke-dasharray="2 2"/>
+   <rect x="372" y="90" width="196" height="24" rx="5" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.2"/>${T(470,106,'Kestrel Field · Sep 2026',{a:'middle',w:600,s:10})}
+   <path d="M 484,148 C 510,140 530,130 548,118" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 2" marker-end="url(#ar)"/></g>
+  <g class="pt" style="animation-delay:2.2s"><line x1="600" y1="92" x2="600" y2="170" stroke="var(--ink)" stroke-dasharray="2 2" opacity=".6"/>
+   <rect x="522" y="170" width="160" height="32" rx="5" fill="var(--highlight)"/>${T(602,184,'Seed extension £400k · Jan 2027',{a:'middle',w:600,s:9,f:'var(--on-highlight)'})}${T(602,196,'funds this climb',{a:'middle',s:9,f:'var(--on-highlight)'})}</g>
+ </svg></div></div>`}
+function pgRoadmap(h,ro){const s=h.sub.roadmap;const nav=subNav('roadmap',h);let b='';
+ if(s==='overview')b=`<div class="card hero2"><div class="eyebrow">By end of March 2027</div><div style="font-family:var(--serif);font-size:2.4rem;font-weight:600">£1.6m ARR</div><p class="muted">Enterprise ready · SOC 2 Type I · runway back above 18 months</p>${tiles([st('ARR target','£1.6m'),st('Active customers','120'),st('Enterprise','SSO live'),st('Runway','18+ mo')])}</div>
+  ${grid([ic('£1.6m ARR','Revenue','120 customers. Two enterprise FM accounts live. Net revenue retention above 105%.','Revenue'),ic('SSO + PPM','Product','Single sign-on live in November. Planned maintenance module in beta by March. Customer portal moves to 2027.','Product'),ic('SOC 2 Type I','Tech','Controls finished in November, audit report in December. Delivery back within 10% of points and budget.','Tech'),ic('24 people','Team','Two senior backend engineers and an AE hired. Head of Customer Success in January. Contractors off.','Team')],'g4')}
+  ${sh('Timeline view','All tracks across six months')}
+  ${gantt([{g:'Product'},{t:'Smart scheduling v2 adoption',a:1,b:6,k:'active',l:'41% adopted · migration push, 50% target'},{t:'Single sign-on and permissions',a:1,b:2,k:'gate',l:'Live 21 Nov'},{t:'Planned maintenance module',a:3,b:6,k:'target',l:'Discovery · build · beta'},{t:'CP12 landlord pack',a:2,b:4,k:'active',l:'Landlord pack'},{t:'Customer portal',a:5,b:6,k:'def',l:'Deferred'},
+   {g:'Tech'},{t:'Single sign-on build',a:1,b:2,k:'gate',l:'34 of 80 pts · ship'},{t:'SOC 2 controls and audit',a:1,b:3,k:'active',l:'30 of 50 pts · audit · report'},{t:'Maintenance module data model',a:3,b:5,k:'target',l:'Start · build · done'},
+   {g:'Sales + GTM'},{t:'Q4 new ARR £180k',a:1,b:3,k:'active',l:'£58.8k in negotiation'},{t:'Enterprise FM deals',a:2,b:4,k:'gate',l:'Unity FM · Westfield'},{t:'Merchant partner channel',a:1,b:6,k:'target',l:'2 signed · referring'},{t:'120 customers / £1.6m ARR',a:6,b:6,k:'done',l:'North star'},
+   {g:'Cash'},{t:'Burn back to budget',a:1,b:2,k:'active',l:'Contractors off'},{t:'Seed extension £400k',a:2,b:4,k:'target',l:'Prepare · process · close'},{t:'Runway above 18 months',a:4,b:6,k:'done',l:'Restored'},
+   {g:'Team'},{t:'Two senior backend engineers',a:1,b:3,k:'active',l:'Interview · start'},{t:'Account executive',a:1,b:2,k:'active',l:'Offer out · start'},{t:'Head of Customer Success',a:3,b:4,k:'target',l:'Recruit · start'}])}
+  ${curveCard()}`;
+ if(s==='product')b=tiles([st('Q3 items planned','4','Plan v3, 1 July'),st('Shipped','3 of 4','SSO slipped',1),st('Best adoption','63%','CP12 builder, target 40%'),st('Pipeline waiting','£122k','Deals gated on SSO',1)])+
+  `<div class="card"><h3>Product vs tech: how to read this</h3><p class="muted small">Product is the why. Each item is a customer outcome with an adoption target and the revenue that depends on it. Tech is the how. Each item is a Jira epic with points required, points delivered and cost. They link by id.</p></div>`+sh('Product items','From the product tool')+
+  grid([ic('Smart Scheduling v2','Behind on adoption','Outcome: dispatchers book 20% more jobs per day. Adoption 41% of accounts against a 50% target. 38% of accounts are still on the v1 calendar. Built by KF-101 and KF-102.','Shipped 22 Aug · P-01','warn'),
+   ic('CP12 Certificate Builder','Ahead of plan','Outcome: engineers issue a gas safety certificate on site in under five minutes. Adoption 63% against 40%. 1,412 certificates issued in September. Built by KF-110.','Shipped 10 Sep · P-02','ok'),
+   ic('Single Sign-On and Permissions','Slipped 7 weeks','Outcome: unlocks facilities management buyers with 50+ engineers. Unity Facilities (£58k) and Westfield Estates FM (£64k) list SSO as a requirement. Built by KF-120 and KF-121.','Planned 30 Sep · now 21 Nov · P-03','off'),
+   ic('Xero Invoice Sync v2','On plan','Outcome: jobs become paid invoices without re-keying. Adoption 72% against 70%. Sync failures down from 4.1% to 0.6% of invoices. Built by KF-105.','Shipped 18 Jul · P-06','ok'),
+   ic('Planned Maintenance Module','Discovery','Outcome: contractors win and run contract maintenance work. Starts when KF-120 ships because it uses the same engineers. Westfield Estates FM needs it. Built by KF-130.','Planned Q4 · now Q1 2027 · P-04','warn'),
+   ic('Customer Portal','Defer requested','Outcome: end customers self-book and pay online. No open deals depend on it. Deferring frees £41.6k of planned engineering cost. Board agreement requested.','Planned Q4 · proposed 2027 · P-05','rev')]);
+ if(s==='tech')b=ids(['pts','cost','fcast','over'])+sh('Delivered vs required','Story points done against points required, per epic')+
+  `<div class="card">${[['Scheduling engine · KF-101',120,120],['Scheduling mobile app · KF-102',60,60],['Xero invoice sync · KF-105',40,40],['Certificate builder · KF-110',55,55],['Single sign-on · KF-120',34,80],['Permission roles · KF-121',12,45],['Database upgrade · KF-155',30,30],['SOC 2 controls · KF-150',30,50],['Notification clean-up · KF-160',8,25],['Maintenance data model · KF-130',0,70]].map(e=>bar(e[0],e[1]/e[2]*100,e[1]+' / '+e[2],e[1]/e[2]<.5)).join('')}</div>
+  <div class="card"><h3>Why SSO overran</h3><p class="muted small">The lead engineer on KF-120 left on 15 August. A contractor from Keel Dev took three weeks to ramp. The epic is 43% delivered, has spent £29.1k of a £31.2k budget, and is now forecast to cost £54.6k and ship on 21 November.</p></div>`+sh('Epic cost and delivery · feature work')+
+  grid([ic('Scheduling engine rebuilt','Done','Dispatchers book more jobs per engineer per day. This is the engine behind Smart Scheduling v2. 120 of 120 points, £68.6k against a £62.4k budget, seven days late on multi-engineer edge cases.','KF-101 · delivers P-01 · done 22 Aug, plan 15 Aug','ok'),ic('Single sign-on for enterprise buyers','Slipped','Lets a facilities company switch Kestrel on through its own IT. Two deals worth £122k are waiting on it. 34 of 80 points, £29.1k spent of £31.2k, forecast £54.6k.','KF-120 · delivers P-03 · forecast 21 Nov, plan 30 Sep','off'),ic('Permission roles for enterprise IT','Slipped','Enterprise IT teams need roles alongside sign-on, so this ships with it. 12 of 45 points, £9.4k spent of £18.2k, forecast £22.9k.','KF-121 · delivers P-03 · forecast 21 Nov, plan 30 Sep','off'),ic('Data model for the maintenance module','Blocked','The foundation for contract maintenance work, which Westfield Estates FM (£64k) needs to sign. Cannot start until the sign-on engineers are free. 0 of 70 points, £33.8k budget, forecast £36.4k.','KF-130 · delivers P-04 · forecast 5 Feb, plan 15 Dec','warn')])+sh('Platform work (no product item)')+
+  grid([ic('SOC 2 controls and audit','Platform','Gives enterprise buyers the security report their IT teams ask for before signing. Unity Facilities requires it. 30 of 50 points, £15.6k budget, forecast £18.2k, plus a £9.5k audit fee in Xero.','KF-150 · no product item · forecast 14 Nov, plan 31 Oct','warn'),ic('Database upgrade','Done','Scheduling pages load in 0.9s instead of 2.8s, which removes the most common support complaint. 30 of 30 points, £13.5k against a £10.4k budget.','KF-155 · platform · done 8 Aug, plan 31 Jul','ok'),ic('Notification clean-up','Paused','Fewer failed customer reminders and less on-call load for engineering. Paused while sign-on takes priority. 8 of 25 points, £7.8k budget, forecast £9.9k.','KF-160 · tech debt · forecast 30 Nov, plan 15 Oct','warn')],'g3');
+ if(s==='sales')b=tiles([st('Q4 new ARR target','£180k','Plan v3'),tile('pipe').replace('class="tile"','class="tile"'),tile('wtd'),tile('win')])+
+  `<div class="card"><h3>How ARR builds to £1.6m</h3><p class="muted small">We need £360k of net new ARR in six months. At an average new deal of £15k that is four new customers a month. Q3 averaged 1.3 a month. The gap closes only if the two enterprise deals land after SSO.</p><div class="eq"><div><b>4</b><span>deals / month</span></div>×<div><b>£15k</b><span>avg new ARR</span></div>×<div><b>6</b><span>months</span></div>=<div><b>£360k</b><span>net new ARR</span></div></div></div>
+  <div class="card"><h3>ARR growth</h3><p class="muted small">Customers (columns) and ARR £k (line)</p>${colChart(['Q4 25','Q1 26','Q2 26','Q3 26'],[{n:'Customers',v:[78,85,92,96],c:'var(--slate)'}],{aria:'Customers by quarter'})}${lineChart(['Q4 25','Q1 26','Q2 26','Q3 26','Q4 plan','Q1 plan'],[{n:'ARR £k',v:[1010,1090,1160,1240,null,null],c:'var(--brand)'},{n:'Plan',v:[null,null,null,1240,1420,1600],c:'var(--accent)',dash:1}],{min:900,max:1700,dec:0,aria:'ARR over time'})}</div>`+
+  grid([ic('Close the two negotiations','Milestone 1','Ashby and Sons Mechanical (£42k) and Sterling Boilers (£16.8k), both closing in October. Together £58.8k, a third of the Q4 target.','October 2026'),ic('Unity Facilities, after SSO','Gated on P-03','£58k proposal. Their IT team will not sign without SSO and a SOC 2 timeline. Biggest single deal in the pipeline.','November 2026','off'),ic('Keystone Building Services','Hygiene','£27k proposal with no activity in HubSpot since 27 August. Re-engage this month or move to closed lost so coverage is honest.','Stalled 34 days','warn'),ic('Merchant partner channel','Channel','Two heating merchants signed in September. Coastline HVAC (£12.6k) came through this route.','Live now','ok'),ic('Westfield Estates FM','Gated on P-04','£64k in discovery. Needs SSO and the maintenance module. Not counted in Q4 coverage.','January 2027','off'),ic('120 customers / £1.6m ARR','North star','Requires four new customers a month from October and net revenue retention held above 105%.','March 2027','rev')],'g3');
+ if(s==='cash')b=tiles([tile('cash'),tile('burn'),tile('run'),st('Contractor overspend','£15.7k','Q3 vs budget',1)])+`<div class="card"><h3>Action required</h3><p class="muted small">Burn ran £23.3k over budget across Q3. Contractors account for £15.7k of it, covering the backend gap. Payroll ran under budget by £4.7k because hires were late. Net, the hiring gap cost money rather than saving it.</p></div>`+
+  grid([ic('Contractor exit plan','Burn reduction','Keel Dev contract ends when the second backend hire starts. Expected saving £8k to £16k a month from November.','October 2026'),ic('Burn back to budget','Target','Target £72k a month from November. Payroll rises with hires, contractors fall away, marketing held flat.','November 2026','rev'),ic('Seed extension £400k','Funding','Existing investors have signalled pro-rata. Closing in January restores runway above 18 months and funds the PPM build.','Nov 2026 to Jan 2027'),ic('Monthly budget review','Discipline','CEO and Finance review Xero actuals against budget in the first week of every month. Any line more than 10% over is raised at the board.','Ongoing')]);
+ if(s==='team')b=ids(['hc','open','leav','enps'])+`<div class="note">From HiBob. No pay data shown. Salaries never appear on this dashboard. Total payroll comes from Xero as one line.</div>`+
+  grid([ic('Senior Backend Engineer (Growth)','Engineering','Planned for Q3. Two offers declined on salary. Band reviewed in September. Final interviews this month.','Open 91 days','off'),ic('Senior Backend Engineer (Backfill)','Engineering','Backfill after the August leaver. Currently covered by Keel Dev contractors at a higher day rate.','Open 46 days','warn'),ic('Account Executive','Offer out','Offer accepted verbally on 10 October. Start date 3 November. Takes SMB deals so Sales lead can focus on enterprise.','Open 60 days','rev'),ic('Two Q3 hires made','Hired','Customer Success Manager and Senior Backend Engineer. Both through probation reviews on time.','Started 4 Aug and 7 Sep','ok'),ic('Head of Customer Success','Planned','Planned for December recruitment, January start. Owns retention as the customer base passes 100.','Q4 2026'),ic('eNPS fell from 31 to 22','Engagement','Engineering scored lowest. Comments mention on-call load since the August leaver and unclear priorities between SSO and tech debt.','Survey · September','warn')],'g3');
+ return nav+(COMM['rm-'+s]?`<div class="sec">${commBox('rm-'+s,h,ro)}</div>`:'')+`<div class="sec">${b}</div>`}
+
+function pgProduct(h,ro){return `<div class="card hero2"><p class="eyebrow">What it is, how a customer uses it, and what it gives back</p><h2>Every job leaves data behind</h2><p class="muted small">Completed jobs feed back into each contractor’s account.</p></div>
+ ${sh('Measured per account','Averages across all 96 customer accounts, September 2026')}
+ ${tiles([st('First-time fix','81%','jobs closed in one visit'),st('Jobs per day','5.4','per engineer, up from 4.6'),tile('cp12').replace('CP12 adoption','Certificates').replace('63%','1,412').replace('target 40%','issued in September'),st('Days to paid','9.2','from job to cash')])}
+ ${sh('Account intelligence dashboard','What each contractor sees about their own business')}
+ ${tiles([st('Renewals due','212','certificates due in 60 days'),st('Return visits','19%','jobs needing a second trip'),st('Unpaid','47','invoices over 30 days'),st('Quotes open','23','waiting on the customer')])}
+ ${sh('Renewal forecast and automatic booking','Annual work becomes booked work')}
+ ${grid([ic('48 landlord certificates','Oct 2026','Reminders sent, 31 already booked.'),ic('64 boiler services','Nov 2026','Peak before winter, overflow flagged.'),ic('57 landlord certificates','Dec 2026','Holiday cover needed for two weeks.'),ic('43 maintenance contracts','Jan 2027','Will move into the PPM module once live.')],'g4')}
+ <div class="card"><h3>Smart scheduling match · example output</h3><div class="tw"><table><thead><tr><th>Job</th><th>Engineer</th><th class="n">Match</th><th>Result</th></tr></thead><tbody>
+  <tr><td>Boiler service, LS6</td><td>J. Pearce</td><td class="n">92%</td><td><span class="pill ok">Strong</span> already in the area</td></tr>
+  <tr><td>Landlord CP12, LS11</td><td>S. Khan</td><td class="n">71%</td><td><span class="pill ok">Good</span> tenant home after 2pm</td></tr>
+  <tr><td>Unvented cylinder, HG1</td><td>R. Allen</td><td class="n">38%</td><td><span class="pill warn">Weak</span> 45 minutes away</td></tr>
+  <tr><td>Commercial boiler, LS1</td><td>T. Moss</td><td class="n">0%</td><td><span class="pill off">Blocked</span> no commercial category</td></tr></tbody></table></div></div>
+ <div class="card addsec"><b>+ Add a custom section</b><p class="muted small">Text, images, tables or embeds. The product explainer from your original dashboard lives here, owned by Product.</p></div>
+ <div class="sec">${commBox('product',h,ro)}</div>`}
+
+function pgCash(h,ro){const s=h.sub.cf,nav=subNav('cf',h);let b='';
+ if(s==='overview')b=tiles([st('Current balance','£1,378,000','30 September 2026'),tile('arr'),tile('pipe'),tile('run')])+
+  `<div class="card"><h3>Position today</h3><p class="muted small">Gross margin is 85.3%. Contractors covering an engineering gap pushed burn above budget. The seed extension is a runway buffer and funds the PPM build. The business is not dependent on it to reach March.</p></div>`+
+  tiles([st('Revenue in','£302,900','Jul to Sep 2026'),st('Total out','£537,200','Jul to Sep 2026'),st('Net burn','£234,300','budget £211,000',1)])+
+  `<div class="card"><h3>Monthly money in vs out</h3><p class="muted small">Revenue grew each month. Costs grew faster because of contractors and payroll timing. £k</p>${colChart(['Jul','Aug','Sep'],[{n:'In',v:[98.2,101.4,103.3],c:'var(--brand)'},{n:'Out',v:[170.1,177.9,189.2],c:'var(--slate)'}],{aria:'Money in against money out by month'})}</div>`+
+  sh('Forward burn trajectory')+tiles([st('September · peak','£85,900','Contractors at £16.2k plus a new backend hire',1),st('Contractors off','−£14k/mo','Keel Dev ends when the second hire starts'),st('From November','£72k/mo','Payroll up, contractors gone, revenue +£3k to £5k a month')])+
+  sh('Pipeline behind the plan','From HubSpot · what needs to close to hit £180k new ARR in Q4')+`<div class="card"><p class="muted small">£200.8k of open pipeline is due to close in Q4. At Q3’s win rate the negotiation stage alone covers a third of the target. The rest depends on Unity Facilities and the proposals.</p></div>`+tiles([st('Won in Q3','£88,200'),st('Negotiation','£58,800'),st('Proposal','£99,400'),st('Demo + discovery','£106,600')]);
+ if(s==='spend')b=spendView(h);
+ if(s==='income')b=`<div class="card"><h3>Sources of income · recurring vs one-off</h3><p class="muted small">93% of Q3 revenue was subscription income. Onboarding fees and certificate pack sales made up the rest. No investor capital came in this quarter.</p>${bar('Subscriptions',93,'£281.7k')}${bar('Onboarding fees',4.1,'£12.4k')}${bar('Certificate packs',2.9,'£8.8k')}</div>`+
+  tiles([tile('newarr'),tile('rev'),tile('nrr')])+sh('New customers won in Q3','From HubSpot · closed won between 1 July and 30 September')+
+  grid([ic('Northgate Mechanical','£31,200','28 engineers · inbound · won 28 Aug. Largest Q3 win. Bought for scheduling v2 and CP12. Expansion to a second depot planned for Q1.','Won ✓','ok'),ic('Brightwell Plumbing Group','£26,400','22 engineers · outbound · won 2 Aug. Moved from paper job sheets. Live in 11 days.','Won ✓','ok'),ic('Polar Air Services','£18,000','15 engineers · referral · won 14 Jul. Referred by an existing customer.','Won ✓','ok'),ic('Coastline HVAC','£12,600','10 engineers · merchant partner · won 19 Sep. First deal through the merchant partner channel.','Won ✓','ok')])+
+  `<div class="card"><h3>Unity Facilities upside</h3><p class="muted small">If SSO ships on 21 November and Unity Facilities signs, that is £58,000 of new ARR from one deal, nearly a third of the Q4 target. Their framework covers four more regions.</p></div>`;
+ if(s==='balance')b=`<div class="card"><h3>Account balance over time</h3><p class="muted small">£m · actual to September, projected at forward burn with no seed extension</p>${lineChart(['Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],[{n:'Actual',v:[1.612,1.540,1.464,1.378,null,null,null,null,null,null],c:'var(--brand)'},{n:'Projected',v:[null,null,null,1.378,1.300,1.228,1.156,1.084,1.012,.940],c:'var(--accent)',dash:1},{n:'With £400k seed',v:[null,null,null,null,null,null,null,1.084,1.412,1.340],c:'var(--slate)',dash:1,nodot:1}],{min:.6,max:1.7,dec:1,aria:'Cash balance over time'})}</div>`+
+  tiles([st('Start of quarter','£1.61m','30 June 2026'),st('Current','£1.38m','30 September 2026'),st('Forward burn','~£72k','monthly from November'),st('Runway','17.6 mo','19.1 months at forward burn')])+`<div class="card"><h3>Seed extension</h3><p class="muted small">Existing investors have signalled pro-rata for a £400k extension closing in January 2027. That takes runway above 24 months and funds the planned maintenance build without pausing other work.</p></div>`;
+ if(s==='stack')b=tiles([st('Potential monthly saving','~£1,080/mo','software only, if all actioned')])+`<div class="card"><p class="muted small">Based on the Xero software line. Two tools were cancelled in July. The remaining opportunities are overlapping tools and unused seats.</p></div>`+
+  ic('Loom and Calendly','Cancelled ✓','Loom £60/mo and Calendly £48/mo. Last charges in June. HubSpot meetings replaced Calendly. No further billing in Q3.','Already actioned','ok')+
+  grid([ic('Intercom + HubSpot · support inbox overlap','Consolidate','Intercom ~£650/mo. HubSpot’s plan already includes a shared inbox and ticketing. Moving chat into HubSpot keeps every customer conversation on one record. Saving ~£650/mo.','Overlaps with HubSpot Service Hub','warn'),ic('Confluence · bundled but unused','Consolidate','Jira + Confluence ~£900/mo. Engineering documents live in GitHub and Google Docs. Confluence has 11 pages, last edited in March. Saving ~£260/mo.','Overlaps with GitHub, Google Docs','warn'),ic('Figma · seats above need','Reduce seats','£450/mo for 6 seats. Only two people edit designs. Four engineer seats can move to free view access. Saving ~£170/mo.','No loss of access','warn'),ic('Keel Dev contractors','Investigate','Jul £9,000 · Aug £14,500 · Sep £16,200. Spend nearly doubled in two months. The day rate is 40% above the blended permanent rate. Should end when backend hires start. ↑ £7,200 in 2 months.','Not software, but the biggest line','off')]);
+ return nav+`<div class="sec">${s==='overview'?commBox('cf',h,ro):''}${b}</div>`}
+
+function pgMarket(h,ro){return tiles([tile('pipe').replace('£265k','£265k'),st('Q3 win rate','4/5','deals that reached a decision'),tile('nrr'),tile('cp12')])+
+ `<div class="sec">${commBox('market',h,ro)}</div>`+
+ grid([ic('Northgate Mechanical · largest Q3 win','Won','28 engineers across Leeds and Bradford · inbound. Came after a trade show demo of the CP12 builder, signed £31,200 of ARR after a two-week trial. Why they bought: landlord work had grown to 40% of revenue and paper certificates caused missed renewals. Expansion: second depot in Q1 2027, around £13k ARR.','Subject matter expert','ok'),ic('Unity Facilities · enterprise signal','Proposal','Regional FM operator · 140 engineers. Three-week pilot with 12 engineers, then asked for a proposal. The product wins on the job. The blockers are enterprise requirements, not fit, which is why SSO and SOC 2 are the top two tech priorities.','Enterprise signal','warn'),ic('Meridian Heating · lost deal','Closed lost','£22,000 · closed lost 5 September. Chose a cheaper competitor. Feedback: the product was better, but they do no landlord work so did not need certificates. A useful signal on who the product is for.','Only loss in Q3','off')],'g3')+
+ sh('Pipeline by stage · £265k open','From HubSpot · snapshot as of 30 September 2026. Nine open deals. Two gated on product, one stalled 34 days.')+
+ `<div class="card tw"><table><thead><tr><th>Stage</th><th class="n">Deals</th><th class="n">Value</th><th>Deals</th></tr></thead><tbody>
+  <tr><td>Closed won Q3</td><td class="n">4</td><td class="n">£88,200</td><td class="small">Northgate Mechanical £31,200 · Brightwell £26,400 · Polar Air £18,000 · Coastline HVAC £12,600</td></tr>
+  <tr><td>Negotiation</td><td class="n">2</td><td class="n">£58,800</td><td class="small">Ashby and Sons Mechanical £42,000 · Sterling Boilers £16,800</td></tr>
+  <tr><td>Proposal sent</td><td class="n">3</td><td class="n">£99,400</td><td class="small">Unity Facilities £58,000 <span class="pill off">needs SSO</span> · Keystone £27,000 <span class="pill warn">stalled</span> · Riverbank £14,400</td></tr>
+  <tr><td>Demo + discovery</td><td class="n">4</td><td class="n">£106,600</td><td class="small">Westfield Estates FM £64,000 <span class="pill off">SSO + PPM</span> · Crestline £21,600 · Orbit Cooling £11,400 · Halden Gas £9,600</td></tr>
+  <tr><th>Total open pipeline</th><th></th><th class="n">£264,800</th><th></th></tr></tbody></table></div>`+
+ tiles([st('Speaking slots','2','invited, not paid for'),st('Merchant partners','2','signed in September'),st('Live customers','96','up from 92 on 1 July'),st('Certificates','1,412','issued in September')])+
+ grid([ic('HVAC Futures Summit','Speaking slot','The CEO is presenting on digital certificates and landlord compliance. 600 contractors expected in the room.','November 2026'),ic('Contractor Tech Live','Panel slot','Panel on scheduling and engineer productivity. Our core buyer is in the audience.','February 2027'),ic('Merchant partner channel','Channel','Two regional heating merchants. Counter staff recommend Kestrel Field when installers buy certificate pads. A third merchant is in talks.','Live now','ok'),ic('Proof in production','96 live customers','Engineers on scheduling v2 average 5.4 jobs a day, up from 4.6. Net revenue retention is 108%. Customers expand as they add engineers.','Usage data','ok')])+
+ sh('Contractor transition','Non-payroll people costs from Xero · July to September 2026')+tiles([st('Contractor spend Q3','£39.7k','budget £24.0k',1),st('Monthly saving','~£14k','from November'),st('Contract end','Nov','when backend hires start'),st('Redirected to','Hires','Backend, AE, CS lead')])}
+
+const RISKS=[['R-01','Enterprise pipeline blocked by SSO slip','Critical · Rising','Sam Ibbotson, CTO',4,4,'Jira + HubSpot','KF-120 is forecast 52 days past plan. £122k of open pipeline lists SSO as a requirement. Rule triggered: an epic linked to open deals slipped more than 30 days. Mitigation: SSO is the only priority for the backend team.','9 → 16','off'],
+ ['R-02','Runway below 18 months','Critical · New','Ellie Marsh, CEO',3,5,'Xero','£1.378m cash over £78.1k average burn gives 17.6 months. Rule triggered: runway under the 18 month floor in Plan v3. Mitigation: contractors off by November, seed extension in January.','New · 15','off'],
+ ['R-03','Q4 pipeline coverage below 2x','Critical · Rising','Hana Okafor, Head of Sales',4,4,'HubSpot','£200.8k closing in Q4 against £180k target. Plan is 3x. One proposal (£27k) has had no activity for 34 days. Mitigation: AE starts 3 November, partner channel targets, weekly pipeline review.','12 → 16','off'],
+ ['R-04','Single point of failure in backend engineering','High · Rising','Sam Ibbotson, CTO',3,4,'HiBob + Jira','One permanent senior backend engineer since 15 August, assignee on 4 of 6 open epics. Mitigation: two hires in progress, pairing on SSO, runbook for the scheduling engine.','8 → 12','warn'],
+ ['R-05','SOC 2 date slips past Unity Facilities deadline','High · New','Olu Harris, DevOps',3,3,'Jira + HubSpot','KF-150 is 60% done and forecast two weeks late. Unity Facilities asked for a Type I report date by December. Mitigation: auditor booked for 17 November.','New · 9','warn'],
+ ['R-06','Contractor cost overrun','Monitor','Jo Whitfield, Finance',4,2,'Xero','Contractors £39.7k in Q3 against a £24k budget. Ends when backend hires start. Mitigation: hard stop date written into the contract.','8 → 8','']];
+function pgRisks(h,ro){const dec=ro?'accepted':ST.risk,showR7=dec!=='rejected';const all=RISKS.concat(showR7?[['R-07','Engineering engagement falling',dec==='accepted'?'Medium · New':'Proposed','Unassigned',2,3,'HiBob survey','eNPS fell from 31 to 22, lowest in engineering. Suggested from the survey data.','Proposed · 6','rev']]:[]);
+ const m={};all.forEach(r=>{(m[r[4]+'-'+r[5]]=m[r[4]+'-'+r[5]]||[]).push(r[0].slice(2))});
+ let mx='<div class="matrix" role="img" aria-label="Risk matrix, likelihood against impact">';for(let l=5;l>=1;l--){mx+=`<span class="ax">${l}</span>`;for(let i=1;i<=5;i++){const sc=l*i,c=sc>=15?'hi':sc>=10?'md':sc>=5?'mo':'lo';mx+=`<span class="mc ${c}">${(m[l+'-'+i]||[]).map(x=>`<b>${x}</b>`).join('')}</span>`}}mx+='<span></span>'+[1,2,3,4,5].map(i=>`<span class="ax">${i}</span>`).join('')+'</div>';
+ const open=all.length, prop=dec==='pending'&&!ro?1:0;
+ return `<div class="ph"><div><p class="eyebrow">Kestrel Field Ltd</p><h2>Risk register</h2><p class="muted small">Cycle Q3 2026 · carried forward from Q2 · scores are likelihood × impact, each out of 5</p></div></div>
+ ${tiles([st('Open',open,'3 critical, 2 high, '+(open-5)+' other'),st('Rising','3','score up since Q2',1),st('New this cycle','2','raised by rules'),st('Proposed',prop,prop?'awaiting CEO decision':'none pending')])}
+ <div class="grid g2"><div class="card"><h3>How the register works</h3><p class="muted small">Rules raise risks automatically from the data, such as runway under the floor or an epic blocking deals. Anyone on the team can propose one. A proposed risk shows as Proposed until the CEO accepts, edits or rejects it, and the cycle cannot be approved before then.</p></div><div class="card"><h3>Risk matrix</h3><p class="muted small">Likelihood (up) against impact (across)</p>${mx}</div></div>
+ ${sh('Open risks')}
+ ${all.map(r=>`<div class="card risk sev-${r[9]||'mon'}"><div class="row" style="justify-content:space-between"><b>${r[0]} · ${r[1]}</b><span class="pill ${r[9]}">${r[2]}</span></div><div class="row dev" style="margin:6px 0"><span>Owner ${r[3]}</span><span>L${r[4]} × I${r[5]} = ${r[4]*r[5]}</span><span>Source ${r[6]}</span><span>Score ${r[8]}</span></div><p class="muted small">${r[7]}</p>
+  ${r[0]==='R-07'&&dec==='pending'?(ro?'':(h.role==='ceo'?'<div class="row" style="margin-top:10px"><button class="btn sm pri" data-risk="accepted">Accept</button><button class="btn sm" data-risk="edit">Edit</button><button class="btn sm dng" data-risk="rejected">Reject</button></div>':'<p class="small dev" style="margin-top:8px">Only the CEO can decide this risk.</p>')):''}
+  ${r[0]==='R-07'&&dec==='accepted'&&!ro?'<p class="small" style="margin-top:8px;color:var(--ok)">Accepted by CEO. Owner to be assigned.</p>':''}</div>`).join('')}
+ ${sh('Closed this cycle')}<div class="card"><b>R-08 · Xero sync failures losing invoices</b> <span class="pill ok">Closed ✓</span><p class="muted small" style="margin-top:6px">Owner Isla Ford, Product. Was L4 × I3 = 12. Closed after KF-105 shipped on 18 July. Sync failures fell from 4.1% to 0.6% of invoices and stayed there for two months.</p></div>`}
+
+const GAPS=[['Delegation and decision speed',20,60,'Critical','Decisions queue behind the CEO. In Q3, epics in Jira waited an average of 6 days in “Awaiting approval”.','Slows every team that depends on a call from the top.','Fixed decision slots in the week and a 48-hour approval alert.'],['Hiring velocity',25,55,'Critical','Two offers declined on salary and one role open for 91 days.','Contractors cost 40% more than permanent hires.','Tuesday hiring day and same-day offer decisions.'],['Forward financial control',45,65,'High','Burn ran 11% over budget before it was raised.','Runway fell below the 18-month floor.','Monthly budget review in the first week of the month.'],['Enterprise sales leadership',40,55,'High','Enterprise deals depend on SSO and SOC 2 timelines.','£122k of pipeline gated.','Enterprise prospect call every Friday.'],['Engineering capacity planning',35,60,'High','One permanent senior backend engineer since August.','SSO slipped seven weeks.','Capacity view per epic before commitments.'],['Prioritisation and saying no',40,60,'High','Customer portal and SSO competed for the same engineers.','£41.6k engineering cost at stake.','Defer the portal and say so to the board.'],['Team engagement and communication',45,65,'High','eNPS fell from 31 to 22.','Retention risk in engineering.','Weekly 1:1s and fortnightly demo day.'],['Board and investor communication',80,85,'Strength','Chair feedback is strong.','',''],['Product and customer insight',78,82,'Strength','Customer hour every Friday.','',''],['Resilience under pressure',72,75,'Strength','Held direction through the August departure.','','']];
+const PLAY=[['Map every decision currently waiting on you','Reflect'],['Agree a 48-hour approval rule with the CTO','Team'],['Write the approval queue alert brief for Finance','Execute'],['Block Tuesdays for final interviews only','Execute'],['Review Q3 hires against role scorecards','Reflect'],['Run the first leadership standup with blockers first','Team'],['Draft the contractor exit date with Finance','Execute'],['Plan the enterprise prospect call routine','Reflect'],['Hold the first fortnightly demo day','Team'],['Set the monthly budget review with Finance','Execute']];
+function pgLead(h,ro){const g=GAPS[h.gap],cr=GAPS.filter(x=>x[3]==='Critical').length,hi=GAPS.filter(x=>x[3]==='High').length,sn=GAPS.filter(x=>x[3]==='Strength').length,pct=Math.round(ST.done.size/30*100);
+ return `<div class="ph"><div><p class="eyebrow">Kestrel Field Ltd</p><h2>CEO development</h2><p class="muted small">Ellie Marsh · CEO and co-founder · assessment September 2026 · 30-day build programme</p></div></div>
+ ${tiles([st('Critical gaps',cr,'require immediate action',1),st('High priority',hi,'build within 30 days'),st('Strengths',sn,'validated capabilities'),st('Playbook progress',pct+'%',ST.done.size+' of 30 days complete')])}
+ <div class="grid g2"><div class="card"><h3>Radar overview</h3><p class="muted small">Capability score across six domains · solid is now, dashed is after 30 days</p>${radar(['Decisions','Hiring','Finance','Ent. sales','Priorities','Board comms'],[20,25,45,40,40,80],[60,55,65,55,60,85])}</div>
+  <div class="card"><h3>How this was built</h3><p class="muted small">Three inputs: the CEO’s own self review, the chair’s feedback from the September board, and signals from the data, such as Jira approval waits, HiBob time to hire and Xero budget variance.</p><div class="note" style="margin-top:12px">Optional section. The CEO chooses whether the board sees it.</div></div></div>
+ <div class="card"><h3>Gap map</h3><p class="muted small">Select a row to see detail, diagnosis and playbook action</p>${GAPS.map((x,i)=>`<button class="gaprow" data-gap="${i}" aria-pressed="${h.gap===i}"><span>${x[0]}</span><span class="pbt"><span style="width:${x[1]}%;background:${x[3]==='Strength'?'var(--ok)':x[3]==='Critical'?'var(--accent)':'var(--brand)'}"></span></span><span class="mono">${x[1]}</span><span class="pill ${x[3]==='Critical'?'off':x[3]==='Strength'?'ok':'warn'}">${x[3]}</span></button>`).join('')}
+ <div class="note" style="margin-top:12px"><b>${g[0]}</b> · now ${g[1]} → after 30 days ${g[2]}<br><b>Diagnosis.</b> ${g[4]}${g[5]?`<br><b>What it costs today.</b> ${g[5]}<br><b>Playbook action.</b> ${g[6]}`:''}</div></div>
+ <div class="card"><h3>30-day playbook</h3><p class="muted small">One task per day, tied to the gaps. Two protected blocks daily: 8 to 9am reflection and 2 to 3pm execution.</p>
+  ${PLAY.map((t,i)=>`<label class="task"><input type="checkbox" data-task="${i}" ${ST.done.has(i)?'checked':''} ${ro||h.role!=='ceo'?'disabled':''}><span>Day ${i+1}. ${t[0]}</span><span class="pill ${t[1]==='Reflect'?'':t[1]==='Execute'?'rev':'ok'}">${t[1]}</span></label>`).join('')}<p class="dev" style="margin-top:8px">Days 11 to 30 follow the same pattern.</p></div>
+ <div class="card"><h3>Operating rhythm</h3><div class="grid g4" style="margin-top:8px">${[['Daily 8:00','Reflection block','What moved yesterday · decisions waiting on me · one thing I am avoiding'],['Daily 14:00','Execution block','Single playbook task only · no calls, no Slack'],['Monday','Pipeline and cash','HubSpot review with Sales · cash and burn check with Finance'],['Tuesday','Hiring day','Final interviews only · offer decisions same day'],['Wednesday','1:1s','30 minutes each · one action each into Jira'],['Thursday','Chair sync','Fundraising and board prep'],['Friday','Customer hour','Two customer calls · one enterprise prospect'],['Fortnightly','Demo day','Five minutes per team, working software or real numbers']].map(r=>ic(r[1],r[0],r[2])).join('')}</div>
+ <div class="note" style="margin-top:12px"><b>Ops brief: approval queue alert.</b> Watch Jira for any epic in “Awaiting approval”. If it sits more than 48 hours, post in the leadership channel and tag the CEO. Estimated build time: 30 minutes.</div></div>`}
+
+function subNav(page,h){return `<div class="tabs sub" role="tablist">${SUBS[page].map(([id,n])=>`<button class="tab" data-sub="${page}:${id}" aria-current="${h.sub[page]===id?'page':'false'}">${n}</button>`).join('')}</div>`}
+
+function renderHub(key){
+ const h=HUB[key],el=key==='app'?$('#packBody'):$('#invBody'),ro=h.role==='investor';
+ const tabs=PAGES.map(([id,n])=>`<button class="tab" data-page="${id}" aria-current="${h.page===id?'page':'false'}">${n}</button>`).join('');
+ const o=OWN[okey(h)],ed=!ro&&canEdit(h);
+ const fn={overview:pgOverview,roadmap:pgRoadmap,product:pgProduct,cf:pgCash,market:pgMarket,risks:pgRisks,lead:pgLead}[h.page];
+ el.innerHTML=`<div class="hubtop">
+   ${key==='app'?`<label class="small muted" for="roleSel">Signed in as</label><select id="roleSel" style="max-width:290px">${Object.entries(ROLES).map(([k,v])=>`<option value="${k}" ${k===h.role?'selected':''}>${v}</option>`).join('')}</select><button class="btn sm" id="logBtn">Activity</button>`:'<span class="dev">Read-only · approved cycles only</span>'}
+   <span class="sp"></span>${ro?'<span class="pill appr">Approved</span>':ed?'<span class="pill ok">You can edit this page</span>':`<span class="pill">Locked to ${o?o[0].split(' ')[0]:'owner'}</span>`}
+  </div>
+  <div id="logPanel-${key}" class="card" hidden style="margin-bottom:12px"><b>Activity</b>${LOG.map(l=>`<p class="small muted" style="margin-top:6px">${l}</p>`).join('')}</div>
+  <div class="tabs" role="tablist">${tabs}</div>
+  <div class="sec pgbody">${fn(h,ro)}</div>`;
+ requestAnimationFrame(()=>requestAnimationFrame(()=>el.querySelectorAll('.dseg').forEach(c=>c.style.strokeDasharray=c.dataset.da)));
+ const rs=el.querySelector('#roleSel');if(rs)rs.onchange=()=>{h.role=rs.value;renderHub(key)};
+ const lb=el.querySelector('#logBtn');if(lb)lb.onclick=()=>{const p=$('#logPanel-'+key);p.hidden=!p.hidden};
+}
+
+/* ---------- app shell ---------- */
+function renderStepper(){$('#stepper').innerHTML=STEPS.map((s,i)=>`<span class="${i<stage?'done':i===stage?'now':''}">${i+1} ${s}</span>`).join('')}
+const DEPTS=[['Cashflow','Jo Whitfield','xero_pl_jul_sep_export.csv'],['Sales and market','Hana Okafor','hubspot_deals_q3.csv'],['Product','Isla Ford','product_items_q3.csv'],['Tech','Sam Ibbotson','jira_epics_q3.csv'],['Team','Ellie Marsh','hibob_headcount_q3.csv']];
+function renderDash(){
+ $('#deptRows').innerHTML=DEPTS.map((d,i)=>{let p=i===0?(stage<2?'<span class="pill warn">Off-spec</span>':'<span class="pill ok">Mapped</span>'):(i===3&&stage<1?'<span class="pill off">Overdue</span>':'<span class="pill ok">Received</span>');if(stage>=5)p='<span class="pill appr">Approved</span>';return `<tr><td>${d[0]}</td><td>${d[1]}</td><td class="mono small">${d[2]}</td><td>${p}</td></tr>`}).join('');
+ const dp=$('#dashPill');dp.className='pill '+(stage>=5?'appr':'rev');dp.textContent=['Collecting data','Mapping','Validating','Pack in draft','Awaiting CEO approval','Published'][stage];
+ const pp=$('#packPill');if(pp){pp.textContent=stage>=5?'Approved':stage>=4?'Awaiting approval':'In draft';pp.className='pill '+(stage>=5?'appr':'rev')}
+}
+const MAPS=[['Date','Period','99%'],['Account Name','Category','96%'],['Credit','Revenue in','94%'],['Debit','Total out','94%'],['Contact','Supplier','91%'],['Tracking','Department','64%'],['Ref','(ignore)','88%']];
+function renderMap(){const opts=['Period','Category','Revenue in','Total out','Supplier','Department','Bank balance','(ignore)'];
+ $('#mapRows').innerHTML=MAPS.map(m=>`<span class="mono small">${m[0]}</span><span class="arrow">→</span><select aria-label="Map ${m[0]}">${opts.map(o=>`<option ${o===m[1]?'selected':''}>${o}</option>`).join('')}</select><span class="conf">${parseInt(m[2])<70?'<span class="pill warn">'+m[2]+' · check</span>':m[2]}</span>`).join('')}
+function renderApprove(){const pend=ST.risk==='pending';$('#riskTxt').textContent=pend?'R-07 Engineering engagement falling is proposed. Accept, edit or reject it before approving.':'R-07 decision recorded: '+ST.risk+'.';$('#riskIc').className='ic '+(pend?'w':'ok');$('#riskIc').textContent=pend?'!':'✓';$('#goRisk').hidden=!pend;$('#approveBtn').disabled=pend||stage>=5}
+function show(id){
+ const area=id[0]==='w'?'web':id[0]==='i'?'inv':'app';setArea(area,true);
+ const scope=$({web:'#web',app:'#app',inv:'#inv-area'}[area]);
+ scope.querySelectorAll('.view').forEach(v=>v.hidden=v.id!==id);
+ $$('[data-go]').forEach(b=>{if(b.tagName==='BUTTON'&&b.closest('.side'))b.setAttribute('aria-current',b.dataset.go===id?'page':'false');if(b.classList.contains('l'))b.setAttribute('aria-current',b.dataset.go===id?'page':'false')});
+ if(id==='a-pack')renderHub('app');if(id==='a-map')renderMap();if(id==='i-pack')renderHub('inv');if(id==='a-dash')renderDash();if(id==='a-approve')renderApprove();
+ scrollTo({top:0})}
+function setArea(a,quiet){$('#web').hidden=a!=='web';$('#app').hidden=a!=='app';$('#inv-area').hidden=a!=='inv';
+ $$('[data-area]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.area===a));
+ if(!quiet)show(a==='web'?'w-home':a==='app'?'a-dash':'i-pack');$('#trace').hidden=true}
+function advance(to){if(stage<to)stage=to;renderStepper();renderDash()}
+function openTrace(id){const f=FIG[id];$('#trTitle').textContent=f.k+' · '+f.v;$('#trBody').innerHTML=`<dt>Source</dt><dd class="mono">${f.src}</dd><dt>Where</dt><dd>${f.cell}</dd><dt>How</dt><dd>${f.how}</dd><dt>Check</dt><dd><span class="pill ok">${f.chk}</span></dd>`;$('#trace').hidden=false}
+
+
+/* ---------- timeline context (one record per bar) ---------- */
+const MS={
+ 'Smart scheduling v2 adoption':{tr:'Product',st:['Behind on adoption','warn'],win:'Oct to Mar',own:'Isla Ford · Head of Product',src:'P-01 · product usage export · KF-101, KF-102',what:'The new scheduling engine, so dispatchers book more jobs per engineer per day.',why:'Accounts on v2 book more jobs, which drives seat expansion and renewal. 38% of accounts are still on the old calendar.',moves:'Adoption is 41% against a 50% target. Every account moved over is more jobs a day and a stickier renewal.',stat:'Shipped 22 Aug · behind on adoption'},
+ 'Single sign-on and permissions':{tr:'Product',st:['Slipped 7 weeks','off'],win:'Oct to Nov · live 21 Nov',own:'Isla Ford · Head of Product',src:'P-03 · KF-120, KF-121 · HubSpot D-114, D-121',what:'Lets a facilities company switch Kestrel on through its own IT, with the right people seeing the right jobs.',why:'Enterprise buyers with 50 or more engineers will not sign without it.',moves:'£122k of open pipeline is waiting on it, a third of the Q4 target: Unity Facilities £58k and Westfield Estates FM £64k.',stat:'Planned 30 Sep · now 21 Nov'},
+ 'Planned maintenance module':{tr:'Product',st:['Moved to Q1 2027','warn'],win:'Dec to Mar',own:'Isla Ford · Head of Product',src:'P-04 · KF-130 · HubSpot D-121',what:'Lets contractors win and run contract maintenance work, not just one-off jobs.',why:'Opens a second revenue line inside existing accounts, and Westfield Estates FM needs it to sign.',moves:'Westfield £64k depends on it. Moved from Q4 to Q1 2027 because it shares engineers with sign-on.',stat:'Discovery · build starts when sign-on ships'},
+ 'CP12 landlord pack':{tr:'Product',st:['On plan','ok'],win:'Nov to Jan',own:'Isla Ford · Head of Product',src:'P-02 follow-on · product plan v3 · usage export',what:'Bundles gas safety certificates, reminders and renewal booking for landlords with several properties.',why:'The certificate builder is the feature that wins demos, and renewals turn it into repeat revenue for the contractor.',moves:'Builder adoption is 63% against 40%, with 1,412 certificates issued in September. The pack turns those into booked renewals.',stat:'On plan · Nov to Jan'},
+ 'Customer portal':{tr:'Product',st:['Defer requested','rev'],win:'Feb to Mar · proposed 2027',own:'Isla Ford · Head of Product',src:'P-05 · product plan v3',what:'End customers book and pay online without calling the contractor.',why:'No open deal depends on it, and the engineers it needs are the ones sign-on and maintenance need.',moves:'Deferring frees £41.6k of planned engineering cost for the two items that carry revenue.',stat:'Defer to 2027 · board agreement requested'},
+ 'Single sign-on build':{tr:'Tech',st:['Slipped','off'],win:'Oct to Nov · forecast 21 Nov',own:'Sam Ibbotson · CTO',src:'KF-120 · P-03 · Xero contractor invoices',what:'The engineering behind single sign-on: SAML and OIDC so enterprise IT can manage who gets in.',why:'It is the gate on the two biggest deals in the pipeline and the reason the product item slipped.',moves:'Unlocks £122k. Cost forecast £54.6k against a £31.2k budget, the largest single overrun this quarter.',stat:'34 of 80 points · forecast 21 Nov, plan 30 Sep'},
+ 'SOC 2 controls and audit':{tr:'Tech',st:['Audit 17 Nov','warn'],win:'Oct to Dec',own:'Sam Ibbotson · CTO',src:'KF-150 · Xero · HubSpot D-114',what:'The security controls and external audit that give enterprise buyers the report their IT teams ask for before signing.',why:'Unity Facilities requires a SOC 2 report date, and every enterprise deal after it will ask the same.',moves:'Removes a blocker on £58k now and on the enterprise channel after that. Forecast £18.2k against £15.6k, plus a £9.5k audit fee.',stat:'30 of 50 points · audit 17 Nov · report December'},
+ 'Maintenance module data model':{tr:'Tech',st:['Blocked','warn'],win:'Dec to Feb',own:'Sam Ibbotson · CTO',src:'KF-130 · P-04',what:'The foundation for contract maintenance work.',why:'Nothing in the maintenance module can be built until this exists, and it cannot start until the sign-on engineers are free.',moves:'Westfield £64k and a new revenue line in existing accounts. Forecast £36.4k against £33.8k.',stat:'0 of 70 points · forecast 5 Feb, plan 15 Dec'},
+ 'Q4 new ARR £180k':{tr:'Sales + GTM',st:['Coverage 1.1x','warn'],win:'Oct to Dec',own:'Hana Okafor · Head of Sales',src:'Plan v3 · HubSpot deals export',what:'The new revenue the plan needs this quarter.',why:'It is the first step of the £360k needed by March, and coverage is thin.',moves:'£200.8k of open pipeline against a target that needs 3x coverage. £58.8k is in negotiation and would land a third of the target in October.',stat:'Coverage 1.1x against a 3x plan'},
+ 'Enterprise FM deals':{tr:'Sales + GTM',st:['Gated on sign-on','off'],win:'Nov to Jan',own:'Hana Okafor · Head of Sales',src:'HubSpot D-114, D-121 · P-03, P-04',what:'Two facilities management buyers, each worth more than four average customers.',why:'They decide whether Q4 and Q1 hit plan, and both are gated on sign-on. Westfield also needs the maintenance module.',moves:'Unity Facilities £58k at proposal, Westfield Estates FM £64k in discovery. Together two thirds of a quarter.',stat:'Gated on sign-on · Nov to Jan'},
+ 'Merchant partner channel':{tr:'Sales + GTM',st:['Live','ok'],win:'Oct to Mar',own:'Hana Okafor · Head of Sales',src:'HubSpot partner source tag',what:'Heating merchants refer their installer customers to Kestrel.',why:'Low-cost acquisition from a channel installers already trust.',moves:'Two merchants signed in September. Coastline HVAC (£12.6k) was the first deal through it.',stat:'Live · 2 partners referring'},
+ '120 customers / £1.6m ARR':{tr:'Sales + GTM',st:['North star','rev'],win:'March 2027',own:'Hana Okafor · Head of Sales',src:'Plan v3 · Xero recurring revenue',what:'The north star for March 2027.',why:'It is the plan the seed extension is priced on.',moves:'From 96 customers and £1.24m today: four new customers a month and retention above 105%.',stat:'On track only if the enterprise deals land after sign-on'},
+ 'Burn back to budget':{tr:'Cash',st:['Over budget','warn'],win:'Oct to Nov',own:'Jo Whitfield · Finance lead',src:'Xero P&L · budget v3',what:'Monthly spend back to the £72k the plan assumes.',why:'Contractors covering the backend gap are the overspend, and each month over budget shortens runway.',moves:'Q3 ran £78.1k a month against £70.3k, £15.7k of it contractors. Each month back on budget adds about three weeks of runway.',stat:'Over budget · target from November when Keel Dev rolls off'},
+ 'Seed extension £400k':{tr:'Cash',st:['Preparing','rev'],win:'Nov to Jan',own:'Jo Whitfield · Finance lead',src:'Board paper · investor correspondence',what:'A £400k top-up from existing investors.',why:'It funds the maintenance module build and restores the runway floor.',moves:'Runway back above 18 months. Existing investors have signalled pro-rata.',stat:'Prepare Nov · process Dec · close Jan'},
+ 'Runway above 18 months':{tr:'Cash',st:['Below floor','warn'],win:'Jan to Mar',own:'Jo Whitfield · Finance lead',src:'Xero bank balance · burn model · R-02',what:'Cash in the bank covering at least 18 months of spend, the floor the board set.',why:'Currently below the floor at 17.6 months, which is risk R-02 on the register.',moves:'Closing the extension and holding burn at £72k clears R-02 and restores the 20-month plan position.',stat:'17.6 months today · floor 18 · plan 20'},
+ 'Two senior backend engineers':{tr:'Team',st:['Final interviews','warn'],win:'Oct to Dec',own:'Ellie Marsh · CEO',src:'HiBob open positions · R-04',what:'Two permanent engineers to replace the contractor cover.',why:'They end the contractor overspend and remove the single point of failure that caused the sign-on slip.',moves:'Saves £8k to £16k a month from November and clears risk R-04.',stat:'Final interviews · one role open 91 days, one 46'},
+ 'Account executive':{tr:'Team',st:['Offer accepted','ok'],win:'Oct to Nov · starts 3 Nov',own:'Ellie Marsh · CEO',src:'HiBob hiring pipeline',what:'A salesperson for the smaller deals.',why:'Frees the Head of Sales to spend her time on the two enterprise accounts.',moves:'Covers the four-a-month SMB rate the plan needs while enterprise is worked separately.',stat:'Offer accepted 10 Oct · starts 3 Nov'},
+ 'Head of Customer Success':{tr:'Team',st:['Planned','rev'],win:'Dec to Jan',own:'Ellie Marsh · CEO',src:'Headcount plan v3',what:'A leader who owns retention as the customer base passes 100.',why:'Net revenue retention above 105% is a condition of the £1.6m plan and nobody owns it today.',moves:'Protects the renewal base the growth plan is built on.',stat:'Recruit December · start January'}
+};
+let msLast=null;
+function openMs(t,from){const m=MS[t];if(!m)return;msLast=from||null;
+ $('#msTrack').textContent=m.tr+' · '+m.win;$('#msTitle').textContent=t;
+ $('#msMeta').innerHTML=`<span class="pill ${m.st[1]}">${m.st[0]}</span><span class="skill">◆ Drafted by Claude</span>`;
+ $('#msWhat').textContent=m.what;$('#msWhy').textContent=m.why;$('#msMoves').textContent=m.moves;$('#msStat').textContent=m.stat;$('#msOwn').textContent=m.own;$('#msSrc').textContent=m.src;
+ const p=$('#msPop');p.hidden=false;$('#msClose').focus()}
+function closeMs(){const p=$('#msPop');if(p.hidden)return;p.hidden=true;if(msLast&&msLast.focus)msLast.focus()}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMs();if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[data-ms]')){e.preventDefault();openMs(e.target.dataset.ms,e.target)}});
+/* ---------- events ---------- */
+function keyOf(e){return e.closest('#invBody')?'inv':'app'}
+document.addEventListener('click',e=>{
+ const T=e.target;
+ const g=T.closest('[data-go]');
+ if(g){const id=g.dataset.go;const M={'a-map':1,'a-validate':2,'a-pack':3};if(M[id])advance(M[id]);show(id);renderStepper();return}
+ const a=T.closest('[data-area]');if(a){setArea(a.dataset.area);return}
+ const tr=T.closest('[data-trace]');if(tr){openTrace(tr.dataset.trace);return}
+ const msb=T.closest('[data-ms]');if(msb){openMs(msb.dataset.ms,msb);return}
+ if(T.id==='msClose'||T.id==='msPop'){closeMs();return}
+ const pg=T.closest('[data-page]');if(pg){const k=keyOf(pg);HUB[k].page=pg.dataset.page;renderHub(k);return}
+ const sb=T.closest('[data-sub]');if(sb){const k=keyOf(sb),[p,s]=sb.dataset.sub.split(':');HUB[k].sub[p]=s;renderHub(k);return}
+ const mo=T.closest('[data-month]');if(mo){const k=keyOf(mo);HUB[k].month=mo.dataset.month;renderHub(k);return}
+ const dl=T.closest('[data-drill]');if(dl){const k=keyOf(dl);HUB[k].drill=dl.dataset.drill;HUB[k].tool=null;renderHub(k);return}
+ const bk=T.closest('[data-back]');if(bk){const k=keyOf(bk);HUB[k].drill=null;HUB[k].tool=null;renderHub(k);return}
+ const tl=T.closest('[data-tool]');if(tl){const k=keyOf(tl);HUB[k].tool=tl.dataset.tool||null;renderHub(k);return}
+ const dr=T.closest('[data-drill]');if(dr){const k=keyOf(dr);HUB[k].drill=dr.dataset.drill||null;renderHub(k);return}
+ const gp=T.closest('[data-gap]');if(gp){const k=keyOf(gp);HUB[k].gap=+gp.dataset.gap;renderHub(k);return}
+ const rk=T.closest('[data-risk]');if(rk){if(rk.dataset.risk!=='edit')ST.risk=rk.dataset.risk;else ST.risk='accepted';renderHub('app');return}
+ const ed=T.closest('[data-edit]');if(ed){const c=$('#comm-'+ed.dataset.edit),on=c.contentEditable!=='true';c.contentEditable=on;ed.textContent=on?'Done':'Edit text';if(on)c.focus();return}
+ const rg=T.closest('[data-regen]');if(rg){const c=$('#comm-'+rg.dataset.regen);c.textContent='Redrafted: '+c.textContent.split('. ').slice(0,2).join('. ')+'. Figures re-checked against the calculated values.';return}
+ if(T.id==='submitBtn'){stage=Math.max(stage,4);renderStepper();renderDash();show('a-approve');return}
+ if(T.id==='goRisk'){HUB.app.role='ceo';HUB.app.page='risks';show('a-pack');return}
+ if(T.id==='approveBtn'){stage=5;renderStepper();renderDash();$('#approveDone').hidden=false;T.disabled=true;return}
+ if(T.id==='trClose'){$('#trace').hidden=true;return}
+ if(T.id==='resetBtn'){stage=0;ST.risk='pending';ST.done.clear();HUB.app.page=HUB.inv.page='overview';HUB.app.drill=HUB.inv.drill=null;$('#approveDone').hidden=true;renderStepper();renderDash();show('w-home')}
+});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('circle[data-drill]')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('.dseg.dr')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}))}});
+document.addEventListener('change',e=>{const c=e.target.closest('[data-task]');if(c){c.checked?ST.done.add(+c.dataset.task):ST.done.delete(+c.dataset.task);renderHub('app')}});
+$('#signup').addEventListener('submit',e=>{e.preventDefault();stage=0;setArea('app');renderStepper()});
+const mq=matchMedia('(prefers-color-scheme:dark)');
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':mq.matches}
+function syncTheme(){const d=isDark();$('#theme').setAttribute('aria-checked',d);$('#thl').textContent=d?'Dark':'Light';$('#thi').textContent=d?'☾':'☀'}
+$('#theme').onclick=()=>{document.documentElement.dataset.theme=isDark()?'light':'dark';syncTheme()};
+mq.addEventListener&&mq.addEventListener('change',syncTheme);syncTheme();
+/* ---------- marketing website renderers ---------- */
+const frame=(url,inner)=>`<div class="frame"><div class="fbar"><i></i><i></i><i></i><span class="furl mono">${url}</span></div><div class="fbody">${inner}</div></div>`;
+const chip=(t,c)=>`<span class="pill ${c||''}">${t}</span>`;
+function heroFrame(){return frame('app.boardroom.io/kestrel-field/q3-2026',`
+ <div class="row" style="justify-content:space-between"><div><div class="dev">KESTREL FIELD LTD · Q3 2026</div><b style="font-family:var(--serif);font-size:1.3rem">The Full Picture</b></div>${chip('Approved','appr')}</div>
+ <div class="mtabs"><span class="on">Overview</span><span>Roadmap</span><span>Cashflow</span><span>Market</span><span>Risks</span></div>
+ <div class="tiles" style="grid-template-columns:repeat(2,1fr);margin-top:12px">${st('ARR','£1.24m','92% of plan',1)}${st('Cash','£1.378m','17.6 months runway')}</div>
+ <div style="margin-top:6px">${bar('Product items, plan 4',75,'3 of 4')}${bar('Tech points delivered',82,'351 / 430')}${bar('Monthly burn, budget £70.3k',111,'£78.1k',1)}${bar('Gross margin, target 85%',100,'85.3%')}</div>`)}
+function showcase(k){
+ if(k==='ov')return `<div class="tiles">${st('ARR','£1.24m','92% of plan',1)}${st('Revenue Q3','£302.9k','budget £315.0k',1)}${st('Cash','£1.378m','Xero bank balance')}${st('Runway','17.6 mo','plan 20 months',1)}</div><div style="margin-top:8px">${bar('ARR, target £1.35m',92,'£1.24m')}${bar('New ARR in Q3, target £120k',74,'£88.2k')}${bar('Q4 pipeline coverage, target 3x',37,'1.1x',1)}${bar('Gross margin, target 85%',100,'85.3%')}</div>`;
+ if(k==='rm')return gantt([{g:'Product'},{t:'Single sign-on',a:1,b:2,k:'gate',l:'Live 21 Nov'},{t:'Planned maintenance',a:3,b:6,k:'target',l:'Discovery · build · beta'},{g:'Sales'},{t:'Q4 new ARR £180k',a:1,b:3,k:'active',l:'£58.8k in negotiation'},{t:'Enterprise FM deals',a:2,b:4,k:'gate',l:'Unity FM · Westfield'},{g:'Cash'},{t:'Seed extension £400k',a:2,b:4,k:'target',l:'Prepare · process · close'},{t:'Runway above 18 months',a:4,b:6,k:'done',l:'Restored'}]);
+ if(k==='cf')return `<div class="grid g2" style="align-items:center"><div>${colChart(['Jul','Aug','Sep'],[{n:'In',v:[98.2,101.4,103.3],c:'var(--brand)'},{n:'Out',v:[170.1,177.9,189.2],c:'var(--slate)'}],{aria:'Money in against out'})}</div><div class="tiles" style="grid-template-columns:1fr 1fr">${st('Net burn','£234.3k','budget £211.0k',1)}${st('Contractors','£39.7k','budget £24.0k',1)}${st('Cash','£1.378m','30 Sep')}${st('Saving','~£1,080/mo','software stack')}</div></div>`;
+ return `<div class="grid g2" style="align-items:center"><div>${[['R-01','SSO slip blocks enterprise pipeline','Critical · Rising','off'],['R-02','Runway below 18 months','Critical · New','off'],['R-03','Q4 coverage below 2x','Critical · Rising','off'],['R-07','Engineering engagement falling','Proposed','rev']].map(r=>`<div class="chk" style="grid-template-columns:48px 1fr auto"><b class="mono small">${r[0]}</b><span>${r[1]}</span>${chip(r[2],r[3])}</div>`).join('')}</div><div class="note">Risks are raised by rules from the data, proposed by the team, and decided by the CEO. A proposed risk blocks approval until it is resolved.</div></div>`}
+function stepVis(n){
+ if(n===1)return `<div class="drop" style="padding:14px">Drop CSV files here</div>${['xero_pl_jul_sep_export.csv|Cashflow|warn|Off-spec','hubspot_deals_q3.csv|Sales|ok|Matches','jira_epics_q3.csv|Tech|ok|Matches','hibob_headcount_q3.csv|Team|warn|Pay column dropped'].map(r=>{const[a,b,c,d]=r.split('|');return `<div class="chk" style="grid-template-columns:1fr auto"><span class="mono small">${a}</span>${chip(d,c)}</div>`}).join('')}`;
+ if(n===2)return `<div class="row" style="margin-bottom:8px"><span class="skill">◆ CSV mapping skill</span><span class="small muted">Proposed, you confirm</span></div>${[['Account Name','Category','96%'],['Credit','Revenue in','94%'],['Tracking','Department','64% · check']].map(r=>`<div class="mrow"><span class="mono small">${r[0]}</span><span>→</span><b>${r[1]}</b><span class="conf">${r[2]}</span></div>`).join('')}`;
+ if(n===3)return [['ok','✓','Revenue by month sums to Xero total £302,900'],['ok','✓','Bank balance equals opening minus net burn'],['w','!','Salary column found and dropped'],['w','!','Contractor spend up from £9.0k to £16.2k']].map(r=>`<div class="chk"><span class="ic ${r[0]}">${r[1]}</span><span>${r[2]}</span><span></span></div>`).join('');
+ if(n===4)return `<div class="eq" style="margin:0 0 10px"><div><b>£1.378m</b><span>cash</span></div>÷<div><b>£78.1k</b><span>avg burn</span></div>=<div><b>17.6</b><span>months</span></div></div><div class="row"><span class="pill ok">Calculated in Python</span><span class="pill">Never by a model</span></div><p class="small muted" style="margin-top:10px">Margins, burn, runway, coverage and variance to plan come from code you can audit.</p>`;
+ if(n===5)return `<div class="comm"><div class="row"><span class="skill">◆ Drafted by Claude</span><span class="pill ok">41 of 41 figures match</span></div><p>Revenue closed at £302,900, 3.8% below budget. Burn ran 11% over because contractors covered the backend gap. Win rate is 80%, so the issue is pipeline volume, not conversion.</p></div>`;
+ return `<div class="chk"><span class="ic ok">✓</span><span>All five sections submitted</span><span></span></div><div class="chk"><span class="ic ok">✓</span><span>Number check passed</span><span></span></div><div class="chk"><span class="ic ok">✓</span><span>Proposed risk decided</span><span></span></div><div class="row" style="margin-top:12px"><button class="btn pri" tabindex="-1">Approve cycle and push to investors</button></div><p class="small muted" style="margin-top:8px">4 investors get a read-only link.</p>`}
+const STEPT=[['Upload','Each section lead drops in a CSV, or the raw export from Xero, HubSpot, Jira or HiBob. Python checks the structure in milliseconds.'],['Map','If a file is off-spec, the mapping skill proposes where every column belongs and how sure it is. You confirm once and the layout is remembered.'],['Validate','Totals reconcile, periods line up, outliers get flagged. Salary columns are detected and dropped before anything is stored.'],['Calculate','Burn, runway, margin, coverage and variance are computed by code. The model never does arithmetic.'],['Comment','A commentary skill drafts the narrative. Every quoted number is checked against the calculated value before anyone can submit.'],['Approve','The CEO decides proposed risks and approves the cycle. Investors see a read-only pack, and only after approval.']];
+function renderWeb(){
+ const nav=`<div class="mkt">`;
+ $('#w-home').innerHTML=`
+ <div class="hero-big">
+  <div class="hcopy"><p class="eyebrow">Board packs for founders, CEOs and the investors who back them</p>
+   <h1 class="display">Your board pack, <u>built from the numbers</u> your team already has.</h1>
+   <p class="lead">Each department uploads a CSV. BoardRoom.io maps it, validates it, calculates it, drafts the commentary, and hands your CEO one button to approve. Investors see the approved cycle and nothing else.</p>
+   <div class="row"><a class="btn pri big" data-go="w-signup">Get started</a><a class="btn big" data-go="w-how">See how it works</a></div>
+   <p class="small muted" style="margin-top:14px">Plans from £59 a month · Hosted in Frankfurt · No pay data stored</p></div>
+  <div class="hvis">${heroFrame()}
+   <div class="float f1"><span class="ic ok">✓</span> <b>41 of 41</b> figures match their source</div>
+   <div class="float f2"><div class="dev">TRACE · ARR £1.24m</div><span class="mono small">hubspot_deals_q3.csv</span><br><span class="small muted">column arr_gbp · 96 active accounts</span></div>
+   <div class="float f3">${chip('Approved','appr')} <span class="small">by Ellie Marsh, CEO</span></div></div>
+ </div>
+ <p class="dev" style="text-align:center;margin-block:8px 0">LOGO STRIP PLACEHOLDER · early customers and backers go here</p>
+
+ <div class="sect"><div class="ba"><div class="card ba1"><p class="eyebrow" style="color:var(--ink-muted)">The Sunday night version</p><h3>Fourteen tabs and three versions of the truth.</h3><ul class="x"><li>Revenue pasted from Xero, pipeline pasted from HubSpot, headcount from HiBob</li><li>“Which number is right?” in Slack at 11pm</li><li>A PDF that is out of date before it is sent</li><li>Nobody can say where a figure came from</li></ul></div>
+  <div class="card ba2"><p class="eyebrow">With BoardRoom.io</p><h3>One cycle. One source of truth. One approval.</h3><ul class="v"><li>Every department uploads its own file, once a quarter</li><li>Figures are calculated by code and traced to a source cell</li><li>The CEO approves, and only then do investors see it</li><li>Next quarter starts from the last, not from a blank sheet</li></ul></div></div></div>
+
+ <div class="sect"><div class="sh"><p class="eyebrow">How it works</p><h2>From raw export to approved pack in six steps.</h2></div>
+  <div class="steps4">${[1,2,3,6].map((n,i)=>`<div class="card"><div class="dev">0${[1,2,3,6][i]} · ${STEPT[n-1][0].toUpperCase()}</div><div class="svis">${stepVis(n)}</div></div>`).join('')}</div>
+  <p style="text-align:center;margin-top:16px"><a class="btn" data-go="w-how">See all six steps</a></p></div>
+
+ <div class="sect"><div class="sh"><p class="eyebrow">Inside the pack</p><h2>Not a PDF of charts. A full board dashboard.</h2><p class="muted" style="max-width:56ch;margin:8px auto 0">Overview, roadmap, cashflow, market validation, risks and CEO development, all built from the same validated numbers.</p></div>
+  <div class="showtabs" role="tablist">${[['ov','The Full Picture'],['rm','Roadmap'],['cf','Cashflow'],['rk','Risk register']].map((t,i)=>`<button class="tab" data-show="${t[0]}" aria-current="${i?'false':'page'}">${t[1]}</button>`).join('')}</div>
+  <div id="showcase">${frame('app.boardroom.io/kestrel-field/q3-2026',`<div id="showin" class="sec">${showcase('ov')}</div>`)}</div></div>
+
+ <div class="sect"><div class="split"><div><p class="eyebrow">Trust the number</p><h2>Every figure comes with a receipt.</h2><p class="muted" style="margin-top:10px">Click any number in a pack and see the file, the column, the calculation and the check that passed. Investors get the same view, so the conversation moves from “is this right?” to “what do we do about it?”.</p></div>
+  <div class="card tracecard"><h3>ARR · £1.24m</h3><dl class="trd"><dt>Source</dt><dd class="mono">hubspot_deals_q3.csv</dd><dt>Where</dt><dd>column “arr_gbp”, 96 active customers</dd><dt>How</dt><dd>Sum of annualised recurring value at 30 Sep</dd><dt>Check</dt><dd><span class="pill ok">Matches CRM account count</span></dd></dl></div></div></div>
+
+ <div class="sect"><div class="sh"><p class="eyebrow">Roles that match how boards work</p><h2>Everyone sees exactly what they should.</h2></div>
+  <div class="grid g3">${[['CEO','Owns the workspace','Decides proposed risks, edits every page and approves each cycle. One button pushes it to investors.','var(--accent)'],['Department leads','Edit their own section','Finance owns cashflow, Sales owns market validation, Product and Tech own delivery. Nobody edits what is not theirs.','var(--c3)'],['Investors','Read-only, approved only','See finished cycles with the lineage of every figure. Never drafts, never raw files, never pay data.','var(--c2)']].map(r=>`<div class="card role"><span class="seat" style="background:${r[3]}"></span><p class="eyebrow" style="color:var(--ink-muted)">${r[0]}</p><h3>${r[1]}</h3><p class="muted small" style="margin-top:6px">${r[2]}</p></div>`).join('')}</div></div>
+
+ <div class="band"><div class="stats"><div><b>5</b><span>sections, each with an owner</span></div><div><b>0</b><span>salary figures stored</span></div><div><b>1 click</b><span>from any number to its source</span></div><div><b>1</b><span>approval before investors see it</span></div></div></div>
+
+ <div class="sect"><div class="sh"><p class="eyebrow">Pricing</p><h2>Pay when the board pack matters.</h2></div>
+  <div class="grid g2" style="max-width:760px;margin:0 auto"><div class="card feat"><span class="tag">Most chosen</span><br><b>Growth</b><div class="price">£59<small> /month, annual billing</small></div><p class="muted small">5 internal users, 10 investor viewers, all five templates, AI mapping and commentary.</p></div><div class="card"><b>Scale</b><div class="price">£129<small> /month, annual billing</small></div><p class="muted small">15 internal users, 25 investor viewers, unlimited history, bigger files.</p></div></div>
+  <p style="text-align:center;margin-top:14px"><a class="btn" data-go="w-price">Compare plans</a></p></div>
+
+ <div class="sect narrow"><h2 style="margin-bottom:12px">Questions</h2><div class="grid" style="gap:8px">
+   <details class="card"><summary><b>Does the AI do the maths?</b></summary><p class="muted" style="margin-top:8px">No. Calculations run in code. The model reads validated figures and drafts words, and a number check blocks any mismatch.</p></details>
+   <details class="card"><summary><b>What if our CSV does not match your template?</b></summary><p class="muted" style="margin-top:8px">The mapping skill proposes where each column belongs. You confirm once, and we remember it.</p></details>
+   <details class="card"><summary><b>Where is our data held?</b></summary><p class="muted" style="margin-top:8px">In Frankfurt, with encryption at rest. See the security page for retention and the option to switch the AI features off.</p></details>
+   <details class="card"><summary><b>Can investors see drafts?</b></summary><p class="muted" style="margin-top:8px">Never. Only cycles the CEO has approved are visible to them.</p></details></div></div>
+
+ <div class="band cta"><svg class="bgmark" aria-hidden="true"><use href="#mark"/></svg><h2>Build your first board pack this afternoon.</h2><p style="margin:10px 0 20px;opacity:.9">Plans from £59 a month.</p><a class="btn big" data-go="w-signup" style="background:var(--highlight);color:var(--on-highlight);border-color:var(--highlight)">Get started</a></div>`;
+ $('#w-how').innerHTML=`<div class="sh" style="padding-block:48px 8px"><p class="eyebrow">How it works</p><h1 class="display" style="font-size:clamp(2.2rem,4.6cqw,3.6rem)">From raw export to approved pack in six steps.</h1></div>
+  ${STEPT.map((s,i)=>`<div class="split ${i%2?'rev2':''} stepsec"><div><div class="bignum">0${i+1}</div><h2>${s[0]}</h2><p class="muted" style="margin-top:8px;max-width:44ch">${s[1]}</p></div><div class="card svis big2">${stepVis(i+1)}</div></div>`).join('')}
+  <div class="card" style="margin-top:28px"><h3>Numbers are calculated, words are drafted</h3><p class="muted" style="margin-top:6px;max-width:70ch">The model never does arithmetic. It reads validated figures and writes about them, and every number it quotes is checked against the calculated value before you can submit.</p></div>
+  <div class="band cta"><svg class="bgmark" aria-hidden="true"><use href="#mark"/></svg><h2>Ready to see your own numbers in it?</h2><p style="margin:10px 0 20px;opacity:.9">Plans from £59 a month.</p><a class="btn big" data-go="w-signup" style="background:var(--highlight);color:var(--on-highlight);border-color:var(--highlight)">Get started</a></div>`;
+}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-show]');if(!t)return;const k=t.dataset.show;$$('[data-show]').forEach(b=>b.setAttribute('aria-current',b===t?'page':'false'));const el=$('#showin');el.style.opacity=0;setTimeout(()=>{el.innerHTML=showcase(k);el.style.opacity=1},120)});
+renderWeb();
+
+
+$('#vps').onchange=e=>{const v=e.target.value,vp=$('#vp');if(v){vp.style.setProperty('--vpw',v+'px');vp.classList.add('sim')}else{vp.style.removeProperty('--vpw');vp.classList.remove('sim')}};
+document.addEventListener('click',e=>{const m=e.target.closest('[data-menu]');if(m){const n=m.closest('.nav');const o=n.classList.toggle('open');m.setAttribute('aria-expanded',o);return}if(e.target.closest('.nav .links a')){$$('.nav.open').forEach(n=>{n.classList.remove('open');n.querySelector('[data-menu]').setAttribute('aria-expanded','false')})}});
+renderStepper();renderDash();
+
+</script>
+
+
+<style>
+/* ── Direction v2 final overrides (loaded last so they win) ── */
+[class]{border-radius:3px!important;corner-shape:bevel}
+.pill,.tag,.gb,.stepper span,.skill,.btn.sm,.mbar button{border-radius:2px!important}
+.av,.ic,.sw .tr,.sw .th{border-radius:50%!important;corner-shape:round}
+.pill,.tag{border:1px solid transparent;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px}
+.pill{background:var(--bg);color:var(--ink-muted)}
+.pill.ok{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.pill.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.pill.off{background:var(--err-bg);color:var(--err);border-color:transparent}
+.pill.rev{background:var(--info-bg);color:var(--info);border-color:transparent}
+.pill.appr{background:var(--ok);color:#fff;border-color:transparent}
+:root[data-theme="dark"] .pill.appr{color:#0B1A20}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pill.appr{color:#0B1A20}}
+:root[data-theme="dark"] .pill.warn{color:var(--warn)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pill.warn{color:var(--warn)}}
+.tag{background:var(--info-bg);color:var(--info)}
+.ic.ok{background:var(--ok-bg);color:var(--ok)}
+.ic.w{background:var(--warn-bg);color:var(--warn)}
+.ic.e{background:var(--err-bg);color:var(--err)}
+:root[data-theme="dark"] .ic.w{color:var(--warn)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ic.w{color:var(--warn)}}
+.skill{background:transparent;color:var(--accent-ink);border:1px solid var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px}
+:root[data-theme="dark"] .skill{color:var(--accent);border-color:var(--accent)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .skill{color:var(--accent);border-color:var(--accent)}}
+.stepper span{font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px}
+.stepper span.now{background:var(--accent);color:#fff;border-color:var(--accent)}
+.stepper span.done{background:transparent;color:var(--ink);border-color:var(--ink)}
+.gb{font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:10.5px}
+.gb.active{background:var(--brand-fill);color:var(--on-brand)}
+.gb.done{background:var(--ok-bg);color:var(--ok);border:0}
+.gb.target{background:var(--accent);color:#fff}
+.gb.gate{background:var(--ink);color:var(--bg)}
+.gb.def{border:1px dashed var(--border);color:var(--ink-muted);background:transparent}
+.note{background:var(--warn-bg);color:var(--warn)}
+.mc.lo{background:var(--ok-bg)}.mc.md{background:var(--warn-bg)}.mc.hi{background:var(--err-bg)}
+.mc b{background:var(--ink);color:var(--bg)}
+.comm,.hero2{border-left-color:var(--accent)}
+.nav a.l[aria-current=page]{border-bottom-color:var(--accent)}
+.frame{box-shadow:0 20px 48px rgba(0,0,0,.12)}
+.furl{border:1px solid var(--border-subtle)}
+.drop{border-color:var(--border)}
+.btn{font-weight:700;border-width:1px}
+.eyebrow,.mbar b{font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.mbar button{letter-spacing:.02em;text-transform:none;font-size:13px;font-weight:600}
+</style>
+
+<style>
+/* ── Risk register heat scale: ocean → apricot → coral → brick ── */
+:root{--r1:#D8ECEE;--r1-ink:#1E7F86;--r2:#F6DCCB;--r2-ink:#A65A2E;--r3:#8E2F20;--r3-ink:#FFD9CF;--r4:#E0613C;--r4-ink:#FFFFFF}
+:root[data-theme="dark"]{--r1:#153C44;--r1-ink:#7ACBD1;--r2:#4A3326;--r2-ink:#F2B894;--r3:#7A2A1C;--r3-ink:#FFD9CF;--r4:#E0613C;--r4-ink:#FFFFFF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--r1:#153C44;--r1-ink:#7ACBD1;--r2:#4A3326;--r2-ink:#F2B894;--r3:#7A2A1C;--r3-ink:#FFD9CF;--r4:#E0613C;--r4-ink:#FFFFFF}}
+.mc.lo{background:var(--r1)}.mc.mo{background:var(--r2)}.mc.md{background:var(--r3)}.mc.hi{background:var(--r4)}
+.mc b{background:var(--bg);color:var(--ink);font-weight:700}
+.card.risk{border-left:4px solid var(--border-subtle)}
+.card.risk.sev-off{border-left-color:var(--r4)}
+.card.risk.sev-warn{border-left-color:var(--r3)}
+.card.risk.sev-rev{border-left-color:var(--r2)}
+.card.risk.sev-mon{border-left-color:var(--r1-ink)}
+.card.risk .pill.off{background:var(--r4);color:var(--r4-ink)}
+.card.risk .pill.warn{background:var(--r3);color:var(--r3-ink)}
+.card.risk .pill.rev{background:var(--r2);color:var(--r2-ink)}
+.card.risk .pill:not(.off):not(.warn):not(.rev){background:var(--r1);color:var(--r1-ink)}
+</style>
+
+<style>
+/* ── Timeline context popup ── */
+.gb[data-ms],.gl[data-ms]{cursor:pointer}
+.gl[data-ms]{text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px}
+.gl[data-ms]:hover,.gl[data-ms]:focus-visible{color:var(--accent-ink);text-decoration-color:var(--accent)}
+.gb[data-ms]:hover,.gb[data-ms]:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ghint{margin:10px 0 0}
+.msbox>.row:first-child{flex-wrap:nowrap}
+.mspop{position:fixed;inset:0;background:rgba(11,26,32,.58);z-index:80;display:flex;align-items:center;justify-content:center;padding:16px}
+.mspop[hidden]{display:none}
+.msbox{background:var(--surface);color:var(--ink);border:1px solid var(--border);border-top:4px solid var(--accent);width:min(560px,100%);max-height:90vh;overflow:auto;padding:20px 22px 18px;box-shadow:0 18px 48px rgba(4,31,44,.35);border-radius:3px;corner-shape:bevel}
+.msbox h3{font-family:var(--serif);font-size:1.25rem;line-height:1.25}
+.msbox dl{margin:0;display:grid;grid-template-columns:110px 1fr;gap:10px 14px;font-size:13.5px;line-height:1.5}
+.msbox dt{color:var(--ink-muted);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding-top:3px}
+.msbox dd{margin:0}
+.msbox dd.mono{font-family:var(--sans);font-size:12.5px;color:var(--ink-muted)}
+@media (max-width:520px){.msbox dl{grid-template-columns:1fr;gap:4px}.msbox dt{margin-top:8px}.msbox dt:first-child{margin-top:0}}
+</style>
+
+<style>
+/* ── Dark theme: Graphite (tokens live in the head). Text weight lifted for legibility ── */
+:root[data-theme="dark"] body,:root[data-theme="dark"] .msbox{font-weight:500}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body,:root:not([data-theme="light"]) .msbox{font-weight:500}}
+:root[data-theme="dark"] .muted{color:var(--ink-muted)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .muted{color:var(--ink-muted)}}
+:root[data-theme="dark"] .gb.active{background:#2E3A41;color:#FFFFFF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .gb.active{background:#2E3A41;color:#FFFFFF}}
+</style>
+</body></html>
