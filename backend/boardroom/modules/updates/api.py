@@ -6,7 +6,7 @@ from urllib.parse import quote
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 
-from boardroom.gateway.deps import TenantContext, require
+from boardroom.gateway.deps import TenantContext, UserContext, current_user, require
 from boardroom.modules.updates import service
 from boardroom.permissions import Action
 
@@ -227,3 +227,60 @@ def export_pdf(
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(name)}"},
     )
+
+
+class SharedFigureOut(BaseModel):
+    update_id: uuid.UUID
+    figure_id: uuid.UUID
+    metric: str
+    label: str
+    period: str
+    display: str
+    previous_period: str | None
+    previous_display: str | None
+    risk: str | None
+    source_line: str
+    edited_by_name: str | None
+
+
+@router.get("/company/shared-figures", response_model=list[SharedFigureOut], tags=["updates"])
+def shared_figures(
+    ctx: TenantContext = Depends(require(Action.VIEW_COMPANY)),
+) -> list[SharedFigureOut]:
+    """Every measure the company has shared, at its latest shared value: the investor's
+    tiles (FR-7.4). Each traces through the update it was shared in."""
+    return [
+        SharedFigureOut.model_validate(f, from_attributes=True)
+        for f in service.shared_figures(ctx.session, ctx.tenant_id)
+    ]
+
+
+# The investor's portfolio overview (FRD chapter 7)
+
+
+class MeasureOut(BaseModel):
+    key: str
+    label: str
+    display: str
+    risk: str | None
+    period: str | None
+    available: bool
+
+
+class CardOut(BaseModel):
+    tenant_id: uuid.UUID
+    name: str
+    risk: str | None
+    measures: list[MeasureOut]
+    latest_update_id: uuid.UUID | None
+
+
+@router.get("/portfolio/overview", response_model=list[CardOut], tags=["investor"])
+def overview(ctx: UserContext = Depends(current_user)) -> list[CardOut]:
+    """One card per company the investor backs, highest risk first. Company users are
+    refused (FR-7.7)."""
+    try:
+        cards = service.overview(ctx.session, ctx.user_id)
+    except service.UpdatesError as exc:
+        raise _raise(exc) from exc
+    return [CardOut.model_validate(c, from_attributes=True) for c in cards]

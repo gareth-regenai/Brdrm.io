@@ -584,3 +584,50 @@ def run_currency(session: Session, tenant_id: uuid.UUID, run_id: uuid.UUID) -> s
     """The currency a run's figures are in."""
     found = session.scalar(select(Run.currency).where(Run.tenant_id == tenant_id, Run.id == run_id))
     return found or "GBP"
+
+
+# For the investor overview (E7). Levels there use the common lines only (FR-7.2): a
+# company's own lines apply on its own pages.
+
+# Placeholder lines for days since the last shared update, an open decision (OPEN.md).
+LAST_UPDATE_DAYS = Threshold(Decimal(35), Decimal(20), "above")
+
+
+def common_risk(
+    session: Session, tenant_id: uuid.UUID, figure_id: uuid.UUID, override: Decimal | None = None
+) -> str | None:
+    """The level on the common lines, also for a figure a person changed in an update."""
+    f = session.scalar(
+        select(FigureRecord).where(
+            FigureRecord.tenant_id == tenant_id, FigureRecord.id == figure_id
+        )
+    )
+    if f is None:
+        return None
+    if override is None:
+        return f.risk_common
+    measure: Decimal | None = override
+    if f.metric == "revenue_vs_plan":
+        # The level is on revenue as a share of target, and the figure is revenue less target.
+        target = Decimal(f.inputs["target"]) if f.inputs.get("target") else None
+        measure = (target + override) / target if target else None
+    elif f.metric in SHARE_METRICS:
+        return f.risk_common
+    return risk(measure, DEFAULT_THRESHOLDS.get(f.metric))
+
+
+def last_update_risk(days: int) -> str | None:
+    return risk(Decimal(days), LAST_UPDATE_DAYS)
+
+
+def measure_order() -> list[str]:
+    """Measures in the order the registry lists them, as the company's tiles show them."""
+    return list(METRICS)
+
+
+def common_thresholds(metric: str) -> dict[str, str] | None:
+    """The common lines for a measure, as the click view shows them to investors."""
+    t = DEFAULT_THRESHOLDS.get(metric)
+    if t is None:
+        return None
+    return {"high": str(t.high), "medium": str(t.medium), "direction": t.direction}

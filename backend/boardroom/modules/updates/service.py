@@ -17,6 +17,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from boardroom.config import get_settings
+from boardroom.db import set_tenant
 from boardroom.events import Event, consumer, emit
 from boardroom.modules.audit import service as audit
 from boardroom.modules.identity import service as identity
@@ -509,6 +510,11 @@ def figure_trace(
         }
         trace["display"], trace["value"] = edited.display, f.edited_value
     trace["check"] = _check_line(session, u, role, trace["label"])
+    if role == Role.INVESTOR:
+        # Investors judge every company on the same lines (FR-7.2), here as on the overview.
+        override = Decimal(f.edited_value) if f.edited_value is not None else None
+        trace["risk"] = metrics.common_risk(session, tenant_id, figure_id, override)
+        trace["thresholds"] = metrics.common_thresholds(trace["metric"])
     return trace
 
 
@@ -850,3 +856,204 @@ def export_pdf(
     )
     name = f"{company.name} update {view.data_as_of.isoformat()}.pdf"
     return pdf.render(document), name
+
+
+# The investor's portfolio overview (FRD chapter 7)
+
+OVERVIEW: list[tuple[str, str, str | None]] = [
+    # (measure, label, the phase 2 flag that switches it on)
+    ("cash_balance", "Cash", None),
+    ("runway", "Runway", None),
+    ("net_burn", "Net burn", None),
+    ("revenue_vs_plan", "Revenue v plan", None),
+    ("coverage", "Pipeline coverage", None),
+    ("delivery_vs_plan", "Delivery v plan", "product_delivery"),
+    ("headcount", "Headcount v plan", "people"),
+    ("last_update", "Last update", None),
+]
+LEVELS = {"high": 3, "medium": 2, "low": 1}
+
+
+@dataclass(frozen=True)
+class MeasureOut:
+    key: str
+    label: str
+    display: str
+    risk: str | None
+    period: str | None
+    available: bool  # False: not shared yet, or phase 2
+
+
+@dataclass(frozen=True)
+class CardOut:
+    tenant_id: uuid.UUID
+    name: str
+    risk: str | None
+    measures: list[MeasureOut]
+    latest_update_id: uuid.UUID | None
+    # For sorting, highest risk first (FR-7.3).
+    highs: int
+    mediums: int
+    runway: Decimal | None
+
+
+def _days(n: int) -> str:
+    return "Today" if n == 0 else f"{n} day" if n == 1 else f"{n} days"
+
+
+def _card(session: Session, tenant_id: uuid.UUID, name: str) -> CardOut:
+    """One company, read under its own tenant. Row-level security lets an investor read
+    shared updates only, and the query asks for shared ones too (FR-3.3)."""
+    flags = get_settings().flags
+    keys = [k for k, _, _ in OVERVIEW if k != "last_update"]
+    rows = session.execute(
+        select(UpdateFigure, Update)
+        .join(Update, Update.id == UpdateFigure.update_id)
+        .where(
+            UpdateFigure.tenant_id == tenant_id,
+            Update.status == "shared",
+            UpdateFigure.metric.in_(keys),
+        )
+        .order_by(Update.approved_at.desc(), UpdateFigure.period.desc())
+    ).all()
+    latest: dict[str, UpdateFigure] = {}
+    for f, _ in rows:
+        latest.setdefault(f.metric, f)  # the most recently shared figure of each measure
+    last = session.scalar(
+        select(Update)
+        .where(Update.tenant_id == tenant_id, Update.status == "shared")
+        .order_by(Update.approved_at.desc())
+        .limit(1)
+    )
+    measures = []
+    runway: Decimal | None = None
+    for key, label, flag in OVERVIEW:
+        if flag and not getattr(flags, flag):
+            measures.append(MeasureOut(key, label, "Coming in phase 2", None, None, False))
+            continue
+        if key == "last_update":
+            if last is None or last.approved_at is None:
+                measures.append(MeasureOut(key, label, "None yet", None, None, False))
+                continue
+            days = (_now().date() - last.approved_at.date()).days
+            measures.append(
+                MeasureOut(key, label, _days(days), metrics.last_update_risk(days), None, True)
+            )
+            continue
+        f = latest.get(key)
+        if f is None:
+            measures.append(MeasureOut(key, label, "Not shared yet", None, None, False))
+            continue
+        override = Decimal(f.edited_value) if f.edited_value is not None else None
+        view = metrics.figure_view(session, tenant_id, f.figure_id, override)
+        if view is None:
+            measures.append(MeasureOut(key, label, "Not shared yet", None, None, False))
+            continue
+        level = metrics.common_risk(session, tenant_id, f.figure_id, override)
+        measures.append(MeasureOut(key, label, view.display, level, view.period, True))
+        if key == "runway" and view.value is not None:
+            runway = Decimal(view.value)
+    levels = [m.risk for m in measures if m.risk]
+    overall = max(levels, key=lambda r: LEVELS[r]) if levels else None
+    return CardOut(
+        tenant_id,
+        name,
+        overall,
+        measures,
+        last.id if last else None,
+        levels.count("high"),
+        levels.count("medium"),
+        runway,
+    )
+
+
+def overview(session: Session, user_id: uuid.UUID) -> list[CardOut]:
+    """Every company that invited this investor, highest risk first (FR-7.1, FR-7.3).
+
+    Proposed rule, an open decision: most High measures first, then most Medium, then
+    shortest runway. Money is never added across companies (FR-7.8)."""
+    companies = identity.portfolio(session, user_id)
+    if not companies:
+        raise UpdatesError(403, "The portfolio is for investors.")
+    cards = []
+    try:
+        for company in companies:
+            set_tenant(session, user_id, company.id)
+            cards.append(_card(session, company.id, company.name))
+            audit.record(
+                session,
+                "investor.viewed",
+                tenant_id=company.id,
+                actor_user_id=user_id,
+                details={"page": "portfolio overview"},
+            )
+    finally:
+        set_tenant(session, user_id, None)
+    no_runway = Decimal("Infinity")
+    return sorted(
+        cards,
+        key=lambda c: (
+            -c.highs,
+            -c.mediums,
+            c.runway if c.runway is not None else no_runway,
+            c.name.lower(),
+        ),
+    )
+
+
+# The investor's figures for one company (FR-7.4): every measure it has shared
+
+
+@dataclass(frozen=True)
+class SharedFigureOut:
+    update_id: uuid.UUID
+    figure_id: uuid.UUID
+    metric: str
+    label: str
+    period: str
+    display: str
+    previous_period: str | None
+    previous_display: str | None
+    risk: str | None
+    source_line: str
+    edited_by_name: str | None
+
+
+def shared_figures(session: Session, tenant_id: uuid.UUID) -> list[SharedFigureOut]:
+    """The latest shared figure of each measure, as shared, with last period beside it and
+    the level on the common lines, as on the overview. Never the company's live tiles."""
+    rows = session.execute(
+        select(UpdateFigure)
+        .join(Update, Update.id == UpdateFigure.update_id)
+        .where(UpdateFigure.tenant_id == tenant_id, Update.status == "shared")
+        .order_by(Update.approved_at.desc(), UpdateFigure.period.desc())
+    ).scalars()
+    latest: dict[str, UpdateFigure] = {}
+    for row in rows:
+        latest.setdefault(row.metric, row)
+    out = []
+    for key in metrics.measure_order():
+        f = latest.get(key)
+        if f is None:
+            continue
+        override = Decimal(f.edited_value) if f.edited_value is not None else None
+        view = metrics.figure_view(session, tenant_id, f.figure_id, override)
+        facts = metrics.commentary_figure(session, tenant_id, f.figure_id)
+        if view is None:
+            continue
+        out.append(
+            SharedFigureOut(
+                f.update_id,
+                f.figure_id,
+                key,
+                view.label,
+                view.period,
+                view.display,
+                facts.previous_period if facts else None,
+                facts.previous_shown_as if facts else None,
+                metrics.common_risk(session, tenant_id, f.figure_id, override),
+                view.source_line,
+                f.edited_by_name if override is not None else None,
+            )
+        )
+    return out

@@ -89,6 +89,19 @@ def test_system_role_is_used_only_where_listed():
     assert _callers("as_system") == AS_SYSTEM_ALLOWED
 
 
+SET_TENANT_ALLOWED = {
+    # Moving into a company the user has just created.
+    ("modules/identity/service.py", "_create_company"),
+    # The investor overview reads each company the investor backs, one at a time.
+    ("modules/updates/service.py", "overview"),
+}
+
+
+def test_the_tenant_is_switched_only_where_listed():
+    """Row-level security still requires membership, but switching should stay rare."""
+    assert _callers("set_tenant") == SET_TENANT_ALLOWED
+
+
 def test_deal_team_is_used_by_no_route():
     # FR-2.9
     for path in PACKAGE.rglob("*.py"):

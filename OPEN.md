@@ -14,6 +14,7 @@ Decisions the code does not make. Each is built behind a setting or a default th
 
 | The closed filter set for row selection | FR-5.2 | Four filters: in, not in, is empty, not empty, on the dataset's own fields and only with values the dataset holds. Defined once in `backend/boardroom/modules/metrics/selection.py`. | `FILTER_OPS` |
 | Default High, Medium and Low thresholds | FR-5.7, FR-7.2, FR-7.3 | Placeholders: runway high below 6 months, medium below 12; gross margin 20% / 40%; revenue growth -5% / 0%; revenue against plan 80% / 95% of target; coverage 1x / 2x; win rate 15% / 25%; stalled deals above 30% / 15% of open deals. Cash, burn, pipeline and deal size carry no level. Companies can change their own. | `DEFAULT_THRESHOLDS` in `backend/boardroom/modules/metrics/display.py` |
+| Overview sort rule | FR-7.3 | The proposed rule: most High measures first, then most Medium, then shortest runway, then name. A company with no runway shared sorts after those with one. | `overview` in `backend/boardroom/modules/updates/service.py` |
 | Named check on cash, burn and runway before sharing | FR-3.3, FR-6.3 | Not built. An update is shared when one approver approves it, under the company's approval setting (default the CEO). A named tick on these three figures would be a second step in `approve`, and needs the decision before it adds process. | `approve` in `backend/boardroom/modules/updates/service.py` |
 
 The rest of chapter 14 (sort rule, warn or block, named check, rates feed, first connector) belongs to later epics and is recorded when those epics start.
@@ -87,4 +88,14 @@ The rest of chapter 14 (sort rule, warn or block, named check, rates feed, first
 | Likely board questions | FR-10.3 asks skill 3 for them; nothing says who sees them. | Shown to the company only, to prepare. Hidden from investors in the API, the PDF and by row-level security. |
 | A section that fails twice | The update could wait for it, or go out without it. | The update can still be approved. The section stays hidden from investors until a person writes it; a person can also leave it out. |
 | Model for commentary | Cost and quality. | `claude-sonnet-5-5`, switchable with `COMMENTARY_MODEL`. |
+
+## Raised in E7
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| Levels for cash and net burn on the overview | FR-7.2 asks for a level on every measure, and the mockup shows them. An amount of cash means different things for companies of different sizes. | No level yet, as in the threshold placeholders. Runway already carries the risk of low cash. Set lines in `DEFAULT_THRESHOLDS` to add them. |
+| Lines for "Last update" | FR-7.6 gives days since the last shared update; nothing sets its levels. | Placeholders matching the mockup: High above 35 days, Medium above 20 (`LAST_UPDATE_DAYS`). A company that has shared nothing shows "None yet" with no level. |
+| Which lines an investor sees inside a company | FR-5.7 says a company's own lines apply on its own pages. The investor's view of a company is the company's section, but read by an investor. | The common lines, in the investor's tiles and click view as on the overview, so an investor judges every company the same way everywhere. The company still sees its own lines. |
+| Where overview figures come from | An investor must only see what a company shared (FR-3.3). | Each measure is the most recently shared figure of that measure, as shared, including a change a person made in the update. Never the company's live tiles. |
+| A runway that is not limited | A company spending less than it earns has no runway figure. | It shows "Not shared yet" on the overview for now, and sorts after companies with a runway. A "Cash generative" label would be clearer. |
 

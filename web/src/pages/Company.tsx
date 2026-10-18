@@ -15,7 +15,7 @@ import {
   ROLE_NAMES,
 } from "../api";
 import { useSubmit } from "./Auth";
-import { MetricsGrid } from "./Metrics";
+import { MetricsGrid, SharedFiguresGrid } from "./Metrics";
 import { SetupChat } from "./Setup";
 import { UpdatesFeed } from "./Updates";
 import { FiguresSection, UploadsSection } from "./Uploads";
@@ -84,6 +84,7 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
           <FiguresSection tenant={tenant} onSaved={refreshFigures} />
         </div>
       )}
+      {isInvestor && <SharedFiguresGrid tenant={tenant} companyName={membership.tenant_name} />}
       <UpdatesFeed tenant={tenant} companyName={membership.tenant_name} version={figuresVersion} investor={isInvestor} />
 
       <div className="grid-2">

@@ -190,6 +190,58 @@
         "title": "AuditOut",
         "type": "object"
       },
+      "CardOut": {
+        "properties": {
+          "latest_update_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Update Id"
+          },
+          "measures": {
+            "items": {
+              "$ref": "#/components/schemas/MeasureOut"
+            },
+            "title": "Measures",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "risk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk"
+          },
+          "tenant_id": {
+            "format": "uuid",
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "name",
+          "risk",
+          "measures",
+          "latest_update_id"
+        ],
+        "title": "CardOut",
+        "type": "object"
+      },
       "ColumnChoice": {
         "properties": {
           "column": {
@@ -675,6 +727,58 @@
           "memberships"
         ],
         "title": "MeOut",
+        "type": "object"
+      },
+      "MeasureOut": {
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "display": {
+            "title": "Display",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period"
+          },
+          "risk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "display",
+          "risk",
+          "period",
+          "available"
+        ],
+        "title": "MeasureOut",
         "type": "object"
       },
       "MembershipOut": {
@@ -1268,6 +1372,99 @@
           "has_files"
         ],
         "title": "SetupOut",
+        "type": "object"
+      },
+      "SharedFigureOut": {
+        "properties": {
+          "display": {
+            "title": "Display",
+            "type": "string"
+          },
+          "edited_by_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edited By Name"
+          },
+          "figure_id": {
+            "format": "uuid",
+            "title": "Figure Id",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "metric": {
+            "title": "Metric",
+            "type": "string"
+          },
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "previous_display": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Display"
+          },
+          "previous_period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Period"
+          },
+          "risk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk"
+          },
+          "source_line": {
+            "title": "Source Line",
+            "type": "string"
+          },
+          "update_id": {
+            "format": "uuid",
+            "title": "Update Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "update_id",
+          "figure_id",
+          "metric",
+          "label",
+          "period",
+          "display",
+          "previous_period",
+          "previous_display",
+          "risk",
+          "source_line",
+          "edited_by_name"
+        ],
+        "title": "SharedFigureOut",
         "type": "object"
       },
       "SignInIn": {
@@ -3699,6 +3896,53 @@
         ]
       }
     },
+    "/company/shared-figures": {
+      "get": {
+        "description": "Every measure the company has shared, at its latest shared value: the investor's\ntiles (FR-7.4). Each traces through the update it was shared in.",
+        "operationId": "shared_figures_company_shared_figures_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SharedFigureOut"
+                  },
+                  "title": "Response Shared Figures Company Shared Figures Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Shared Figures",
+        "tags": [
+          "updates"
+        ]
+      }
+    },
     "/company/team": {
       "get": {
         "operationId": "team_company_team_get",
@@ -4698,6 +4942,32 @@
           }
         },
         "summary": "Portfolio",
+        "tags": [
+          "investor"
+        ]
+      }
+    },
+    "/portfolio/overview": {
+      "get": {
+        "description": "One card per company the investor backs, highest risk first. Company users are\nrefused (FR-7.7).",
+        "operationId": "overview_portfolio_overview_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CardOut"
+                  },
+                  "title": "Response Overview Portfolio Overview Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Overview",
         "tags": [
           "investor"
         ]
