@@ -1,0 +1,22 @@
+{
+  "department": "finance",
+  "figures": {
+    "Revenue": "£72.9k",
+    "Revenue growth": "3.5%",
+    "Gross margin": "84.2%",
+    "Net monthly burn": "£61.4k"
+  },
+  "response": {
+    "headline": "Revenue grew 3.5% to £72.9k in September.",
+    "notes": [
+      {
+        "department": "finance",
+        "text": "Revenue was £2.5k higher than in August, and gross margin held at 84.2%. Net monthly burn eased to £61.4k from £61.7k. Operating expenses of £122.8k are still well above revenue, so burn remains the figure to watch."
+      }
+    ],
+    "board_questions": [
+      "When do we expect revenue to cover operating expenses?",
+      "What brought burn down in September?"
+    ]
+  }
+}

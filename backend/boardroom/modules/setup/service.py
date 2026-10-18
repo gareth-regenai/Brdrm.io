@@ -583,3 +583,11 @@ def branding(session: Session, tenant_id: uuid.UUID) -> tuple[str | None, bytes 
     if row is None:
         return None, None
     return row.brand_colour, get_storage().get(row.logo_key) if row.logo_key else None
+
+
+def voice(session: Session, tenant_id: uuid.UUID) -> str:
+    """How commentary speaks (FR-6.4). Read only, with the default when nothing is set."""
+    found = session.scalar(
+        select(CompanyProfile.voice).where(CompanyProfile.tenant_id == tenant_id)
+    )
+    return found or "we"

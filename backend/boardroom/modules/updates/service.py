@@ -1,8 +1,9 @@
-"""Updates, approvals and comments (FRD chapter 6, FR-3.3, FR-3.4).
+"""Updates, approvals, commentary and comments (FRD chapter 6, FR-3.3, FR-3.4, FR-5.5).
 
 An update is a dated line: who added what, and when the data is true as of. It is made by
-code when an upload is ready, waits for an approver, then reaches every investor. It can be
-edited after that and then shows "Last edited". There are no draft states, no locks and no
+code when an upload's figures are calculated, gets commentary drafted by Claude and passed
+by the number check, waits for an approver, then reaches every investor. It can be edited
+after that and then shows "Last edited". There are no draft states, no locks and no
 versions: the audit log keeps who changed what, before and after.
 """
 
@@ -19,16 +20,25 @@ from boardroom.config import get_settings
 from boardroom.events import Event, consumer, emit
 from boardroom.modules.audit import service as audit
 from boardroom.modules.identity import service as identity
+from boardroom.modules.insights import service as insights
+from boardroom.modules.insights.check import check as number_check
 from boardroom.modules.intake import service as intake
 from boardroom.modules.metrics import service as metrics
 from boardroom.modules.setup import service as setup
 from boardroom.modules.updates import pdf
-from boardroom.modules.updates.models import Comment, Update, UpdateFigure, UpdatesOutbox
+from boardroom.modules.updates.models import (
+    Comment,
+    Section,
+    Update,
+    UpdateFigure,
+    UpdatesOutbox,
+)
 from boardroom.permissions import Role
 
 CREATED = "updates.created"
 SHARED = "updates.shared"
 COMMENTED = "updates.comment_added"
+DESCRIBED = "updates.described"
 
 DEPARTMENT_WORDS = {
     "finance": "financials",
@@ -153,9 +163,100 @@ def create_from_upload(
 
 @consumer("updates.create", "intake.upload_status_changed")
 def _create(session: Session, event: Event) -> None:
-    if event.payload.get("status") != "ready" or event.tenant_id is None:
+    """Describing (FR-3.1): the update is made and its commentary drafted and checked.
+    Intake then moves the upload to ready, whether or not an update was made."""
+    if event.payload.get("status") != "describing" or event.tenant_id is None:
         return
-    create_from_upload(session, event.tenant_id, uuid.UUID(event.payload["upload_id"]))
+    upload_id = uuid.UUID(event.payload["upload_id"])
+    update = create_from_upload(session, event.tenant_id, upload_id)
+    if update is not None and not _has_sections(session, update):
+        draft_commentary(session, update)
+    emit(session, UpdatesOutbox, DESCRIBED, event.tenant_id, {"upload_id": str(upload_id)})
+
+
+# Commentary (FR-5.5, FR-6.4, FR-10.3)
+
+
+def _has_sections(session: Session, u: Update) -> bool:
+    return (
+        session.scalar(
+            select(Section.id).where(Section.tenant_id == u.tenant_id, Section.update_id == u.id)
+        )
+        is not None
+    )
+
+
+def _facts(session: Session, u: Update) -> list[insights.FigureFact]:
+    out = []
+    for f in session.scalars(
+        select(UpdateFigure)
+        .where(UpdateFigure.tenant_id == u.tenant_id, UpdateFigure.update_id == u.id)
+        .order_by(UpdateFigure.position)
+    ):
+        c = metrics.commentary_figure(session, u.tenant_id, f.figure_id)
+        if c is not None:
+            out.append(
+                insights.FigureFact(
+                    c.key,
+                    c.label,
+                    c.unit,
+                    c.period,
+                    c.value,
+                    c.shown_as,
+                    c.previous_period,
+                    c.previous_value,
+                    c.previous_shown_as,
+                    c.risk,
+                    c.inputs,
+                    c.share_of_target,
+                )
+            )
+    return out
+
+
+def draft_commentary(session: Session, u: Update) -> None:
+    """Claude drafts, the number check tests every figure, and a section that fails twice
+    waits for a person. Sections a person wrote or edited are kept as they are."""
+    facts = _facts(session, u)
+    company = identity.get_company(session, u.tenant_id)
+    draft = insights.draft(
+        company.name,
+        setup.voice(session, u.tenant_id),
+        metrics.run_currency(session, u.tenant_id, u.run_id),
+        u.department,
+        day(u.data_as_of),
+        facts,
+    )
+    existing = list(
+        session.scalars(
+            select(Section).where(Section.tenant_id == u.tenant_id, Section.update_id == u.id)
+        )
+    )
+    kept = {(s.kind, s.department) for s in existing if s.status in ("written", "edited")}
+    for s in existing:
+        if s.status not in ("written", "edited"):
+            session.delete(s)
+    session.flush()
+    for position, section in enumerate(draft.sections):
+        if (section.kind, section.department) in kept:
+            continue
+        session.add(
+            Section(
+                tenant_id=u.tenant_id,
+                update_id=u.id,
+                kind=section.kind,
+                department=section.department,
+                position=position,
+                text=section.text,
+                status="drafted" if section.text is not None else "needs_person",
+                reason=section.reason,
+                check_result=section.check,
+                model=draft.model,
+                skill_version=insights.SKILL_VERSION,
+                created_at=_now(),
+            )
+        )
+    session.flush()
 
 
 # Reading
@@ -188,6 +289,19 @@ class CommentOut:
 
 
 @dataclass(frozen=True)
+class SectionOut:
+    id: uuid.UUID
+    kind: str
+    department: str | None
+    text: str | None
+    status: str
+    label: str
+    # Company only: why a section waits for a person, and figures the check could not match.
+    reason: str | None
+    unmatched: list[str]
+
+
+@dataclass(frozen=True)
 class UpdateOut:
     id: uuid.UUID
     headline: str
@@ -201,6 +315,7 @@ class UpdateOut:
     last_edited_by_name: str | None
     last_edited_at: datetime | None
     figures: list[FigureOut]
+    sections: list[SectionOut]
     comments: list[CommentOut]
     can_edit: bool
     can_approve: bool
@@ -257,6 +372,43 @@ def _figures(session: Session, tenant_id: uuid.UUID, update_id: uuid.UUID) -> li
     return out
 
 
+def label(s: Section) -> str:
+    """Who did what, always shown (FR-6.4)."""
+    if s.status == "drafted":
+        return "Drafted by Claude"
+    if s.status == "edited":
+        return f"Drafted by Claude, edited by {s.edited_by_name}"
+    if s.status == "written":
+        return f"Written by {s.edited_by_name}"
+    return "Waiting for a person to write it"
+
+
+def _sections(session: Session, u: Update, role: Role) -> list[SectionOut]:
+    investor = role == Role.INVESTOR
+    out = []
+    for s in session.scalars(
+        select(Section)
+        .where(Section.tenant_id == u.tenant_id, Section.update_id == u.id)
+        .order_by(Section.position)
+    ):
+        if investor and (s.kind == "questions" or not s.text):
+            continue  # the board questions are the company's own preparation
+        unmatched = [f["text"] for f in s.check_result.get("figures", []) if not f["matched"]]
+        out.append(
+            SectionOut(
+                s.id,
+                s.kind,
+                s.department,
+                s.text,
+                s.status,
+                label(s),
+                None if investor else s.reason,
+                [] if investor else unmatched,
+            )
+        )
+    return out
+
+
 def _comments(
     session: Session, tenant_id: uuid.UUID, update_id: uuid.UUID, user_id: uuid.UUID
 ) -> list[CommentOut]:
@@ -291,6 +443,7 @@ def _out(
         last_edited_by_name=u.last_edited_by_name,
         last_edited_at=u.last_edited_at,
         figures=_figures(session, u.tenant_id, u.id),
+        sections=_sections(session, u, role),
         comments=_comments(session, u.tenant_id, u.id, user_id),
         can_edit=can_edit(role, departments, u.department),
         can_approve=approver and u.status == "awaiting_approval",
@@ -355,7 +508,25 @@ def figure_trace(
             "calculated_value": trace["value"],
         }
         trace["display"], trace["value"] = edited.display, f.edited_value
+    trace["check"] = _check_line(session, u, role, trace["label"])
     return trace
+
+
+def _check_line(session: Session, u: Update, role: Role, figure_label: str) -> str:
+    """What the number check found for this figure in the update's commentary (FR-5.4)."""
+    written = []
+    for s in session.scalars(
+        select(Section).where(Section.tenant_id == u.tenant_id, Section.update_id == u.id)
+    ):
+        if role == Role.INVESTOR and (s.kind == "questions" or not s.text):
+            continue
+        for f in s.check_result.get("figures", []):
+            matched = f.get("matched") or ""
+            if matched.startswith(f"{figure_label},") or matched.startswith(f"{figure_label}:"):
+                written.append(f["text"])
+    if not written:
+        return "Not written in this update's commentary."
+    return "Passed. The commentary writes it as " + ", ".join(dict.fromkeys(written)) + "."
 
 
 # Approving (FR-3.3, FR-6.3)
@@ -454,6 +625,84 @@ def edit_figure(
         target_type="update",
         target_id=u.id,
         details={"metric": f.metric, "period": f.period, "before": before, "after": after},
+    )
+
+
+def edit_section(
+    session: Session,
+    tenant_id: uuid.UUID,
+    user_id: uuid.UUID,
+    role: Role,
+    departments: list[str],
+    update_id: uuid.UUID,
+    section_id: uuid.UUID,
+    text: str,
+) -> None:
+    """A person edits Claude's draft or writes a section. "" leaves it out. Their text is
+    checked too, and figures that match nothing are shown to the company, not blocked."""
+    u = _get(session, tenant_id, role, update_id)
+    section = session.scalar(
+        select(Section).where(
+            Section.tenant_id == tenant_id, Section.update_id == u.id, Section.id == section_id
+        )
+    )
+    if section is None:
+        raise UpdatesError(404, "That part of the commentary was not found.")
+    if not can_edit(role, departments, u.department):
+        raise UpdatesError(403, "You can edit updates for your own departments only.")
+    text = text.replace("\N{EM DASH}", ",").strip()
+    if text == (section.text or ""):
+        return
+    before = section.text
+    result = number_check(
+        text,
+        insights.candidates(_facts(session, u)),
+        metrics.run_currency(session, tenant_id, u.run_id),
+    )
+    user, _ = identity.me(session, user_id)
+    now = _now()
+    section.text = text
+    section.status = "edited" if section.status in ("drafted", "edited") else "written"
+    section.reason = None
+    section.check_result = result.to_json()
+    section.edited_by, section.edited_by_name, section.edited_at = user_id, user.name, now
+    u.last_edited_at, u.last_edited_by_name = now, user.name
+    session.flush()
+    audit.record(
+        session,
+        "update.commentary_edited",
+        tenant_id=tenant_id,
+        actor_user_id=user_id,
+        target_type="update",
+        target_id=u.id,
+        details={"section": section.kind, "before": before, "after": text},
+    )
+
+
+def redraft(
+    session: Session,
+    tenant_id: uuid.UUID,
+    user_id: uuid.UUID,
+    role: Role,
+    departments: list[str],
+    update_id: uuid.UUID,
+) -> None:
+    """Claude drafts again, in the company's current voice. What a person wrote stays."""
+    u = _get(session, tenant_id, role, update_id)
+    if not can_edit(role, departments, u.department):
+        raise UpdatesError(403, "You can edit updates for your own departments only.")
+    draft_commentary(session, u)
+    if u.status == "shared":
+        user, _ = identity.me(session, user_id)
+        u.last_edited_at, u.last_edited_by_name = _now(), user.name
+    session.flush()
+    audit.record(
+        session,
+        "update.redrafted",
+        tenant_id=tenant_id,
+        actor_user_id=user_id,
+        target_type="update",
+        target_id=u.id,
     )
 
 
@@ -586,6 +835,9 @@ def export_pdf(
                 else None,
             )
             for f in view.figures
+        ],
+        commentary=[
+            (sec.text, sec.label) for sec in view.sections if sec.text and sec.kind != "questions"
         ],
     )
     audit.record(

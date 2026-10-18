@@ -1,8 +1,9 @@
 import uuid
 from datetime import date, datetime
+from typing import Any
 
 from sqlalchemy import Date, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from boardroom.db import Base
@@ -78,6 +79,33 @@ class Comment(Base):
     author_name: Mapped[str] = mapped_column(String(200))
     author_role: Mapped[str] = mapped_column(String(30))
     body: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Section(Base):
+    """A part of the commentary: the headline, a note per department, or likely board
+    questions (company only). Drafted by Claude and passed by the number check, or left
+    for a person, who can also edit or write any section (FR-5.5, FR-6.4)."""
+
+    __tablename__ = "sections"
+    __table_args__ = {"schema": SCHEMA}
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = _tenant()
+    update_id: Mapped[uuid.UUID] = mapped_column(ForeignKey(f"{SCHEMA}.updates.id"), index=True)
+    kind: Mapped[str] = mapped_column(String(20))  # headline, note, questions
+    department: Mapped[str | None] = mapped_column(String(20))
+    position: Mapped[int] = mapped_column(Integer)
+    # None while it waits for a person. "" when a person chose to leave it out.
+    text: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(20))  # drafted, needs_person, written, edited
+    reason: Mapped[str | None] = mapped_column(String(200))
+    check_result: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
+    model: Mapped[str | None] = mapped_column(String(100))
+    skill_version: Mapped[str | None] = mapped_column(String(50))
+    edited_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    edited_by_name: Mapped[str | None] = mapped_column(String(200))
+    edited_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

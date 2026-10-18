@@ -1,0 +1,11 @@
+{
+  "company": "Alder Labs",
+  "department": "sales",
+  "currency": "GBP",
+  "data_as_of": "15 Oct 2026",
+  "figures": [
+    {"key": "weighted_pipeline", "label": "Weighted pipeline", "unit": "money", "period": "2026-10", "value": "486000", "shown_as": "£486.0k", "previous_period": "2026-09", "previous_value": "512500", "previous_shown_as": "£512.5k"},
+    {"key": "coverage", "label": "Pipeline coverage", "unit": "ratio", "period": "2026-10", "value": "0.9", "shown_as": "0.9x", "risk": "high"},
+    {"key": "win_rate", "label": "Win rate", "unit": "percent", "period": "2026-10", "value": "0.31", "shown_as": "31.0%", "previous_period": "2026-09", "previous_value": "0.28", "previous_shown_as": "28.0%", "risk": "low"}
+  ]
+}

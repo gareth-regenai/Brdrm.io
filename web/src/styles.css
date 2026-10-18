@@ -728,3 +728,56 @@ input[type="color"] {
   padding: var(--space-1);
   cursor: pointer;
 }
+
+/* Commentary (E6) */
+
+.commentary {
+  display: grid;
+  gap: var(--space-3);
+}
+.section {
+  display: grid;
+  gap: var(--space-1);
+}
+.section p {
+  margin: 0;
+}
+.section-headline p {
+  font-weight: 700;
+  font-size: var(--type-body-strong-size);
+  line-height: var(--type-body-strong-line);
+}
+.section-questions {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+.section-questions ul {
+  margin: 0;
+  padding-left: var(--space-5);
+}
+.section.waiting {
+  border-left: 3px solid var(--focus-ring);
+  background: var(--warn-bg);
+  padding: var(--space-2) var(--space-3);
+}
+.section-foot {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+.section-foot button.link {
+  padding: 0;
+  min-height: 0;
+  font-weight: 400;
+  color: var(--ink-muted);
+  text-decoration: underline;
+}
+.section-edit {
+  display: grid;
+  gap: var(--space-2);
+}
+.section-edit textarea {
+  font: inherit;
+  width: 100%;
+}

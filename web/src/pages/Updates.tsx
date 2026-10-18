@@ -18,6 +18,17 @@ interface Figure {
   edited_at: string | null;
 }
 
+interface Section {
+  id: string;
+  kind: "headline" | "note" | "questions";
+  department: string | null;
+  text: string | null;
+  status: "drafted" | "needs_person" | "written" | "edited";
+  label: string;
+  reason: string | null;
+  unmatched: string[];
+}
+
 interface Comment {
   id: string;
   author_name: string;
@@ -40,6 +51,7 @@ interface Update {
   last_edited_by_name: string | null;
   last_edited_at: string | null;
   figures: Figure[];
+  sections: Section[];
   comments: Comment[];
   can_edit: boolean;
   can_approve: boolean;
@@ -188,6 +200,8 @@ function UpdateCard({
         </div>
       )}
 
+      <Commentary update={u} busy={busy} act={act} />
+
       {u.figures.length > 0 ? (
         <div className="update-figures">
           {u.figures.map((f) => (
@@ -314,6 +328,119 @@ function FigureEdit({
             Put back {figure.calculated_display}
           </button>
         )}
+        <button type="button" className="link small" onClick={onCancel}>
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
+const SECTION_WORDS: Record<string, string> = { headline: "Headline", note: "Note", questions: "Likely board questions" };
+
+// The headline and notes investors read, and the board questions for the company only.
+// Each says who wrote it (FR-6.4). A part Claude could not get past the number check waits
+// for a person (FR-5.5).
+function Commentary({
+  update: u,
+  busy,
+  act,
+}: {
+  update: Update;
+  busy: boolean;
+  act: (path: string, method: string, body?: unknown) => Promise<boolean>;
+}) {
+  const [editing, setEditing] = useState<string | null>(null);
+  if (u.sections.length === 0) return null;
+  const waiting = u.sections.some((s) => s.status === "needs_person");
+  return (
+    <div className="commentary">
+      {u.sections.map((s) =>
+        editing === s.id ? (
+          <SectionEdit
+            key={s.id}
+            section={s}
+            busy={busy}
+            onSave={async (text) => {
+              if (await act(`/company/updates/${u.id}/sections/${s.id}`, "PUT", { text })) setEditing(null);
+            }}
+            onCancel={() => setEditing(null)}
+          />
+        ) : (
+          <div key={s.id} className={`section section-${s.kind} ${s.status === "needs_person" ? "waiting" : ""}`}>
+            {s.kind === "questions" && <span className="label">Likely board questions, for you only</span>}
+            {s.status === "needs_person" ? (
+              <p className="small">
+                <b>{SECTION_WORDS[s.kind]}:</b> {s.reason} Write it yourself, or leave it out.
+              </p>
+            ) : s.text ? (
+              s.kind === "questions" ? (
+                <ul>
+                  {s.text.split("\n").map((q) => (
+                    <li key={q}>{q}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{s.text}</p>
+              )
+            ) : (
+              <p className="small muted">Left out of this update.</p>
+            )}
+            {s.unmatched.length > 0 && s.status !== "needs_person" && (
+              <p className="small warn-text">
+                These figures match nothing calculated: {s.unmatched.join(", ")}. Investors will see them as written.
+              </p>
+            )}
+            <span className="small section-foot">
+              {s.status !== "needs_person" && <span className="muted">{s.label}</span>}
+              {u.can_edit && (
+                <button className="link small" onClick={() => setEditing(s.id)}>
+                  {s.status === "needs_person" ? "Write it" : "Edit"}
+                </button>
+              )}
+            </span>
+          </div>
+        ),
+      )}
+      {u.can_edit && (
+        <div className="checks">
+          <button className="small" disabled={busy} onClick={() => void act(`/company/updates/${u.id}/redraft`, "POST")}>
+            {waiting ? "Ask Claude to try again" : "Redraft with Claude"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SectionEdit({
+  section,
+  busy,
+  onSave,
+  onCancel,
+}: {
+  section: Section;
+  busy: boolean;
+  onSave: (text: string) => Promise<void>;
+  onCancel: () => void;
+}) {
+  return (
+    <form
+      className="section-edit"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void onSave(String(new FormData(e.currentTarget).get("text") ?? ""));
+      }}
+    >
+      <label className="field">
+        <span>{SECTION_WORDS[section.kind]}</span>
+        <textarea name="text" rows={section.kind === "headline" ? 2 : 4} maxLength={4000} defaultValue={section.text ?? ""} autoFocus />
+      </label>
+      <p className="small muted">Write figures as they appear above, or rounded. Leave it empty to leave this part out.</p>
+      <div className="checks">
+        <button className="primary small" disabled={busy}>
+          Save
+        </button>
         <button type="button" className="link small" onClick={onCancel}>
           Cancel
         </button>

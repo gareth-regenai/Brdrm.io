@@ -326,7 +326,7 @@ def trace(session: Session, tenant_id: uuid.UUID, figure_id: uuid.UUID) -> dict[
             "medium": str(threshold.medium),
             "direction": threshold.direction,
         },
-        "check": "The number check arrives with commentary (E6).",
+        "check": "The number check tests this figure wherever an update's commentary writes it.",
     }
 
 
@@ -502,3 +502,85 @@ def figure_view(
         source_line(f),
         f.risk_company,
     )
+
+
+# For commentary (E6): what skill 3 may see about a figure. Calculated values only.
+
+COUNT_INPUTS = {"open_deals", "won", "lost", "won_count", "stalled"}
+SHARE_METRICS = {"revenue_vs_plan", "stalled_deals"}
+NO_MEASURE = Decimal(999)  # the risk measure used when runway is unlimited
+
+
+@dataclass(frozen=True)
+class CommentaryFigure:
+    key: str
+    label: str
+    unit: str
+    period: str
+    value: Decimal
+    shown_as: str
+    previous_period: str | None
+    previous_value: Decimal | None
+    previous_shown_as: str | None
+    risk: str | None
+    inputs: dict[str, Decimal]
+    share_of_target: Decimal | None
+
+
+def commentary_figure(
+    session: Session, tenant_id: uuid.UUID, figure_id: uuid.UUID
+) -> CommentaryFigure | None:
+    f = session.scalar(
+        select(FigureRecord).where(
+            FigureRecord.tenant_id == tenant_id, FigureRecord.id == figure_id
+        )
+    )
+    if f is None or f.value is None:
+        return None
+    run = session.get(Run, f.run_id)
+    assert run is not None  # noqa: S101
+    settings = _settings(session, tenant_id)
+    previous = session.scalar(
+        select(FigureRecord)
+        .where(
+            FigureRecord.tenant_id == tenant_id,
+            FigureRecord.run_id == f.run_id,
+            FigureRecord.metric == f.metric,
+            FigureRecord.period < f.period,
+            FigureRecord.value.is_not(None),
+        )
+        .order_by(FigureRecord.period.desc())
+        .limit(1)
+    )
+    inputs = {}
+    for name, amount in f.inputs.items():
+        if name in COUNT_INPUTS or name == f.metric:
+            continue
+        try:
+            inputs[name] = Decimal(amount)
+        except (ArithmeticError, ValueError):
+            continue
+    share = None
+    if f.metric in SHARE_METRICS and f.risk_measure is not None:
+        measure = Decimal(f.risk_measure)
+        share = None if measure == NO_MEASURE else measure
+    return CommentaryFigure(
+        f.metric,
+        METRICS[f.metric].label,
+        METRICS[f.metric].unit.value,
+        f.period,
+        Decimal(f.value),
+        _display(f, run.band, run.currency, settings),
+        previous.period if previous else None,
+        Decimal(previous.value) if previous and previous.value is not None else None,
+        _display(previous, run.band, run.currency, settings) if previous else None,
+        f.risk_company,
+        inputs,
+        share,
+    )
+
+
+def run_currency(session: Session, tenant_id: uuid.UUID, run_id: uuid.UUID) -> str:
+    """The currency a run's figures are in."""
+    found = session.scalar(select(Run.currency).where(Run.tenant_id == tenant_id, Run.id == run_id))
+    return found or "GBP"

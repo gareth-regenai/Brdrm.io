@@ -45,6 +45,8 @@ interface Trace {
   moves: string[];
   risk: string | null;
   thresholds: { high: string; medium: string; direction: string } | null;
+  // What the number check found for this figure (FR-5.4).
+  check: string;
   // Set when the figure was changed by hand in an update.
   edited?: { by: string; at: string; calculated_display: string } | null;
 }
@@ -217,7 +219,7 @@ export function TraceView({
           </>
         )}
         <dt>Check</dt>
-        <dd>The number check runs on commentary, which arrives in a later release.</dd>
+        <dd>{trace.check}</dd>
       </dl>
       {trace.edited && (
         <p className="small warn-text">

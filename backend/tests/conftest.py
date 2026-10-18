@@ -232,11 +232,14 @@ def recorded_ai() -> Iterator[RecordedClient]:
 @pytest.fixture(autouse=True)
 def _no_live_ai() -> Iterator[None]:
     """CI never calls the live API: without a recorded client, the AI is off."""
+    from boardroom.modules.insights import skill3
     from boardroom.modules.intake import skill1
 
     skill1.set_client(None)
+    skill3.set_client(None)
     yield
     skill1.set_client(None)
+    skill3.set_client(None)
 
 
 def upload_file(

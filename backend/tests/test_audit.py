@@ -79,6 +79,11 @@ def scenario(client, make_company, invite, owner_conn, recorded_ai):
     update = next(u for u in client.get("/company/updates", headers=h).json() if u["figures"])
     figure = update["figures"][0]["figure_id"]
     client.put(f"/company/updates/{update['id']}/figures/{figure}", headers=h, json={"value": "1"})
+    section = update["sections"][0]["id"]
+    client.put(
+        f"/company/updates/{update['id']}/sections/{section}", headers=h, json={"text": "Ours."}
+    )
+    client.post(f"/company/updates/{update['id']}/redraft", headers=h)
     client.post(f"/company/updates/{update['id']}/approve", headers=h)
     client.post(f"/company/updates/{update['id']}/comments", headers=h, json={"body": "Hello"})
     client.put("/company/settings/logo", headers=h, json={"data_url": png_data_url()})
@@ -117,6 +122,8 @@ EXPECTED = {
     ("POST", "/company/updates/{update_id}/approve"): "update.approved",
     ("PUT", "/company/updates/{update_id}/figures/{figure_id}"): "update.edited",
     ("POST", "/company/updates/{update_id}/comments"): "update.commented",
+    ("PUT", "/company/updates/{update_id}/sections/{section_id}"): "update.commentary_edited",
+    ("POST", "/company/updates/{update_id}/redraft"): "update.redrafted",
 }
 # A refresh swaps tokens only; the sign-in it continues is already audited.
 NOT_STATE_CHANGES = {("POST", "/auth/refresh"), ("PUT", "/storage/upload/{token}")}

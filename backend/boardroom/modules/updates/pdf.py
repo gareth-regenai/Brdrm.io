@@ -47,6 +47,8 @@ class UpdateDocument:
     detail: str
     labels: list[str] = field(default_factory=list)
     figures: list[FigureLine] = field(default_factory=list)
+    # The headline and notes, each with who wrote it ("Drafted by Claude").
+    commentary: list[tuple[str, str]] = field(default_factory=list)
 
 
 def text(value: str) -> str:
@@ -148,6 +150,14 @@ def render(doc: UpdateDocument) -> bytes:
     for label in doc.labels:
         story += [Spacer(0, 1 * mm), Paragraph(text(label), styles["muted"])]
     story.append(Spacer(0, 6 * mm))
+    for words, by in doc.commentary:
+        story += [
+            Paragraph(text(words), styles["body"]),
+            Paragraph(text(by), styles["muted"]),
+            Spacer(0, 3 * mm),
+        ]
+    if doc.commentary:
+        story.append(Spacer(0, 3 * mm))
 
     if doc.figures:
         rows = []
