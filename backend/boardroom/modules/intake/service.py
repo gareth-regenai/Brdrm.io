@@ -155,6 +155,28 @@ def complete_upload(
     return upload
 
 
+def add_pulled_file(
+    session: Session, tenant_id: uuid.UUID, user_id: uuid.UUID, filename: str, data: bytes
+) -> Upload | None:
+    """A file a connected tool sent. From here it takes the same path as an upload: the
+    same checks, pay columns dropped, the AI reading, figures by code, an update.
+    The same file sent again (nothing changed since the last pull) is not added twice."""
+    digest = hashlib.sha256(data).hexdigest()
+    seen = session.scalar(
+        select(Upload.id).where(
+            Upload.tenant_id == tenant_id,
+            Upload.filename == filename[:255],
+            Upload.sha256 == digest,
+            Upload.status != "failed",
+        )
+    )
+    if seen is not None:
+        return None
+    upload, _ = create_upload(session, tenant_id, user_id, filename, len(data), "text/csv")
+    get_storage().put(raw_key(str(tenant_id), str(upload.id)), data)
+    return complete_upload(session, tenant_id, user_id, upload.id)
+
+
 @consumer("intake.process_upload", UPLOAD_RECEIVED)
 def _process(session: Session, event: Event) -> None:
     assert event.tenant_id is not None  # noqa: S101

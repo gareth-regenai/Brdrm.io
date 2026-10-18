@@ -84,7 +84,8 @@ def clean_db() -> Iterator[None]:
             "intake.interpretation_log, intake.manual_figures, intake.outbox, metrics.selections, "
             "metrics.runs, metrics.settings, metrics.outbox, setup.profiles, setup.targets, "
             "setup.conversations, setup.outbox, updates.updates, updates.outbox, "
-            "billing.subscriptions, billing.stripe_events, billing.plans CASCADE"
+            "billing.subscriptions, billing.stripe_events, billing.plans, connectors.connections "
+            "CASCADE"
         )
     import shutil
 

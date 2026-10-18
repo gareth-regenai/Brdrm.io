@@ -51,6 +51,8 @@ class Action(StrEnum):
     DELETE_WORKSPACE = "delete_workspace"
     # Choosing and paying for the plan. Approval never depends on it (FR-9.3).
     MANAGE_BILLING = "manage_billing"
+    # Connecting the company's tools, such as Xero, so figures arrive without a file.
+    MANAGE_CONNECTIONS = "manage_connections"
 
 
 ALL: frozenset[Role] = frozenset(Role)
@@ -73,6 +75,7 @@ MATRIX: dict[Action, frozenset[Role]] = {
     Action.COMMENT: ALL,
     Action.DELETE_WORKSPACE: frozenset({Role.OWNER}),
     Action.MANAGE_BILLING: frozenset({Role.OWNER, Role.CEO}),
+    Action.MANAGE_CONNECTIONS: frozenset({Role.OWNER, Role.CEO}),
 }
 
 DEFAULT_APPROVER_ROLES: tuple[Role, ...] = (Role.CEO,)

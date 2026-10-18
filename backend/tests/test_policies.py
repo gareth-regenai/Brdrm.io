@@ -9,6 +9,7 @@ SCHEMAS = (
     "setup",
     "updates",
     "billing",
+    "connectors",
 )
 
 
@@ -34,7 +35,7 @@ def test_no_table_lives_outside_the_module_schemas(owner_conn):
         "SELECT schemaname || '.' || tablename FROM pg_tables "
         "WHERE schemaname NOT IN "
         "('pg_catalog', 'information_schema', 'identity', 'audit', 'events', 'intake', "
-        "'metrics', 'setup', 'updates', 'billing')"
+        "'metrics', 'setup', 'updates', 'billing', 'connectors')"
     ).fetchall()
     assert [r for (r,) in rows] == ["public.alembic_version"]
 

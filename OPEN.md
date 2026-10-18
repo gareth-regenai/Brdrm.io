@@ -125,3 +125,13 @@ The rest of chapter 14 (rates feed, first connector) belongs to later epics and 
 | Journeys on Render previews | FR-13.4 asks for the journeys on every preview. Previews need Render connected. | The journeys run in CI against the whole app started by `scripts/e2e-stack.sh`. To run them on a preview: give the preview `ENVIRONMENT=staging`, `MAILER=capture` and the recorded AI answers, then run `npx playwright test` with `E2E_WEB_URL` and `E2E_API_URL` set to the preview. |
 | How a journey reads an invitation email | The investor journey has to follow the link in a real email. | `MAILER=capture` keeps emails in storage and `GET /e2e/mail` returns them. The route exists only in capture mode, and production refuses `MAILER=capture` (tested). |
 
+## Raised by connected tools
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| The first real connector | FRD chapter 14 lists "First connector, such as Xero" as open. | None is built. The framework, the "Your tools" page and a demo connector are. Xero is the suggested first: finance drives most figures. Each real tool needs its developer app's id and secret. |
+| Where a tool's access is kept | A real connector stores read-only access for each company. | Not stored yet, as no real connector exists. The plan: encrypted per company, with the key in Render, never in the database or logs. |
+| Do pulls count against "files a month"? | A daily pull could use up a plan's file allowance. | Yes: a pulled file counts as a file, and an unchanged pull adds none. Change in `intake.add_pulled_file` if plans should treat pulls differently. |
+| How often tools are pulled | Fresher figures against more work for each tool. | Once a day, by the worker, plus "Pull now". |
+| Who can connect tools | The FRD permissions table has no row for it. | The Owner and the CEO, as for company settings. |
+
