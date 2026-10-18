@@ -98,6 +98,15 @@ def require(action: Action, audit_view: bool = False) -> Callable[..., Iterator[
             if membership is None or not allowed(membership.role, action):
                 raise _forbidden()
             role = membership.role
+            if role == Role.SUPPORT:
+                # Every page BoardRoom support opens is in the company's audit log (FR-11.6).
+                audit.record(
+                    session,
+                    "support.viewed",
+                    tenant_id=tenant_id,
+                    actor_user_id=user_id,
+                    details={"path": request.url.path},
+                )
             if audit_view and role == Role.INVESTOR:
                 audit.record(
                     session,

@@ -1589,7 +1589,8 @@
           "ceo",
           "department_lead",
           "contributor",
-          "investor"
+          "investor",
+          "support"
         ],
         "title": "Role",
         "type": "string"
@@ -2016,6 +2017,51 @@
           "value"
         ],
         "title": "SummaryRow",
+        "type": "object"
+      },
+      "SupportIn": {
+        "properties": {
+          "reason": {
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "SupportIn",
+        "type": "object"
+      },
+      "SupportOut": {
+        "properties": {
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "staff_name": {
+            "title": "Staff Name",
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "staff_name",
+          "reason",
+          "started_at",
+          "expires_at"
+        ],
+        "title": "SupportOut",
         "type": "object"
       },
       "TargetIn": {
@@ -2995,6 +3041,60 @@
           }
         },
         "summary": "Admin Save Plan",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/support/{tenant_id}": {
+      "post": {
+        "description": "A platform admin opens a read-only, time-limited session on one company.",
+        "operationId": "start_support_admin_support__tenant_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupportIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Start Support",
         "tags": [
           "admin"
         ]
@@ -5116,6 +5216,86 @@
         "summary": "Shared Figures",
         "tags": [
           "updates"
+        ]
+      }
+    },
+    "/company/support": {
+      "delete": {
+        "operationId": "end_support_company_support_delete",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "End Support",
+        "tags": [
+          "company"
+        ]
+      },
+      "get": {
+        "description": "Who from BoardRoom can see this company now, why and until when.",
+        "operationId": "support_sessions_company_support_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SupportOut"
+                  },
+                  "title": "Response Support Sessions Company Support Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Support Sessions",
+        "tags": [
+          "company"
         ]
       }
     },

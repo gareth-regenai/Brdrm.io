@@ -105,6 +105,13 @@ def scenario(
     client.post("/company/connections/demo", headers=h)
     client.post("/company/connections/demo/sync", headers=h)
     client.delete("/company/connections/demo", headers=h)
+    # Support access: staff open a session, the company ends it.
+    client.post(
+        f"/admin/support/{company.tenant_id}",
+        headers=platform_admin.auth(),
+        json={"reason": "Checking the September file"},
+    )
+    client.delete("/company/support", headers=h)
     client.delete("/company", headers=h)
     return _audit_actions(owner_conn)
 
@@ -148,6 +155,8 @@ EXPECTED = {
     ("POST", "/company/connections/{provider}"): "connection.connected",
     ("POST", "/company/connections/{provider}/sync"): "connection.synced",
     ("DELETE", "/company/connections/{provider}"): "connection.disconnected",
+    ("POST", "/admin/support/{tenant_id}"): "support.session_started",
+    ("DELETE", "/company/support"): "support.session_ended",
 }
 # A refresh swaps tokens only; the sign-in it continues is already audited.
 NOT_STATE_CHANGES = {("POST", "/auth/refresh"), ("PUT", "/storage/upload/{token}")}
