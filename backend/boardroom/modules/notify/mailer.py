@@ -1,10 +1,12 @@
 """Email delivery: SMTP in staging and production, console or memory in development and tests.
 The long-term provider is open; see OPEN.md."""
 
+import hashlib
+import json
 import smtplib
 import ssl
 import sys
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from email.message import EmailMessage
 from email.utils import formataddr, make_msgid
 from typing import Protocol
@@ -80,6 +82,33 @@ class SmtpMailer:
         log.info("email_sent", to_domain=email.to.rsplit("@", 1)[-1])
 
 
+class CaptureMailer:
+    """End-to-end tests only: keeps each email in storage, where the API and the worker
+    both reach it, so a journey test can follow an invitation link. Never in production."""
+
+    def send(self, email: Email) -> None:
+        from boardroom.modules.intake.storage import get_storage
+
+        storage = get_storage()
+        key = capture_key(email.to)
+        kept = json.loads(storage.get(key)) if storage.size(key) is not None else []
+        storage.put(key, json.dumps([*kept, asdict(email)]).encode())
+
+
+def capture_key(to: str) -> str:
+    return f"e2e-mail/{hashlib.sha256(to.strip().lower().encode()).hexdigest()}.json"
+
+
+def captured(to: str) -> list[Email]:
+    from boardroom.modules.intake.storage import get_storage
+
+    storage = get_storage()
+    key = capture_key(to)
+    if storage.size(key) is None:
+        return []
+    return [Email(**e) for e in json.loads(storage.get(key))]
+
+
 _memory = MemoryMailer()
 
 
@@ -91,6 +120,8 @@ def get_mailer() -> Mailer:
         return DisabledMailer()
     if mailer == "smtp":
         return SmtpMailer()
+    if mailer == "capture":
+        return CaptureMailer()
     return ConsoleMailer()
 
 

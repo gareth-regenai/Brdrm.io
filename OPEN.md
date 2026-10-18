@@ -118,3 +118,10 @@ The rest of chapter 14 (rates feed, first connector) belongs to later epics and 
 | A company whose payment lapses | Stripe retries a failed payment for a while before ending the subscription. | Active, trialing and past due keep the paid plan. Any other status, or no subscription, falls back to the default plan. Nothing is deleted. |
 | Investor workspaces | Investors may one day pay for the portfolio view. | Billing applies to company workspaces only. Investors pay nothing and have no limits. |
 
+## Raised in E9
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| Journeys on Render previews | FR-13.4 asks for the journeys on every preview. Previews need Render connected. | The journeys run in CI against the whole app started by `scripts/e2e-stack.sh`. To run them on a preview: give the preview `ENVIRONMENT=staging`, `MAILER=capture` and the recorded AI answers, then run `npx playwright test` with `E2E_WEB_URL` and `E2E_API_URL` set to the preview. |
+| How a journey reads an invitation email | The investor journey has to follow the link in a real email. | `MAILER=capture` keeps emails in storage and `GET /e2e/mail` returns them. The route exists only in capture mode, and production refuses `MAILER=capture` (tested). |
+

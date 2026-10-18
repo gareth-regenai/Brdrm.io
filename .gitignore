@@ -17,3 +17,8 @@ dist/
 .DS_Store
 *.egg-info/
 backend/.env
+
+# Journey tests (E9)
+.e2e/
+web/test-results/
+web/playwright-report/

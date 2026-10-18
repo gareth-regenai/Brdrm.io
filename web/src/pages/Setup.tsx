@@ -59,6 +59,13 @@ export function SetupChat({
   const input = useRef<HTMLInputElement>(null);
   const firstName = userName.split(" ")[0] || "You";
 
+  // Setup finished on this visit stays on screen, so its closing words and any investor
+  // invitations waiting for a yes are seen. It is gone from the dashboard next time.
+  const [finishing, setFinishing] = useState(false);
+  useEffect(() => {
+    if (setup && setup.status !== "done" && setup.status !== "skipped") setFinishing(true);
+  }, [setup]);
+
   const load = useCallback(async () => setSetup(await api<Setup>("/company/setup", { tenant })), [tenant]);
   useEffect(() => {
     void load();
@@ -88,7 +95,9 @@ export function SetupChat({
   if (!setup) return null;
   const started = setup.status === "open" || setup.status === "done";
 
-  if (untilDone && (setup.status === "done" || setup.status === "skipped")) return null;
+  const waiting = setup.pending_invites.length > 0;
+  if (untilDone && setup.status === "skipped" && !waiting) return null;
+  if (untilDone && setup.status === "done" && !finishing && !waiting) return null;
   if (!started) {
     return (
       <section className="card setup">
