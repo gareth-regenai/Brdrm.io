@@ -674,6 +674,57 @@
         "title": "MembershipOut",
         "type": "object"
       },
+      "MessageIn": {
+        "properties": {
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "MessageIn",
+        "type": "object"
+      },
+      "MessageOut": {
+        "properties": {
+          "applied": {
+            "additionalProperties": true,
+            "title": "Applied",
+            "type": "object"
+          },
+          "content": {
+            "title": "Content",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "content",
+          "applied",
+          "created_at"
+        ],
+        "title": "MessageOut",
+        "type": "object"
+      },
       "PermissionsOut": {
         "properties": {
           "actions": {
@@ -759,6 +810,142 @@
           "name"
         ],
         "title": "PortfolioCompanyOut",
+        "type": "object"
+      },
+      "ProfileIn": {
+        "properties": {
+          "business_description": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Description"
+          },
+          "display_band": {
+            "anyOf": [
+              {
+                "maximum": 4.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Band"
+          },
+          "follow_revenue": {
+            "default": false,
+            "title": "Follow Revenue",
+            "type": "boolean"
+          },
+          "reporting_currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reporting Currency"
+          },
+          "voice": {
+            "anyOf": [
+              {
+                "enum": [
+                  "we",
+                  "third_person"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voice"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          }
+        },
+        "title": "ProfileIn",
+        "type": "object"
+      },
+      "ProfileOut": {
+        "properties": {
+          "business_description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Description"
+          },
+          "display_band": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Band"
+          },
+          "reporting_currency": {
+            "title": "Reporting Currency",
+            "type": "string"
+          },
+          "revenue_lines": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Revenue Lines",
+            "type": "array"
+          },
+          "voice": {
+            "title": "Voice",
+            "type": "string"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          }
+        },
+        "required": [
+          "reporting_currency",
+          "business_description",
+          "website",
+          "revenue_lines",
+          "display_band",
+          "voice"
+        ],
+        "title": "ProfileOut",
         "type": "object"
       },
       "QuestionOut": {
@@ -879,6 +1066,55 @@
         "title": "SettingIn",
         "type": "object"
       },
+      "SetupOut": {
+        "properties": {
+          "has_files": {
+            "title": "Has Files",
+            "type": "boolean"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/MessageOut"
+            },
+            "title": "Messages",
+            "type": "array"
+          },
+          "pending_invites": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Pending Invites",
+            "type": "array"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "summary": {
+            "items": {
+              "$ref": "#/components/schemas/SummaryRow"
+            },
+            "title": "Summary",
+            "type": "array"
+          }
+        },
+        "required": [
+          "status",
+          "messages",
+          "pending_invites",
+          "summary",
+          "has_files"
+        ],
+        "title": "SetupOut",
+        "type": "object"
+      },
       "SignInIn": {
         "properties": {
           "email": {
@@ -950,6 +1186,93 @@
           "name"
         ],
         "title": "SignUpIn",
+        "type": "object"
+      },
+      "SummaryRow": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ],
+        "title": "SummaryRow",
+        "type": "object"
+      },
+      "TargetIn": {
+        "properties": {
+          "metric": {
+            "enum": [
+              "revenue",
+              "closed_won"
+            ],
+            "title": "Metric",
+            "type": "string"
+          },
+          "period": {
+            "pattern": "^20\\d\\d-(0[1-9]|1[0-2])$",
+            "title": "Period",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "metric",
+          "period",
+          "value"
+        ],
+        "title": "TargetIn",
+        "type": "object"
+      },
+      "TargetOut": {
+        "properties": {
+          "metric": {
+            "title": "Metric",
+            "type": "string"
+          },
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "set_by_name": {
+            "title": "Set By Name",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "metric",
+          "period",
+          "value",
+          "source",
+          "set_by_name"
+        ],
+        "title": "TargetOut",
         "type": "object"
       },
       "TileOut": {
@@ -2358,6 +2681,463 @@
         "summary": "Put Approval",
         "tags": [
           "company"
+        ]
+      }
+    },
+    "/company/settings/profile": {
+      "get": {
+        "operationId": "get_profile_company_settings_profile_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Profile",
+        "tags": [
+          "setup"
+        ]
+      },
+      "put": {
+        "description": "The same settings the chat writes, changed directly (FR-4.11, FR-8.4).",
+        "operationId": "put_profile_company_settings_profile_put",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Profile",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/company/settings/targets": {
+      "get": {
+        "operationId": "get_targets_company_settings_targets_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TargetOut"
+                  },
+                  "title": "Response Get Targets Company Settings Targets Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Targets",
+        "tags": [
+          "setup"
+        ]
+      },
+      "put": {
+        "operationId": "put_targets_company_settings_targets_put",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "items": {
+                  "$ref": "#/components/schemas/TargetIn"
+                },
+                "title": "Body",
+                "type": "array"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TargetOut"
+                  },
+                  "title": "Response Put Targets Company Settings Targets Put",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Put Targets",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/company/setup": {
+      "get": {
+        "operationId": "get_setup_company_setup_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Setup",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/company/setup/invites": {
+      "delete": {
+        "operationId": "discard_invites_company_setup_invites_delete",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Discard Invites",
+        "tags": [
+          "setup"
+        ]
+      },
+      "post": {
+        "operationId": "send_invites_company_setup_invites_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Send Invites",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/company/setup/messages": {
+      "post": {
+        "operationId": "send_company_setup_messages_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Send",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/company/setup/skip": {
+      "post": {
+        "operationId": "skip_company_setup_skip_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Skip",
+        "tags": [
+          "setup"
+        ]
+      }
+    },
+    "/company/setup/start": {
+      "post": {
+        "operationId": "start_company_setup_start_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Start",
+        "tags": [
+          "setup"
         ]
       }
     },

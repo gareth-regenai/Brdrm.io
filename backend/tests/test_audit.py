@@ -61,6 +61,20 @@ def scenario(client, make_company, invite, owner_conn, recorded_ai):
         json={"metric": "revenue", "period": "2026-12", "value": "1", "kind": "target"},
     )
     client.put("/company/metrics/settings/runway", headers=h, json={"band_offset": 1})
+    client.post("/company/setup/start", headers=h)
+    client.post("/company/setup/messages", headers=h, json={"text": "Looks right"})
+    owner_conn.execute(
+        "UPDATE setup.conversations SET pending_invites = '[\"a@fund.example.com\"]'"
+    )
+    client.post("/company/setup/invites", headers=h)
+    client.delete("/company/setup/invites", headers=h)
+    client.put("/company/settings/profile", headers=h, json={"reporting_currency": "EUR"})
+    client.put(
+        "/company/settings/targets",
+        headers=h,
+        json=[{"metric": "revenue", "period": "2026-12", "value": "90000"}],
+    )
+    client.post("/company/setup/skip", headers=h)
     client.delete("/company", headers=h)
     return _audit_actions(owner_conn)
 
@@ -83,6 +97,13 @@ EXPECTED = {
     ("PUT", "/company/uploads/{upload_id}/mapping"): "upload.mapped_by_hand",
     ("POST", "/company/figures"): "figure.entered",
     ("PUT", "/company/metrics/settings/{metric}"): "metrics.setting_changed",
+    ("POST", "/company/setup/start"): "setup.started",
+    ("POST", "/company/setup/messages"): "setup.message_sent",
+    ("POST", "/company/setup/skip"): "setup.skipped",
+    ("POST", "/company/setup/invites"): "setup.invites_sent",
+    ("DELETE", "/company/setup/invites"): "setup.invites_discarded",
+    ("PUT", "/company/settings/profile"): "setup.settings_changed",
+    ("PUT", "/company/settings/targets"): "setup.settings_changed",
 }
 # A refresh swaps tokens only; the sign-in it continues is already audited.
 NOT_STATE_CHANGES = {("POST", "/auth/refresh"), ("PUT", "/storage/upload/{token}")}

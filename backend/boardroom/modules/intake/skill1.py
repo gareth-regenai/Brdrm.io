@@ -356,7 +356,8 @@ class AnthropicClient:
                         "cache_control": {"type": "ephemeral"},
                     }
                 ],
-                messages=[{"role": "user", "content": payload["user"]}],
+                # The setup chat sends a whole conversation; the skills send one message.
+                messages=payload.get("messages") or [{"role": "user", "content": payload["user"]}],
             )
         except anthropic.RateLimitError as exc:
             raise SkillUnavailable("rate limited") from exc

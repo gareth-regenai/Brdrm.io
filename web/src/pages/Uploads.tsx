@@ -126,7 +126,7 @@ export function UploadsSection({ tenant, onSettled }: { tenant: string; onSettle
   }
 
   return (
-    <section className="card">
+    <section className="card" id="files">
       <h2>Add files</h2>
       <p className="muted">
         Drop in any export: a profit and loss report, a bank summary, a CRM deals list. Nothing to prepare. Salary,

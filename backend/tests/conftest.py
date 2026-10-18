@@ -82,7 +82,8 @@ def clean_db() -> Iterator[None]:
             "TRUNCATE identity.tenants, identity.users, identity.outbox, "
             "events.processed_events, audit.audit_log, intake.uploads, intake.layouts, "
             "intake.interpretation_log, intake.manual_figures, intake.outbox, metrics.selections, "
-            "metrics.runs, metrics.settings, metrics.outbox CASCADE"
+            "metrics.runs, metrics.settings, metrics.outbox, setup.profiles, setup.targets, "
+            "setup.conversations, setup.outbox CASCADE"
         )
     import shutil
 

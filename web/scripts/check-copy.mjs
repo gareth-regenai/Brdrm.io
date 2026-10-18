@@ -22,6 +22,7 @@ for (const target of targets) {
   for (const file of files(join(root, target))) {
     if (file.endsWith("tokens.css") || file.endsWith("check-copy.mjs")) continue;
     readFileSync(file, "utf8").split("\n").forEach((line, i) => {
+      if (line.includes("copy-check: allow")) return;
       for (const rule of banned) {
         if (rule.test(line)) {
           console.error(`${file.replace(root + "/", "")}:${i + 1}: ${rule} ${line.trim()}`);

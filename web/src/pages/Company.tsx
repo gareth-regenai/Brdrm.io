@@ -16,6 +16,7 @@ import {
 } from "../api";
 import { useSubmit } from "./Auth";
 import { MetricsGrid } from "./Metrics";
+import { SetupChat } from "./Setup";
 import { FiguresSection, UploadsSection } from "./Uploads";
 
 interface Data {
@@ -72,6 +73,7 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
         {data.permissions.can_approve && <p className="small">You can approve this company's updates.</p>}
       </div>
 
+      {can("manage_settings") && <SetupChat tenant={tenant} userName={me.name} onChanged={refreshFigures} />}
       {can("view_figures") && (
         <MetricsGrid tenant={tenant} version={figuresVersion} canManage={can("manage_settings")} />
       )}
@@ -212,6 +214,14 @@ const ACTIONS: Record<string, string> = {
   "upload.question_answered": "Answered a question about a file",
   "upload.mapped_by_hand": "Chose a file's columns by hand",
   "figure.entered": "Entered a figure by hand",
+  "setup.started": "Opened setup",
+  "setup.reopened": "Reopened setup",
+  "setup.skipped": "Skipped setup",
+  "setup.message_sent": "Replied in setup",
+  "setup.settings_changed": "Changed company settings",
+  "setup.invites_sent": "Sent investor invitations from setup",
+  "setup.invites_discarded": "Did not invite investors from setup",
+  "metrics.setting_changed": "Changed how a figure is shown",
 };
 
 function describe(e: AuditEntry): string {
