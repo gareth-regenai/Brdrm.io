@@ -1,0 +1,218 @@
+{
+  "note": "Hand-written in the shape skill 1 returns, for replay in tests. The scheduled eval checks the real model.",
+  "columns": [
+    "Record ID",
+    "Deal Name",
+    "Deal Stage",
+    "Amount",
+    "Close Date",
+    "Create Date",
+    "Deal owner",
+    "Pipeline",
+    "Last Activity Date",
+    "Associated Company"
+  ],
+  "response": {
+    "file_kind": "sales",
+    "layout": "rows",
+    "label_column": null,
+    "currency": null,
+    "columns": [
+      {
+        "column": "Record ID",
+        "field": "deal_id",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.95,
+        "reason": "HubSpot record id."
+      },
+      {
+        "column": "Deal Stage",
+        "field": "stage",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.97,
+        "reason": "Pipeline stage."
+      },
+      {
+        "column": "Deal Stage",
+        "field": "status",
+        "transform": {
+          "type": "map_values",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": [
+            {
+              "from": "Closed won",
+              "to": "won"
+            },
+            {
+              "from": "Closed lost",
+              "to": "lost"
+            },
+            {
+              "from": "Appointment scheduled",
+              "to": "open"
+            },
+            {
+              "from": "Qualified to buy",
+              "to": "open"
+            },
+            {
+              "from": "Presentation scheduled",
+              "to": "open"
+            },
+            {
+              "from": "Decision maker bought-in",
+              "to": "open"
+            },
+            {
+              "from": "Contract sent",
+              "to": "open"
+            }
+          ]
+        },
+        "confidence": 0.9,
+        "reason": "Closed won and closed lost give status; other stages are open."
+      },
+      {
+        "column": "Amount",
+        "field": "amount",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.96,
+        "reason": "Deal value."
+      },
+      {
+        "column": "Close Date",
+        "field": "expected_close_date",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.84,
+        "reason": "HubSpot close date is expected until the deal closes."
+      },
+      {
+        "column": "Create Date",
+        "field": "created_date",
+        "transform": {
+          "type": "parse_date",
+          "date_format": "%Y-%m-%d %H:%M",
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.95,
+        "reason": "Created timestamp."
+      },
+      {
+        "column": "Deal owner",
+        "field": "owner",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.95,
+        "reason": "Owner."
+      },
+      {
+        "column": "Last Activity Date",
+        "field": "last_activity_date",
+        "transform": {
+          "type": "parse_date",
+          "date_format": "%Y-%m-%d %H:%M",
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.93,
+        "reason": "Latest activity."
+      },
+      {
+        "column": "Associated Company",
+        "field": "account",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.92,
+        "reason": "Customer company."
+      },
+      {
+        "column": "Deal Name",
+        "field": "ignore",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.8,
+        "reason": "Free text name."
+      },
+      {
+        "column": "Pipeline",
+        "field": "ignore",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.9,
+        "reason": "One pipeline only."
+      }
+    ],
+    "row_labels": []
+  }
+}

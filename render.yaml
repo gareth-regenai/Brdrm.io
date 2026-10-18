@@ -27,6 +27,17 @@ services:
         fromService: { type: keyvalue, name: boardroom-queue, property: connectionString }
       - key: WEB_ORIGIN
         sync: false
+      # File storage (provider open, see OPEN.md) and skill 1. Set in the dashboard.
+      - key: STORAGE_BUCKET
+        sync: false
+      - key: STORAGE_ENDPOINT
+        sync: false
+      - key: STORAGE_ACCESS_KEY
+        sync: false
+      - key: STORAGE_SECRET_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
 
   - type: worker
     name: boardroom-worker
@@ -46,6 +57,17 @@ services:
       - key: REDIS_URL
         fromService: { type: keyvalue, name: boardroom-queue, property: connectionString }
       - key: WEB_ORIGIN
+        sync: false
+      # File storage (provider open, see OPEN.md) and skill 1. Set in the dashboard.
+      - key: STORAGE_BUCKET
+        sync: false
+      - key: STORAGE_ENDPOINT
+        sync: false
+      - key: STORAGE_ACCESS_KEY
+        sync: false
+      - key: STORAGE_SECRET_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
         sync: false
 
   - type: keyvalue
@@ -96,5 +118,9 @@ envVarGroups:
         value: "false"
       - key: MAILER
         value: disabled
+      - key: STORAGE_BACKEND
+        value: s3
+      - key: SCANNER
+        value: basic
       - key: PYTHON_VERSION
         value: 3.12.7

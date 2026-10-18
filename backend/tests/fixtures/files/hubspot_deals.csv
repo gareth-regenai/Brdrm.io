@@ -1,0 +1,41 @@
+Record ID,Deal Name,Deal Stage,Amount,Close Date,Create Date,Deal owner,Pipeline,Last Activity Date,Associated Company
+18200000,Harbour Robotics - Platform,Appointment scheduled,4800,2026-04-16,2026-03-02 09:30,Priya Shah,Sales Pipeline,2026-03-12 09:30,Harbour Robotics
+18200001,Fieldnote Health - Expansion,Qualified to buy,6170,2026-04-29,2026-03-06 10:30,Lee Fraser,Sales Pipeline,2026-03-17 10:30,Fieldnote Health
+18200002,Lumen Freight - Pilot,Presentation scheduled,7540,2026-05-12,2026-03-10 11:30,Dan Hughes,Sales Pipeline,2026-03-22 11:30,Lumen Freight
+18200003,Copperleaf Studio - Platform,Decision maker bought-in,8910,2026-05-25,2026-03-14 12:30,Priya Shah,Sales Pipeline,2026-03-27 12:30,Copperleaf Studio
+18200004,Brightwell Energy - Expansion,Contract sent,10280,2026-06-07,2026-03-18 13:30,Lee Fraser,Sales Pipeline,2026-04-01 13:30,Brightwell Energy
+18200005,Orchard Labs - Pilot,Closed won,11650,2026-05-06,2026-03-22 14:30,Dan Hughes,Sales Pipeline,2026-04-06 14:30,Orchard Labs
+18200006,Kestrel Legal - Platform,Closed lost,13020,2026-05-19,2026-03-26 15:30,Priya Shah,Sales Pipeline,2026-04-11 15:30,Kestrel Legal
+18200007,Tidewater Foods - Expansion,Appointment scheduled,14390,2026-06-01,2026-03-30 09:30,Lee Fraser,Sales Pipeline,2026-04-16 09:30,Tidewater Foods
+18200008,Harbour Robotics - Pilot,Qualified to buy,15760,2026-06-14,2026-04-03 10:30,Dan Hughes,Sales Pipeline,2026-04-21 10:30,Harbour Robotics
+18200009,Fieldnote Health - Platform,Presentation scheduled,17130,2026-06-27,2026-04-07 11:30,Priya Shah,Sales Pipeline,2026-04-26 11:30,Fieldnote Health
+18200010,Lumen Freight - Expansion,Decision maker bought-in,18500,2026-05-26,2026-04-11 12:30,Lee Fraser,Sales Pipeline,2026-05-01 12:30,Lumen Freight
+18200011,Copperleaf Studio - Pilot,Contract sent,19870,2026-06-08,2026-04-15 13:30,Dan Hughes,Sales Pipeline,2026-05-06 13:30,Copperleaf Studio
+18200012,Brightwell Energy - Platform,Closed won,21240,2026-06-21,2026-04-19 14:30,Priya Shah,Sales Pipeline,2026-04-29 14:30,Brightwell Energy
+18200013,Orchard Labs - Expansion,Closed lost,22610,2026-07-04,2026-04-23 15:30,Lee Fraser,Sales Pipeline,2026-05-04 15:30,Orchard Labs
+18200014,Kestrel Legal - Pilot,Appointment scheduled,23980,2026-07-17,2026-04-27 09:30,Dan Hughes,Sales Pipeline,2026-05-09 09:30,Kestrel Legal
+18200015,Tidewater Foods - Platform,Qualified to buy,25350,2026-06-15,2026-05-01 10:30,Priya Shah,Sales Pipeline,2026-05-14 10:30,Tidewater Foods
+18200016,Harbour Robotics - Expansion,Presentation scheduled,26720,2026-06-28,2026-05-05 11:30,Lee Fraser,Sales Pipeline,2026-05-19 11:30,Harbour Robotics
+18200017,Fieldnote Health - Pilot,Decision maker bought-in,28090,2026-07-11,2026-05-09 12:30,Dan Hughes,Sales Pipeline,2026-05-24 12:30,Fieldnote Health
+18200018,Lumen Freight - Platform,Contract sent,29460,2026-07-24,2026-05-13 13:30,Priya Shah,Sales Pipeline,2026-05-29 13:30,Lumen Freight
+18200019,Copperleaf Studio - Expansion,Closed won,30830,2026-08-06,2026-05-17 14:30,Lee Fraser,Sales Pipeline,2026-06-03 14:30,Copperleaf Studio
+18200020,Brightwell Energy - Pilot,Closed lost,32200,2026-07-05,2026-05-21 15:30,Dan Hughes,Sales Pipeline,2026-06-08 15:30,Brightwell Energy
+18200021,Orchard Labs - Platform,Appointment scheduled,33570,2026-07-18,2026-05-25 09:30,Priya Shah,Sales Pipeline,2026-06-13 09:30,Orchard Labs
+18200022,Kestrel Legal - Expansion,Qualified to buy,34940,2026-07-31,2026-05-29 10:30,Lee Fraser,Sales Pipeline,2026-06-18 10:30,Kestrel Legal
+18200023,Tidewater Foods - Pilot,Presentation scheduled,36310,2026-08-13,2026-06-02 11:30,Dan Hughes,Sales Pipeline,2026-06-23 11:30,Tidewater Foods
+18200024,Harbour Robotics - Platform,Decision maker bought-in,37680,2026-08-26,2026-06-06 12:30,Priya Shah,Sales Pipeline,2026-06-16 12:30,Harbour Robotics
+18200025,Fieldnote Health - Expansion,Contract sent,39050,2026-07-25,2026-06-10 13:30,Lee Fraser,Sales Pipeline,2026-06-21 13:30,Fieldnote Health
+18200026,Lumen Freight - Pilot,Closed won,40420,2026-08-07,2026-06-14 14:30,Dan Hughes,Sales Pipeline,2026-06-26 14:30,Lumen Freight
+18200027,Copperleaf Studio - Platform,Closed lost,41790,2026-08-20,2026-06-18 15:30,Priya Shah,Sales Pipeline,2026-07-01 15:30,Copperleaf Studio
+18200028,Brightwell Energy - Expansion,Appointment scheduled,43160,2026-09-02,2026-06-22 09:30,Lee Fraser,Sales Pipeline,2026-07-06 09:30,Brightwell Energy
+18200029,Orchard Labs - Pilot,Qualified to buy,44530,2026-09-15,2026-06-26 10:30,Dan Hughes,Sales Pipeline,2026-07-11 10:30,Orchard Labs
+18200030,Kestrel Legal - Platform,Presentation scheduled,45900,2026-08-14,2026-06-30 11:30,Priya Shah,Sales Pipeline,2026-07-16 11:30,Kestrel Legal
+18200031,Tidewater Foods - Expansion,Decision maker bought-in,5270,2026-08-27,2026-07-04 12:30,Lee Fraser,Sales Pipeline,2026-07-21 12:30,Tidewater Foods
+18200032,Harbour Robotics - Pilot,Contract sent,6640,2026-09-09,2026-07-08 13:30,Dan Hughes,Sales Pipeline,2026-07-26 13:30,Harbour Robotics
+18200033,Fieldnote Health - Platform,Closed won,8010,2026-09-22,2026-07-12 14:30,Priya Shah,Sales Pipeline,2026-07-31 14:30,Fieldnote Health
+18200034,Lumen Freight - Expansion,Closed lost,9380,2026-10-05,2026-07-16 15:30,Lee Fraser,Sales Pipeline,2026-08-05 15:30,Lumen Freight
+18200035,Copperleaf Studio - Pilot,Appointment scheduled,10750,2026-09-03,2026-07-20 09:30,Dan Hughes,Sales Pipeline,2026-08-10 09:30,Copperleaf Studio
+18200036,Brightwell Energy - Platform,Qualified to buy,12120,2026-09-16,2026-07-24 10:30,Priya Shah,Sales Pipeline,2026-08-03 10:30,Brightwell Energy
+18200037,Orchard Labs - Expansion,Presentation scheduled,13490,2026-09-29,2026-07-28 11:30,Lee Fraser,Sales Pipeline,2026-08-08 11:30,Orchard Labs
+18200038,Kestrel Legal - Pilot,Decision maker bought-in,14860,2026-10-12,2026-08-01 12:30,Dan Hughes,Sales Pipeline,2026-08-13 12:30,Kestrel Legal
+18200039,Tidewater Foods - Platform,Contract sent,16230,2026-10-25,2026-08-05 13:30,Priya Shah,Sales Pipeline,2026-08-18 13:30,Tidewater Foods

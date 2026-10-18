@@ -3,7 +3,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "../..");
-const targets = ["web/src", "web/index.html", "backend/boardroom", "backend/migrations", "backend/tests",
+const targets = ["web/src", "web/index.html", "backend/boardroom", "backend/migrations", "backend/tests", "backend/evals",
   "OPEN.md", "docs/epics", "render.yaml", ".github", "README.md"];
 const banned = [/—/, /\bAI-powered\b/i, /\bsmart\b/i, /\bmagic\b/i];
 const skip = new Set(["node_modules", "dist", "__pycache__", ".venv"]);

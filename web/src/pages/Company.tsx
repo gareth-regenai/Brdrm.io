@@ -15,6 +15,7 @@ import {
   ROLE_NAMES,
 } from "../api";
 import { useSubmit } from "./Auth";
+import { FiguresSection, UploadsSection } from "./Uploads";
 
 interface Data {
   permissions: Permissions;
@@ -68,14 +69,21 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
         {data.permissions.can_approve && <p className="small">You can approve this company's updates.</p>}
       </div>
 
-      <section className="card">
-        <h2>Updates</h2>
-        <p className="muted">
-          {isInvestor
-            ? "Every update the company shares will appear here. You will be able to trace each figure to its source and comment."
-            : "Files you add will become updates for your investors. Adding files arrives in the next release."}
-        </p>
-      </section>
+      {can("upload_files") ? (
+        <div className="grid-2">
+          <UploadsSection tenant={tenant} />
+          <FiguresSection tenant={tenant} />
+        </div>
+      ) : (
+        <section className="card">
+          <h2>Updates</h2>
+          <p className="muted">
+            {isInvestor
+              ? "Every update the company shares will appear here. You will be able to trace each figure to its source and comment."
+              : "Your role does not add files. Updates appear here once they are shared."}
+          </p>
+        </section>
+      )}
 
       <div className="grid-2">
         {can("view_team") && (
@@ -192,6 +200,12 @@ const ACTIONS: Record<string, string> = {
   "investor.removed": "Removed an investor",
   "investor.viewed": "Viewed the company",
   "settings.approval_changed": "Changed who can approve updates",
+  "upload.started": "Started adding a file",
+  "upload.added": "Added a file",
+  "upload.status_changed": "File moved to the next step",
+  "upload.question_answered": "Answered a question about a file",
+  "upload.mapped_by_hand": "Chose a file's columns by hand",
+  "figure.entered": "Entered a figure by hand",
 };
 
 function describe(e: AuditEntry): string {

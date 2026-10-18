@@ -47,6 +47,40 @@ class Settings(BaseSettings):
 
     flags: FeatureFlags = Field(default_factory=FeatureFlags)
 
+    # Where the API is reached from outside, for signed upload links in development.
+    api_url: str = "http://localhost:8000"
+
+    # File intake limits (FR-11.7). Upload size moves to entitlements in E8.
+    max_file_mb: int = 25
+    max_rows: int = 200_000
+    max_columns: int = 200
+    max_cell_chars: int = 32_768
+    max_uncompressed_mb: int = 200
+    parse_memory_mb: int = 1024
+    parse_seconds: int = 60
+
+    # Storage provider is open (OPEN.md). Local is for development and tests only.
+    storage_backend: Literal["local", "s3"] = "local"
+    storage_root: str = ".storage"
+    storage_bucket: str = ""
+    storage_endpoint: str = ""
+    storage_region: str = "eu-west-2"
+    storage_access_key: str | None = None
+    storage_secret_key: str | None = None
+
+    # Malware scanner is open (OPEN.md). "basic" is not a real malware scan.
+    scanner: Literal["basic", "clamav"] = "basic"
+    clamav_host: str = "clamav"
+    clamav_port: int = 3310
+
+    # Skill 1, file understanding. Without a key, uploads go to manual mapping (FR-4.9).
+    ai_enabled: bool = True
+    anthropic_api_key: str | None = None
+    skill1_model: str = "claude-sonnet-5-5"
+    skill1_effort: Literal["low", "medium", "high"] = "medium"
+    # Development only: replay recorded answers instead of calling the model.
+    skill1_replay_dir: str | None = None
+
     # On Render the app has the owner URL (for migrations) and the br_login password.
     # The app's own URL is the owner URL with br_login in place of the owner.
     migration_database_url: str | None = None
@@ -84,6 +118,10 @@ def get_settings() -> Settings:
     if settings.environment in ("staging", "production"):
         if insecure:
             raise RuntimeError("JWT_SECRET must be set outside development")
+        if settings.skill1_replay_dir:
+            raise RuntimeError("SKILL1_REPLAY_DIR is for development only")
+        if settings.storage_backend != "s3":
+            raise RuntimeError("STORAGE_BACKEND=s3 is required outside development")
         if settings.mailer != "disabled":
             raise RuntimeError("Only MAILER=disabled is allowed until an email provider is chosen")
     return settings

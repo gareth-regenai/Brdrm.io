@@ -163,6 +163,27 @@ def sign_out(refresh_token: str) -> None:
 # Membership lookups used by the gateway
 
 
+def is_platform_admin(session: Session, user_id: uuid.UUID) -> bool:
+    user = session.get(User, user_id)
+    return bool(user and user.is_platform_admin)
+
+
+@dataclass
+class Contact:
+    email: str
+    name: str
+    company_name: str
+
+
+def contact(session: Session, user_id: uuid.UUID, tenant_id: uuid.UUID) -> Contact | None:
+    """For emails sent by notify, which runs as br_system."""
+    user = session.get(User, user_id)
+    tenant = session.get(Tenant, tenant_id)
+    if user is None or tenant is None:
+        return None
+    return Contact(user.email, user.name, tenant.name)
+
+
 def user_exists(session: Session, user_id: uuid.UUID) -> bool:
     return session.get(User, user_id) is not None
 

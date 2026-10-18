@@ -1,0 +1,110 @@
+{
+  "note": "Hand-written in the shape skill 1 returns, for replay in tests. The scheduled eval checks the real model.",
+  "columns": [
+    "Month",
+    "Sales",
+    "Direct costs",
+    "Overheads",
+    "Balance",
+    "Loan balance"
+  ],
+  "response": {
+    "file_kind": "finance",
+    "layout": "rows",
+    "label_column": null,
+    "currency": null,
+    "columns": [
+      {
+        "column": "Month",
+        "field": "period",
+        "transform": {
+          "type": "parse_date",
+          "date_format": "%Y-%m",
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.97,
+        "reason": "YYYY-MM months."
+      },
+      {
+        "column": "Sales",
+        "field": "revenue",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.9,
+        "reason": "Monthly sales."
+      },
+      {
+        "column": "Direct costs",
+        "field": "cost_of_sales",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.9,
+        "reason": "Direct costs."
+      },
+      {
+        "column": "Overheads",
+        "field": "operating_expenses",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.88,
+        "reason": "Overheads."
+      },
+      {
+        "column": "Balance",
+        "field": "cash_balance",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.62,
+        "reason": "Falling balance looks like cash, but it could be another account."
+      },
+      {
+        "column": "Loan balance",
+        "field": "debt",
+        "transform": {
+          "type": "rename",
+          "date_format": null,
+          "factor": null,
+          "separator": null,
+          "part": null,
+          "with_column": null,
+          "mapping": null
+        },
+        "confidence": 0.85,
+        "reason": "Outstanding loan."
+      }
+    ],
+    "row_labels": []
+  }
+}

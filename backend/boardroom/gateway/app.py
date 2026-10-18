@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
+import boardroom.modules.intake.service  # noqa: F401  registers event consumers
 import boardroom.modules.notify.service  # noqa: F401  registers event consumers
 from boardroom.config import get_settings
 from boardroom.db import get_engine
@@ -17,6 +18,7 @@ from boardroom.gateway.deps import TENANT_HEADER, bearer_user_id
 from boardroom.logs import configure_logging, get_logger, request_id_var, tenant_id_var, user_id_var
 from boardroom.modules.identity.api import router as identity_router
 from boardroom.modules.identity.service import IdentityError
+from boardroom.modules.intake.api import router as intake_router
 
 log = get_logger("gateway")
 
@@ -32,6 +34,12 @@ PUBLIC_PATHS = frozenset(
         "/docs/oauth2-redirect",
     }
 )
+# Signed upload links carry their own short-lived token instead of a sign-in.
+PUBLIC_PREFIXES = ("/storage/upload/",)
+
+
+def is_public(path: str) -> bool:
+    return path in PUBLIC_PATHS or path.startswith(PUBLIC_PREFIXES)
 
 
 def create_app() -> FastAPI:
@@ -55,7 +63,7 @@ def create_app() -> FastAPI:
         user_id_var.set(None)
         started = time.perf_counter()
         # First token check, at the gateway. Each endpoint checks again.
-        if request.method != "OPTIONS" and request.url.path not in PUBLIC_PATHS:
+        if request.method != "OPTIONS" and not is_public(request.url.path):
             try:
                 user_id_var.set(str(bearer_user_id(request)))
             except HTTPException as exc:
@@ -88,6 +96,7 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     app.include_router(identity_router)
+    app.include_router(intake_router)
     return app
 
 
