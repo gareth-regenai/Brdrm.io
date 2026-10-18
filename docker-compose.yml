@@ -1,4 +1,35 @@
 # Local Postgres and Key Value (Redis-compatible) for development. See docs/epics/E1/DEMO.md.
+#
+# The whole app, with demo data, on a laptop: docker compose --profile app up --build
+# Then open http://localhost:3000. See docs/run-locally.md.
+
+# Shared by the API, the worker, the migration and the seed.
+x-backend: &backend
+  profiles: ["app"]
+  build: { context: ., dockerfile: backend/Dockerfile }
+  image: boardroom-backend:local
+  environment:
+    ENVIRONMENT: development
+    MIGRATION_DATABASE_URL: postgresql://postgres:postgres@postgres:5432/boardroom
+    APP_DB_PASSWORD: br_login_local
+    REDIS_URL: redis://redis:6379/0
+    DISPATCH_INLINE: "false"
+    WEB_ORIGIN: http://localhost:3000
+    API_URL: http://localhost:8000
+    # Every email goes to the local inbox at http://localhost:8025.
+    MAILER: smtp
+    SMTP_HOST: mailpit
+    SMTP_PORT: "1025"
+    SMTP_SECURITY: none
+    SMTP_FROM: hello@boardroom.localhost
+    STORAGE_BACKEND: local
+    STORAGE_ROOT: /data/storage
+    CONNECTORS_DEMO: "true"
+    # Recorded answers for Claude unless ANTHROPIC_API_KEY is set in .env next to this file.
+    SKILL1_REPLAY_DIR: /app/tests/fixtures/recorded
+    ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  volumes: [storage:/data/storage]
+
 services:
   postgres:
     image: postgres:16
@@ -7,6 +38,10 @@ services:
       POSTGRES_DB: boardroom
     ports: ["5432:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres", "-d", "boardroom"]
+      interval: 2s
+      retries: 30
   redis:
     image: redis:7
     ports: ["6379:6379"]
@@ -15,5 +50,53 @@ services:
   mailpit:
     image: axllent/mailpit:v1.21
     ports: ["1025:1025", "8025:8025"]
+
+  # The app itself, in the "app" profile so plain "docker compose up" still starts only
+  # the services above for development.
+  migrate:
+    <<: *backend
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+    depends_on:
+      postgres: { condition: service_healthy }
+  api:
+    <<: *backend
+    command:
+      ["python", "-m", "uvicorn", "boardroom.gateway.app:app", "--host", "0.0.0.0",
+       "--port", "8000", "--no-access-log"]
+    ports: ["8000:8000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_started }
+      mailpit: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 2s
+      retries: 30
+  worker:
+    <<: *backend
+    command: ["python", "-m", "celery", "-A", "boardroom.worker:celery_app", "worker", "--beat", "--loglevel", "INFO"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_started }
+      mailpit: { condition: service_started }
+  # Adds the demo companies once; on later starts it only prints the sign-ins. It shares
+  # the API's network so the signed upload links, which name localhost:8000, work from here.
+  seed:
+    <<: *backend
+    command: ["python", "scripts/seed_demo.py", "--mailpit", "http://mailpit:8025"]
+    network_mode: "service:api"
+    restart: "no"
+    depends_on:
+      api: { condition: service_healthy }
+      worker: { condition: service_started }
+  web:
+    profiles: ["app"]
+    build: { context: ., dockerfile: web/Dockerfile }
+    image: boardroom-web:local
+    ports: ["3000:80"]
+    depends_on:
+      api: { condition: service_healthy }
+
 volumes:
   pgdata:
+  storage:

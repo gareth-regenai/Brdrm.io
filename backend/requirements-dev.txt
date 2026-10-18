@@ -45,7 +45,6 @@ celery==5.6.3
     # via boardroom (pyproject.toml)
 certifi==2026.7.22
     # via
-    #   -c /tmp/claude-0/-home-user/877f77a5-2084-55c0-824a-9d9b665b299a/scratchpad/constraints.txt
     #   httpcore
     #   httpx
     #   requests
