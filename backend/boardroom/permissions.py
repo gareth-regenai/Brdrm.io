@@ -16,6 +16,8 @@ class Role(StrEnum):
     DEPARTMENT_LEAD = "department_lead"
     CONTRIBUTOR = "contributor"
     INVESTOR = "investor"
+    # BoardRoom staff in a support session (FR-11.6): read-only, time-limited, never a member.
+    SUPPORT = "support"
 
 
 COMPANY_ROLES: frozenset[Role] = frozenset(
@@ -55,14 +57,19 @@ class Action(StrEnum):
     MANAGE_CONNECTIONS = "manage_connections"
 
 
-ALL: frozenset[Role] = frozenset(Role)
+ALL: frozenset[Role] = frozenset(
+    {Role.OWNER, Role.CEO, Role.DEPARTMENT_LEAD, Role.CONTRIBUTOR, Role.INVESTOR}
+)
+# Support reads what the company sees and changes nothing. A test checks that no action
+# below that support may take is used by an endpoint that changes anything.
+WITH_SUPPORT = frozenset({Role.SUPPORT})
 
 # Who may attempt each action. Department scope and the approval setting are
 # checked on top of this where the FRD table says "own departments" or "if granted".
 MATRIX: dict[Action, frozenset[Role]] = {
-    Action.VIEW_COMPANY: ALL,
-    Action.VIEW_TEAM: COMPANY_ROLES,
-    Action.VIEW_INVESTORS: ALL,
+    Action.VIEW_COMPANY: ALL | WITH_SUPPORT,
+    Action.VIEW_TEAM: COMPANY_ROLES | WITH_SUPPORT,
+    Action.VIEW_INVESTORS: ALL | WITH_SUPPORT,
     Action.UPLOAD_FILES: COMPANY_ROLES,
     Action.EDIT_UPDATE: frozenset({Role.OWNER, Role.CEO, Role.DEPARTMENT_LEAD}),
     Action.APPROVE_UPDATE: frozenset({Role.OWNER, Role.CEO, Role.DEPARTMENT_LEAD}),
@@ -71,7 +78,7 @@ MATRIX: dict[Action, frozenset[Role]] = {
     Action.REMOVE_INVESTOR: frozenset({Role.OWNER, Role.CEO}),
     Action.MANAGE_SETTINGS: frozenset({Role.OWNER, Role.CEO}),
     Action.VIEW_AUDIT: frozenset({Role.OWNER, Role.CEO}),
-    Action.VIEW_FIGURES: COMPANY_ROLES,
+    Action.VIEW_FIGURES: COMPANY_ROLES | WITH_SUPPORT,
     Action.COMMENT: ALL,
     Action.DELETE_WORKSPACE: frozenset({Role.OWNER}),
     Action.MANAGE_BILLING: frozenset({Role.OWNER, Role.CEO}),

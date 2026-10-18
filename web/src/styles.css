@@ -1395,3 +1395,16 @@ button.as-pill {
   align-items: center;
   flex-wrap: wrap;
 }
+
+/* Support access (FR-11.6) */
+.support-notice {
+  margin-bottom: var(--space-4);
+  background: var(--warn-bg);
+  color: var(--warn);
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}
+.support-notice p {
+  margin: 0;
+}

@@ -6,7 +6,7 @@ export const API_URL = raw.startsWith("http") ? raw : `https://${raw}`;
 
 const STORE = "boardroom.session";
 
-export type Role = "owner" | "ceo" | "department_lead" | "contributor" | "investor";
+export type Role = "owner" | "ceo" | "department_lead" | "contributor" | "investor" | "support";
 
 export const ROLE_NAMES: Record<Role, string> = {
   owner: "Owner",
@@ -14,6 +14,7 @@ export const ROLE_NAMES: Record<Role, string> = {
   department_lead: "Department lead",
   contributor: "Contributor",
   investor: "Investor",
+  support: "BoardRoom support",
 };
 
 export const DEPARTMENTS = ["finance", "sales", "delivery", "people", "plan"] as const;

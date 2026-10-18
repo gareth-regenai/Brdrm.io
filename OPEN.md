@@ -135,3 +135,11 @@ The rest of chapter 14 (rates feed, first connector) belongs to later epics and 
 | How often tools are pulled | Fresher figures against more work for each tool. | Once a day, by the worker, plus "Pull now". |
 | Who can connect tools | The FRD permissions table has no row for it. | The Owner and the CEO, as for company settings. |
 
+## Raised in E10
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| Does a company approve support access first? | FR-11.6 asks for time-limited, logged and visible. Asking first adds a step, and slows help when something is stuck. | Staff open a session with a reason. The company sees it straight away, with who, why and until when, and the Owner or CEO can end it at once. |
+| How long a support session lasts | Long enough to help, short enough to limit exposure. | 60 minutes, set by `SUPPORT_SESSION_MINUTES` (5 to 240). |
+| Staff tooling | Staff open sessions through the admin API for now. | No staff screen yet. A small admin page can follow once support volume justifies it. |
+
