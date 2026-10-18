@@ -121,6 +121,9 @@ class Settings(BaseSettings):
     # demos and the journey tests; production refuses it, so no real pack holds made-up data.
     connectors_demo: bool = False
 
+    # Staff support access (FR-11.6): how long a support session lasts.
+    support_session_minutes: int = Field(default=60, ge=5, le=240)
+
     # On Render the app has the owner URL (for migrations) and the br_login password.
     # The app's own URL is the owner URL with br_login in place of the owner.
     migration_database_url: str | None = None

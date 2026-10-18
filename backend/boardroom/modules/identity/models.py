@@ -62,6 +62,26 @@ class Membership(Base):
     removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
+class SupportSession(Base):
+    """BoardRoom staff reading one company, for a reason and a fixed time (FR-11.6).
+    Not a membership: staff never appear in the team, the investors or emails."""
+
+    __tablename__ = "support_sessions"
+    __table_args__ = {"schema": SCHEMA}
+
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey(f"{SCHEMA}.tenants.id"), index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey(f"{SCHEMA}.users.id"), index=True)
+    staff_name: Mapped[str] = mapped_column(String(200))
+    reason: Mapped[str] = mapped_column(String(300))
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), server_default=func.now()
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    ended_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+
+
 class Invitation(Base):
     __tablename__ = "invitations"
     __table_args__ = {"schema": SCHEMA}

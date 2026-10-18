@@ -79,8 +79,9 @@ def clean_db() -> Iterator[None]:
     yield
     with psycopg.connect(OWNER_URL, autocommit=True) as conn:
         conn.execute(
-            "TRUNCATE identity.tenants, identity.users, identity.outbox, "
-            "events.processed_events, audit.audit_log, intake.uploads, intake.layouts, "
+            "TRUNCATE identity.support_sessions, identity.tenants, identity.users, "
+            "identity.outbox, events.processed_events, audit.audit_log, intake.uploads, "
+            "intake.layouts, "
             "intake.interpretation_log, intake.manual_figures, intake.outbox, metrics.selections, "
             "metrics.runs, metrics.settings, metrics.outbox, setup.profiles, setup.targets, "
             "setup.conversations, setup.outbox, updates.updates, updates.outbox, "
