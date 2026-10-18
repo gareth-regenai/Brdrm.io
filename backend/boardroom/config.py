@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     # transaction switches to br_app (row-level security applies) or br_system.
     database_url: str = "postgresql+psycopg://br_login:br_login@localhost:5432/boardroom"
     redis_url: str = "redis://localhost:6379/0"
+    # Connections each process keeps open, and how many more it may open when busy. The
+    # load test found the library default (5 and 10) ran out under 20 people at once.
+    # Two API processes and the worker stay well under the database's connection limit.
+    db_pool_size: int = 10
+    db_max_overflow: int = 10
+    db_pool_timeout: int = 10
 
     jwt_secret: str = Field(default="dev-only-change-me-at-least-32-chars", min_length=32)
     jwt_issuer: str = "boardroom.io"

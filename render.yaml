@@ -25,6 +25,9 @@ services:
       - fromGroup: boardroom-shared
       - key: MIGRATION_DATABASE_URL
         fromDatabase: { name: boardroom-db, property: connectionString }
+      # Two API processes: the load test showed one queues requests under 20 people at once.
+      - key: WEB_CONCURRENCY
+        value: "2"
       - key: REDIS_URL
         fromService: { type: keyvalue, name: boardroom-queue, property: connectionString }
       - key: WEB_ORIGIN
