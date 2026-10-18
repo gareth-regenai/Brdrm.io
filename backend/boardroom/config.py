@@ -125,6 +125,9 @@ class Settings(BaseSettings):
     # Failed sign-ins in 15 minutes, across all accounts.
     alert_login_failures: int = 20
 
+    # Staff support access (FR-11.6): how long a support session lasts.
+    support_session_minutes: int = Field(default=60, ge=5, le=240)
+
     # On Render the app has the owner URL (for migrations) and the br_login password.
     # The app's own URL is the owner URL with br_login in place of the owner.
     migration_database_url: str | None = None

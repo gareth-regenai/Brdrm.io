@@ -21,6 +21,7 @@ import { Dashboard, Sidebar } from "./Shell";
 import { Hub } from "./Hub";
 import { MetricsGrid } from "./Metrics";
 import { SetupChat } from "./Setup";
+import { SupportNotice } from "./Support";
 import { ToolsSection } from "./Tools";
 import { FiguresSection, UploadsSection } from "./Uploads";
 
@@ -199,6 +200,12 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
     <div className="shell">
       <Sidebar me={me} membership={membership} />
       <main className="main">
+        <SupportNotice
+          tenant={tenant}
+          companyName={membership.tenant_name}
+          asSupport={membership.role === "support"}
+          canEnd={can("manage_settings")}
+        />
         <Routes>
           <Route
             index
@@ -297,6 +304,9 @@ const ACTIONS: Record<string, string> = {
   "connection.connected": "Connected a tool",
   "connection.synced": "Pulled data from a tool",
   "connection.disconnected": "Disconnected a tool",
+  "support.session_started": "BoardRoom support opened read-only access",
+  "support.session_ended": "Ended BoardRoom support access",
+  "support.viewed": "BoardRoom support viewed a page",
 };
 
 function describe(e: AuditEntry): string {

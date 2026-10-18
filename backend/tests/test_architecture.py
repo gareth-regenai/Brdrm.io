@@ -65,6 +65,8 @@ SYSTEM_SESSION_ALLOWED = {
     ("modules/billing/service.py", "handle_webhook"),
     # Platform admins setting plans, which are platform data (FR-9.1).
     ("modules/billing/service.py", "save_plan"),
+    # A platform admin opens a support session on a company they are not a member of.
+    ("modules/identity/service.py", "start_support"),
     # The worker's daily pull finds the connections due in every company, then pulls each
     # under that company's row-level security.
     ("modules/connectors/service.py", "sync_due"),

@@ -4,7 +4,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import func, select
+from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -19,6 +19,7 @@ from boardroom.modules.identity.models import (
     Invitation,
     Membership,
     RefreshToken,
+    SupportSession,
     Tenant,
     User,
 )
@@ -202,9 +203,12 @@ def active_membership(
             Tenant.deleted_at.is_(None),
         )
     ).first()
-    if row is None:
-        return None
-    return ActiveMembership(Role(row.role), list(row.departments or []))
+    if row is not None:
+        return ActiveMembership(Role(row.role), list(row.departments or []))
+    # BoardRoom staff in an open support session read the company, and nothing more.
+    if open_support_session(session, user_id, tenant_id) is not None:
+        return ActiveMembership(Role.SUPPORT, [])
+    return None
 
 
 def me(session: Session, user_id: uuid.UUID) -> tuple[User, list[tuple[Membership, Tenant]]]:
@@ -388,6 +392,8 @@ def create_invitation(
     email = normalise_email(email)
     if role == Role.OWNER:
         raise IdentityError(422, "A company has one Owner. Invite this person as CEO instead.")
+    if role == Role.SUPPORT:
+        raise IdentityError(422, "BoardRoom support is never invited into a company.")
     needed = Action.INVITE_INVESTORS if role == Role.INVESTOR else Action.INVITE_USERS
     if not allowed(actor_role, needed):
         raise IdentityError(403, "You do not have access to this.")
@@ -661,3 +667,106 @@ def mentionable(session: Session, tenant_id: uuid.UUID, role: Role) -> list[Memb
     else:
         roles = set(Role)
     return member_contacts(session, tenant_id, roles)
+
+
+# Staff support access (FR-11.6): read-only, time-limited, logged and shown to the company.
+
+
+def _open(tenant_id: uuid.UUID) -> list[ColumnElement[bool]]:
+    return [
+        SupportSession.tenant_id == tenant_id,
+        SupportSession.ended_at.is_(None),
+        SupportSession.expires_at > func.now(),
+    ]
+
+
+def open_support_session(
+    session: Session, user_id: uuid.UUID, tenant_id: uuid.UUID
+) -> SupportSession | None:
+    return session.scalar(
+        select(SupportSession)
+        .join(Tenant, Tenant.id == SupportSession.tenant_id)
+        .where(*_open(tenant_id), SupportSession.user_id == user_id, Tenant.deleted_at.is_(None))
+    )
+
+
+def support_sessions(session: Session, tenant_id: uuid.UUID) -> list[SupportSession]:
+    """Open sessions on this company, for the notice on its pages."""
+    return list(
+        session.scalars(
+            select(SupportSession).where(*_open(tenant_id)).order_by(SupportSession.started_at)
+        )
+    )
+
+
+def start_support(staff_id: uuid.UUID, tenant_id: uuid.UUID, reason: str) -> SupportSession:
+    """A platform admin opens a session. Staff are not members, so this runs as the system."""
+    with system_session() as session:
+        staff = session.get(User, staff_id)
+        tenant = session.get(Tenant, tenant_id)
+        if staff is None or not staff.is_platform_admin:
+            raise IdentityError(403, "You do not have access to this.")
+        if (
+            tenant is None
+            or tenant.deleted_at is not None
+            or tenant.tenant_type != TenantType.COMPANY.value
+        ):
+            raise IdentityError(404, "That company was not found.")
+        now = _now()
+        for old in session.scalars(
+            select(SupportSession).where(*_open(tenant_id), SupportSession.user_id == staff_id)
+        ):
+            old.ended_at = now
+            old.ended_by = staff_id
+        record = SupportSession(
+            tenant_id=tenant_id,
+            user_id=staff_id,
+            staff_name=staff.name,
+            reason=reason.strip()[:300],
+            expires_at=now + timedelta(minutes=get_settings().support_session_minutes),
+        )
+        session.add(record)
+        session.flush()
+        audit.record(
+            session,
+            "support.session_started",
+            tenant_id=tenant_id,
+            actor_user_id=staff_id,
+            target_type="support_session",
+            target_id=record.id,
+            details={"reason": record.reason, "until": record.expires_at.isoformat()},
+        )
+        session.expunge(record)
+        return record
+
+
+def end_support(session: Session, tenant_id: uuid.UUID, actor: uuid.UUID) -> int:
+    """The Owner or CEO ends every open support session on their company, at once."""
+    ended = 0
+    for record in session.scalars(select(SupportSession).where(*_open(tenant_id))):
+        record.ended_at = _now()
+        record.ended_by = actor
+        ended += 1
+    audit.record(
+        session,
+        "support.session_ended",
+        tenant_id=tenant_id,
+        actor_user_id=actor,
+        details={"sessions": ended},
+    )
+    return ended
+
+
+def support_tenants(session: Session, user_id: uuid.UUID) -> list[tuple[SupportSession, Tenant]]:
+    """The companies a staff member can read now, for /me."""
+    rows = session.execute(
+        select(SupportSession, Tenant)
+        .join(Tenant, Tenant.id == SupportSession.tenant_id)
+        .where(
+            SupportSession.user_id == user_id,
+            SupportSession.ended_at.is_(None),
+            SupportSession.expires_at > func.now(),
+            Tenant.deleted_at.is_(None),
+        )
+    ).all()
+    return [(s, t) for s, t in rows]

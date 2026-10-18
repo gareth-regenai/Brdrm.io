@@ -7,7 +7,7 @@ from pydantic import BaseModel, EmailStr, Field
 from boardroom.gateway.deps import TenantContext, UserContext, current_user, require
 from boardroom.modules.audit import service as audit
 from boardroom.modules.identity import service as identity
-from boardroom.modules.identity.models import Invitation
+from boardroom.modules.identity.models import Invitation, SupportSession
 from boardroom.permissions import MATRIX, Action, Department, Role, allowed
 
 router = APIRouter()
@@ -184,6 +184,17 @@ def me(ctx: UserContext = Depends(current_user)) -> MeOut:
                 departments=list(m.departments or []),
             )
             for m, t in rows
+        ]
+        # BoardRoom staff also reach the companies they have an open support session on.
+        + [
+            MembershipOut(
+                tenant_id=t.id,
+                tenant_name=t.name,
+                tenant_type=t.tenant_type,
+                role=Role.SUPPORT,
+                departments=[],
+            )
+            for _s, t in identity.support_tenants(ctx.session, ctx.user_id)
         ],
     )
 
@@ -337,3 +348,48 @@ def audit_log(ctx: TenantContext = Depends(require(Action.VIEW_AUDIT))) -> list[
         )
         for e in audit.list_for_tenant(ctx.session)
     ]
+
+
+# Staff support access (FR-11.6)
+
+
+class SupportIn(BaseModel):
+    reason: str = Field(min_length=3, max_length=300)
+
+
+class SupportOut(BaseModel):
+    staff_name: str
+    reason: str
+    started_at: datetime
+    expires_at: datetime
+
+
+def _support_out(s: SupportSession) -> SupportOut:
+    return SupportOut(
+        staff_name=s.staff_name, reason=s.reason, started_at=s.started_at, expires_at=s.expires_at
+    )
+
+
+@router.post("/admin/support/{tenant_id}", response_model=SupportOut, tags=["admin"])
+def start_support(
+    tenant_id: uuid.UUID, body: SupportIn, ctx: UserContext = Depends(current_user)
+) -> SupportOut:
+    """A platform admin opens a read-only, time-limited session on one company."""
+    if not identity.is_platform_admin(ctx.session, ctx.user_id):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "You do not have access to this.")
+    try:
+        return _support_out(identity.start_support(ctx.user_id, tenant_id, body.reason))
+    except identity.IdentityError as exc:
+        raise HTTPException(exc.code, exc.message) from exc
+
+
+@router.get("/company/support", response_model=list[SupportOut], tags=["company"])
+def support_sessions(ctx: TenantContext = Depends(require(Action.VIEW_TEAM))) -> list[SupportOut]:
+    """Who from BoardRoom can see this company now, why and until when."""
+    return [_support_out(s) for s in identity.support_sessions(ctx.session, ctx.tenant_id)]
+
+
+@router.delete("/company/support", status_code=204, tags=["company"])
+def end_support(ctx: TenantContext = Depends(require(Action.MANAGE_SETTINGS))) -> Response:
+    identity.end_support(ctx.session, ctx.tenant_id, ctx.user_id)
+    return Response(status_code=204)
