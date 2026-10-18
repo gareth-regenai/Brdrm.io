@@ -6,7 +6,7 @@ from urllib.parse import quote
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 
-from boardroom.gateway.deps import TenantContext, require
+from boardroom.gateway.deps import TenantContext, UserContext, current_user, require
 from boardroom.modules.updates import service
 from boardroom.permissions import Action
 
@@ -227,3 +227,34 @@ def export_pdf(
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(name)}"},
     )
+
+
+# The investor's portfolio overview (FRD chapter 7)
+
+
+class MeasureOut(BaseModel):
+    key: str
+    label: str
+    display: str
+    risk: str | None
+    period: str | None
+    available: bool
+
+
+class CardOut(BaseModel):
+    tenant_id: uuid.UUID
+    name: str
+    risk: str | None
+    measures: list[MeasureOut]
+    latest_update_id: uuid.UUID | None
+
+
+@router.get("/portfolio/overview", response_model=list[CardOut], tags=["investor"])
+def overview(ctx: UserContext = Depends(current_user)) -> list[CardOut]:
+    """One card per company the investor backs, highest risk first. Company users are
+    refused (FR-7.7)."""
+    try:
+        cards = service.overview(ctx.session, ctx.user_id)
+    except service.UpdatesError as exc:
+        raise _raise(exc) from exc
+    return [CardOut.model_validate(c, from_attributes=True) for c in cards]

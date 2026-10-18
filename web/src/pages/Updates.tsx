@@ -87,7 +87,10 @@ export function UpdatesFeed({
   }, [tenant]);
 
   useEffect(() => {
-    void load();
+    void load().then(() => {
+      // Opened from the investor overview: go straight to the latest update (FR-7.4).
+      if (window.location.hash === "#updates") document.getElementById("updates")?.scrollIntoView();
+    });
   }, [load]);
 
   // A finished upload becomes an update in the background: check until it arrives.

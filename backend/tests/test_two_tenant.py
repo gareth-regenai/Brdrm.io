@@ -40,7 +40,7 @@ def test_responses_carry_no_data_from_the_other_company(client, two_companies, o
             r = client.get(route.url(), headers=account.auth(a.tenant_id))
             for marker in b_markers:
                 assert marker not in r.text, f"{route.path} leaked {marker}"
-        for path in ("/me", "/portfolio"):
+        for path in ("/me", "/portfolio", "/portfolio/overview"):
             r = client.get(path, headers=account.auth())
             for marker in b_markers:
                 assert marker not in r.text, f"{path} leaked {marker}"
