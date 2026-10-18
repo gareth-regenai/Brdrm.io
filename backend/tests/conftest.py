@@ -83,7 +83,7 @@ def clean_db() -> Iterator[None]:
             "events.processed_events, audit.audit_log, intake.uploads, intake.layouts, "
             "intake.interpretation_log, intake.manual_figures, intake.outbox, metrics.selections, "
             "metrics.runs, metrics.settings, metrics.outbox, setup.profiles, setup.targets, "
-            "setup.conversations, setup.outbox CASCADE"
+            "setup.conversations, setup.outbox, updates.updates, updates.outbox CASCADE"
         )
     import shutil
 
@@ -271,3 +271,15 @@ def stored_keys() -> list[str]:
     from boardroom.modules.intake.storage import get_storage
 
     return get_storage().all_keys()  # type: ignore[attr-defined]
+
+
+def png_data_url(size: tuple[int, int] = (120, 40), colour: str = "#1F5F8F") -> str:
+    """A small logo, as the browser sends it."""
+    import base64
+    import io
+
+    from PIL import Image
+
+    out = io.BytesIO()
+    Image.new("RGB", size, colour).save(out, format="PNG")
+    return "data:image/png;base64," + base64.b64encode(out.getvalue()).decode()

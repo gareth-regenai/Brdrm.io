@@ -430,3 +430,40 @@ def pnl_labels(session: Session, tenant_id: uuid.UUID, limit: int = 100) -> list
         if label and len(label) <= 60 and label not in labels:
             labels.append(label)
     return labels[:limit]
+
+
+# For the updates module (E5)
+
+
+@dataclass(frozen=True)
+class FinishedUpload:
+    id: uuid.UUID
+    uploaded_by: uuid.UUID
+    file_kind: str | None
+    dataset_id: uuid.UUID | None
+    data_as_of: date | None
+    created_at: datetime
+
+
+def finished_upload(
+    session: Session, tenant_id: uuid.UUID, upload_id: uuid.UUID
+) -> FinishedUpload | None:
+    """A ready upload, as the update made from it needs it. None if it is not ready."""
+    u = session.scalar(select(Upload).where(Upload.id == upload_id, Upload.tenant_id == tenant_id))
+    if u is None or u.status != "ready":
+        return None
+    return FinishedUpload(
+        u.id, u.uploaded_by, u.file_kind, u.dataset_id, u.data_as_of, u.created_at
+    )
+
+
+@consumer("intake.mark_shared", "updates.shared")
+def _mark_shared(session: Session, event: Event) -> None:
+    """The last upload state: its update has reached investors (FR-3.1)."""
+    upload = session.scalar(
+        select(Upload).where(
+            Upload.id == uuid.UUID(event.payload["upload_id"]), Upload.tenant_id == event.tenant_id
+        )
+    )
+    if upload is not None and upload.status == "ready":
+        pipeline.set_status(session, upload, "shared")

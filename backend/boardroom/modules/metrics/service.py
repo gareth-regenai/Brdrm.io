@@ -417,3 +417,88 @@ def update_setting(
         ).all():
             measure = Decimal(f.risk_measure) if f.risk_measure is not None else None
             f.risk_company = risk(measure, threshold)
+
+
+# For the updates module (E5). Every query names the tenant: update creation runs as
+# br_system inside the event dispatcher.
+
+
+@dataclass(frozen=True)
+class FigureView:
+    id: uuid.UUID
+    metric: str
+    label: str
+    unit: str
+    period: str
+    value: str | None
+    status: str
+    display: str
+    source_line: str
+    risk: str | None
+
+
+def run_for_upload(
+    session: Session, tenant_id: uuid.UUID, upload_id: uuid.UUID
+) -> uuid.UUID | None:
+    """The calculation made when this upload's data arrived."""
+    return session.scalar(
+        select(Run.id)
+        .where(Run.tenant_id == tenant_id, Run.upload_id == upload_id)
+        .order_by(Run.created_at.desc())
+        .limit(1)
+    )
+
+
+def figures_from_dataset(
+    session: Session, tenant_id: uuid.UUID, run_id: uuid.UUID, dataset_id: uuid.UUID
+) -> list[uuid.UUID]:
+    """The latest figure of each measure in the run that uses rows of this dataset, in
+    registry order, leaving out measures the company has hidden."""
+    settings = _settings(session, tenant_id)
+    latest: dict[str, FigureRecord] = {}
+    for f in session.scalars(
+        select(FigureRecord).where(
+            FigureRecord.tenant_id == tenant_id, FigureRecord.run_id == run_id
+        )
+    ):
+        used = {d["dataset_id"] for d in f.lineage.get("datasets", [])}
+        hidden = f.metric in settings and settings[f.metric].hidden
+        wanted = str(dataset_id) in used and not hidden and f.value is not None
+        if wanted and (f.metric not in latest or f.period > latest[f.metric].period):
+            latest[f.metric] = f
+    return [latest[k].id for k in METRICS if k in latest]
+
+
+def figure_view(
+    session: Session, tenant_id: uuid.UUID, figure_id: uuid.UUID, override: Decimal | None = None
+) -> FigureView | None:
+    """A figure as an update shows it. With ``override``, the value a person entered in the
+    update, formatted by the same code at the same precision."""
+    f = session.scalar(
+        select(FigureRecord).where(
+            FigureRecord.tenant_id == tenant_id, FigureRecord.id == figure_id
+        )
+    )
+    if f is None:
+        return None
+    run = session.get(Run, f.run_id)
+    assert run is not None  # noqa: S101
+    settings = _settings(session, tenant_id)
+    metric = METRICS[f.metric]
+    if override is None:
+        display = _display(f, run.band, run.currency, settings)
+    else:
+        offset = settings[f.metric].band_offset if f.metric in settings else 0
+        display = format_value(override, f.metric, run.band + offset, run.currency)
+    return FigureView(
+        f.id,
+        f.metric,
+        metric.label,
+        metric.unit.value,
+        f.period,
+        str(override) if override is not None else f.value,
+        f.status,
+        display,
+        source_line(f),
+        f.risk_company,
+    )

@@ -14,6 +14,7 @@ Decisions the code does not make. Each is built behind a setting or a default th
 
 | The closed filter set for row selection | FR-5.2 | Four filters: in, not in, is empty, not empty, on the dataset's own fields and only with values the dataset holds. Defined once in `backend/boardroom/modules/metrics/selection.py`. | `FILTER_OPS` |
 | Default High, Medium and Low thresholds | FR-5.7, FR-7.2, FR-7.3 | Placeholders: runway high below 6 months, medium below 12; gross margin 20% / 40%; revenue growth -5% / 0%; revenue against plan 80% / 95% of target; coverage 1x / 2x; win rate 15% / 25%; stalled deals above 30% / 15% of open deals. Cash, burn, pipeline and deal size carry no level. Companies can change their own. | `DEFAULT_THRESHOLDS` in `backend/boardroom/modules/metrics/display.py` |
+| Named check on cash, burn and runway before sharing | FR-3.3, FR-6.3 | Not built. An update is shared when one approver approves it, under the company's approval setting (default the CEO). A named tick on these three figures would be a second step in `approve`, and needs the decision before it adds process. | `approve` in `backend/boardroom/modules/updates/service.py` |
 
 The rest of chapter 14 (sort rule, warn or block, named check, rates feed, first connector) belongs to later epics and is recorded when those epics start.
 
@@ -63,3 +64,16 @@ The rest of chapter 14 (sort rule, warn or block, named check, rates feed, first
 | Model for the setup chat | Cost and quality. | `claude-sonnet-5-5`, like the skills, switchable with `SETUP_MODEL`. Without a key, or if the model fails, code runs the same interview: it reads amounts, email addresses, skips and "we report in euros" itself, and asks again when it cannot. |
 | A yearly revenue target | The interview asks "What are you aiming for in revenue this year?", as in the mockup, but revenue against plan is monthly. | A yearly answer is split into twelve equal months of this year, and the acknowledgement says so ("£5.4m this year, so £450k a month"). A monthly answer applies to the next twelve months. Seasonal targets can be set month by month in settings or from a budget file. |
 | Investor invitations from the chat | Inviting emails a third party. | The chat collects addresses the CEO typed; nothing is sent until the CEO presses Send invitations. |
+
+## Raised in E5
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| "Data true as of" date | BRD 6.1 and FR-6.1 say "data true as of"; the decisions log says the upload date. A P&L to September added on 17 October is true as of 30 September, not 17 October. | The latest date in the data (month end for a P&L or budget, the latest past date for a deals list), and the upload date when the file has no dates. `UPDATE_AS_OF=upload` always uses the upload date. |
+| PDF tooling | FR-6.6. The previous spec proposed WeasyPrint, which needs system libraries Render's native Python runtime may not have. | ReportLab, pure Python, behind `PDF_RENDERER`. Output is byte-for-byte repeatable, so the snapshot test compares exact bytes. Fonts are Helvetica; brand fonts would need font files bundled. |
+| How the Owner is named in the dated line | FR-3.4 says "[Role] [Name]". The person who signs up is the Owner, often also the CEO. | "Owner Sam Hart added new financials". If founders should read as "CEO", the Owner could choose a title, or the Owner could also be given the CEO role. |
+| What can be edited in an update | FR-6.2: "editing a figure". Commentary arrives in E6. | A figure in an update can be changed by an editor (Owner, CEO, or a department lead for their own department) and put back. The update then shows "Last edited", the figure shows "Changed by" with the calculated value, and its lineage names the person and date. The company's own tiles keep the calculated figure. |
+| Emails beyond comments | FR-6.5 asks for comment notifications only. Without others, approvers and investors would not know an update exists. | Approvers are emailed when an update waits for them (not the person who added it), and investors when one is shared. Comment emails go to the Owner and CEO for an investor's comment, and to the company's investors for the company's reply on a shared update. |
+| Phase 2 files and updates | FR-6.1 says each finished upload makes an update. Delivery and people files have no figures while their flags are off. | No update is made for them until the flag is on, so investors never get an empty update. |
+| What an investor sees in a figure's source | The old mockup said investors never see raw files; FR-6.7 and the journeys say they trace a figure. | The same click view as the company: formula, inputs and the rows used (with pay columns already dropped at intake). Never the whole file. |
+

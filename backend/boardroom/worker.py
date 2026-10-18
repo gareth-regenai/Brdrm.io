@@ -9,6 +9,7 @@ import boardroom.modules.intake.service  # noqa: F401  registers the intake outb
 import boardroom.modules.metrics.service  # noqa: F401  registers the metrics outbox and consumers
 import boardroom.modules.notify.service  # noqa: F401  registers event consumers
 import boardroom.modules.setup.models  # noqa: F401  registers the setup outbox
+import boardroom.modules.updates.service  # noqa: F401  registers the updates outbox and consumers
 from boardroom.config import get_settings
 from boardroom.events import dispatch_pending
 from boardroom.logs import configure_logging

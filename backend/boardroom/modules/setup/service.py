@@ -1,5 +1,6 @@
 """Setup conversations and the settings they write (FR-8.1 to 8.5, FR-4.11)."""
 
+import io
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
@@ -15,6 +16,7 @@ from boardroom.logs import get_logger
 from boardroom.modules.audit import service as audit
 from boardroom.modules.identity import service as identity
 from boardroom.modules.intake import service as intake
+from boardroom.modules.intake.storage import get_storage
 from boardroom.modules.setup import chat, website
 from boardroom.modules.setup.models import (
     CompanyProfile,
@@ -520,3 +522,64 @@ def discard_invites(session: Session, tenant_id: uuid.UUID, user_id: uuid.UUID) 
         conv.pending_invites = []
         session.flush()
     audit.record(session, "setup.invites_discarded", tenant_id=tenant_id, actor_user_id=user_id)
+
+
+# The company's logo and colour, for exports (FR-6.6)
+
+LOGO_MAX_BYTES = 512 * 1024
+LOGO_MAX_PIXELS = 4096 * 4096
+LOGO_SIDE = 600
+
+
+def _logo_key(tenant_id: uuid.UUID) -> str:
+    return f"tenants/{tenant_id}/branding/logo.png"
+
+
+def set_logo(session: Session, tenant_id: uuid.UUID, actor: uuid.UUID, data: bytes) -> None:
+    """A PNG or JPEG, checked and redrawn as a small PNG, so nothing else in the file
+    (metadata, a second image, a script) is kept."""
+    from PIL import Image, UnidentifiedImageError
+
+    if len(data) > LOGO_MAX_BYTES:
+        raise SetupError(422, "Use a logo under 512 KB.")
+    try:
+        with Image.open(io.BytesIO(data)) as probe:
+            if probe.format not in ("PNG", "JPEG"):
+                raise SetupError(422, "Use a PNG or JPEG logo.")
+            if probe.width * probe.height > LOGO_MAX_PIXELS:
+                raise SetupError(422, "Use a smaller logo, at most 4096 pixels a side.")
+            probe.verify()
+        with Image.open(io.BytesIO(data)) as image:
+            image.load()
+            clean = image.convert("RGBA")
+    except (UnidentifiedImageError, OSError, SyntaxError, ValueError) as exc:
+        raise SetupError(422, "That file is not a logo we can read. Use a PNG or JPEG.") from exc
+    clean.thumbnail((LOGO_SIDE, LOGO_SIDE))
+    out = io.BytesIO()
+    clean.save(out, format="PNG", optimize=True)
+    get_storage().put(_logo_key(tenant_id), out.getvalue())
+    p = profile(session, tenant_id)
+    p.logo_key = _logo_key(tenant_id)
+    session.flush()
+    audit.record(session, "setup.logo_changed", tenant_id=tenant_id, actor_user_id=actor)
+
+
+def delete_logo(session: Session, tenant_id: uuid.UUID, actor: uuid.UUID) -> None:
+    p = profile(session, tenant_id)
+    if p.logo_key:
+        get_storage().delete(p.logo_key)
+        p.logo_key = None
+        session.flush()
+    audit.record(session, "setup.logo_removed", tenant_id=tenant_id, actor_user_id=actor)
+
+
+def branding(session: Session, tenant_id: uuid.UUID) -> tuple[str | None, bytes | None]:
+    """The colour and logo. Read only: an investor exporting an update creates nothing."""
+    row = session.execute(
+        select(CompanyProfile.brand_colour, CompanyProfile.logo_key).where(
+            CompanyProfile.tenant_id == tenant_id
+        )
+    ).first()
+    if row is None:
+        return None, None
+    return row.brand_colour, get_storage().get(row.logo_key) if row.logo_key else None

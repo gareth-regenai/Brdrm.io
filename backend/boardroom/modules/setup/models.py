@@ -30,6 +30,9 @@ class CompanyProfile(Base):
     # None follows annual revenue (FR-5.6). 0 to 4 fixes the band.
     display_band: Mapped[int | None] = mapped_column(Integer)
     voice: Mapped[str] = mapped_column(String(20), default="we")  # used by commentary (E6)
+    # The company's colour and logo, used on exports (FR-6.6).
+    brand_colour: Mapped[str | None] = mapped_column(String(7))
+    logo_key: Mapped[str | None] = mapped_column(String(200))
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )

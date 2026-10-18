@@ -54,6 +54,12 @@ class Settings(BaseSettings):
     # FR-2.8 is open: what a removed investor keeps of past updates.
     # "nothing" is the only behaviour until the decision is made. See OPEN.md.
     removed_investor_keeps: Literal["nothing"] = "nothing"
+    # "Data true as of" on an update: the latest date in the data (falling back to the
+    # upload date), or always the upload date. See OPEN.md, raised in E5.
+    update_as_of: Literal["data", "upload"] = "data"
+    # PDF tooling is an open decision. ReportLab is pure Python, so it runs on Render's
+    # native runtime with no system libraries. See OPEN.md.
+    pdf_renderer: Literal["reportlab"] = "reportlab"
 
     flags: FeatureFlags = Field(default_factory=FeatureFlags)
 

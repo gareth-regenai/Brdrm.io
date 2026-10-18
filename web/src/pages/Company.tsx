@@ -17,6 +17,7 @@ import {
 import { useSubmit } from "./Auth";
 import { MetricsGrid } from "./Metrics";
 import { SetupChat } from "./Setup";
+import { UpdatesFeed } from "./Updates";
 import { FiguresSection, UploadsSection } from "./Uploads";
 
 interface Data {
@@ -77,21 +78,13 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
       {can("view_figures") && (
         <MetricsGrid tenant={tenant} version={figuresVersion} canManage={can("manage_settings")} />
       )}
-      {can("upload_files") ? (
+      {can("upload_files") && (
         <div className="grid-2">
           <UploadsSection tenant={tenant} onSettled={refreshFigures} />
           <FiguresSection tenant={tenant} onSaved={refreshFigures} />
         </div>
-      ) : (
-        <section className="card">
-          <h2>Updates</h2>
-          <p className="muted">
-            {isInvestor
-              ? "Every update the company shares will appear here. You will be able to trace each figure to its source and comment."
-              : "Your role does not add files. Updates appear here once they are shared."}
-          </p>
-        </section>
       )}
+      <UpdatesFeed tenant={tenant} companyName={membership.tenant_name} version={figuresVersion} investor={isInvestor} />
 
       <div className="grid-2">
         {can("view_team") && (

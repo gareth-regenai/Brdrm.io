@@ -45,14 +45,19 @@ interface Trace {
   moves: string[];
   risk: string | null;
   thresholds: { high: string; medium: string; direction: string } | null;
+  // Set when the figure was changed by hand in an update.
+  edited?: { by: string; at: string; calculated_display: string } | null;
 }
 
 const RISK_WORDS: Record<string, string> = { high: "High risk", medium: "Medium risk", low: "Low risk" };
 const RISK_CLASS: Record<string, string> = { high: "risk-high", medium: "risk-medium", low: "risk-low" };
 
-function month(period: string): string {
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// "Sep 2026", the same as the server writes it. Browsers differ ("Sept").
+export function month(period: string): string {
   const [y, m] = period.split("-").map(Number);
-  return new Date(y, m - 1, 1).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  return `${MONTHS[m - 1]} ${y}`;
 }
 
 function words(key: string): string {
@@ -128,11 +133,26 @@ export function MetricsGrid({ tenant, version, canManage }: { tenant: string; ve
   );
 }
 
-function TraceView({ tenant, id, canManage, onChanged }: { tenant: string; id: string; canManage: boolean; onChanged: () => Promise<unknown> }) {
+export function TraceView({
+  tenant,
+  id,
+  canManage,
+  onChanged,
+  path,
+}: {
+  tenant: string;
+  id: string;
+  canManage: boolean;
+  onChanged: () => Promise<unknown>;
+  path?: string;
+}) {
   const [trace, setTrace] = useState<Trace | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => setTrace(await api<Trace>(`/company/metrics/${id}`, { tenant })), [id, tenant]);
+  const load = useCallback(
+    async () => setTrace(await api<Trace>(path ?? `/company/metrics/${id}`, { tenant })),
+    [id, path, tenant],
+  );
   useEffect(() => {
     void load();
   }, [load]);
@@ -199,6 +219,12 @@ function TraceView({ tenant, id, canManage, onChanged }: { tenant: string; id: s
         <dt>Check</dt>
         <dd>The number check runs on commentary, which arrives in a later release.</dd>
       </dl>
+      {trace.edited && (
+        <p className="small warn-text">
+          Changed in this update by {trace.edited.by}, {new Date(trace.edited.at).toLocaleDateString("en-GB")}. Calculated
+          from the file: {trace.edited.calculated_display}.
+        </p>
+      )}
       {trace.entered_by_hand.map((m) => (
         <p key={m.entered_at} className="small">
           Entered by {m.entered_by}, {new Date(m.entered_at).toLocaleDateString("en-GB")}. Not checked against data.
