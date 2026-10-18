@@ -49,6 +49,8 @@ class Action(StrEnum):
     VIEW_FIGURES = "view_figures"
     COMMENT = "comment"
     DELETE_WORKSPACE = "delete_workspace"
+    # Choosing and paying for the plan. Approval never depends on it (FR-9.3).
+    MANAGE_BILLING = "manage_billing"
 
 
 ALL: frozenset[Role] = frozenset(Role)
@@ -70,6 +72,7 @@ MATRIX: dict[Action, frozenset[Role]] = {
     Action.VIEW_FIGURES: COMPANY_ROLES,
     Action.COMMENT: ALL,
     Action.DELETE_WORKSPACE: frozenset({Role.OWNER}),
+    Action.MANAGE_BILLING: frozenset({Role.OWNER, Role.CEO}),
 }
 
 DEFAULT_APPROVER_ROLES: tuple[Role, ...] = (Role.CEO,)

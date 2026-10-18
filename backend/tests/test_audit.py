@@ -3,7 +3,7 @@
 import psycopg
 import pytest
 
-from tests.conftest import png_data_url, upload_file
+from tests.conftest import png_data_url, subscription_event, upload_file
 from tests.routes import all_routes
 
 MUTATING = [r for r in all_routes() if r.method in ("POST", "PUT", "PATCH", "DELETE")]
@@ -18,7 +18,7 @@ def _audit_actions(owner_conn):
 
 
 @pytest.fixture
-def scenario(client, make_company, invite, owner_conn, recorded_ai):
+def scenario(client, make_company, invite, owner_conn, recorded_ai, stripe, platform_admin):
     """Exercises every state-changing endpoint once and returns the audit actions it produced."""
     company = make_company()
     owner = company.owner
@@ -88,6 +88,15 @@ def scenario(client, make_company, invite, owner_conn, recorded_ai):
     client.post(f"/company/updates/{update['id']}/comments", headers=h, json={"body": "Hello"})
     client.put("/company/settings/logo", headers=h, json={"data_url": png_data_url()})
     client.delete("/company/settings/logo", headers=h)
+    # Billing: a platform admin sets a plan, the company buys it, Stripe confirms it.
+    client.put(
+        "/admin/billing/plans/growth",
+        headers=platform_admin.auth(),
+        json={"name": "Growth", "stripe_price_id": "price_growth", "entitlements": {"viewers": 1}},
+    )
+    client.post("/company/billing/checkout", headers=h, json={"plan": "growth"})
+    stripe.send(subscription_event(company.tenant_id, "price_growth"))
+    client.post("/company/billing/portal", headers=h)
     client.delete("/company", headers=h)
     return _audit_actions(owner_conn)
 
@@ -124,6 +133,10 @@ EXPECTED = {
     ("POST", "/company/updates/{update_id}/comments"): "update.commented",
     ("PUT", "/company/updates/{update_id}/sections/{section_id}"): "update.commentary_edited",
     ("POST", "/company/updates/{update_id}/redraft"): "update.redrafted",
+    ("PUT", "/admin/billing/plans/{key}"): "billing.plan_saved",
+    ("POST", "/company/billing/checkout"): "billing.checkout_started",
+    ("POST", "/company/billing/portal"): "billing.portal_opened",
+    ("POST", "/billing/stripe/webhook"): "billing.subscription_changed",
 }
 # A refresh swaps tokens only; the sign-in it continues is already audited.
 NOT_STATE_CHANGES = {("POST", "/auth/refresh"), ("PUT", "/storage/upload/{token}")}

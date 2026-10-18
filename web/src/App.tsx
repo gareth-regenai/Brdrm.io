@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router";
 
 import { api, Me, signedIn, signOut } from "./api";
+import { LimitNotice } from "./pages/Billing";
 import { CompanyPage } from "./pages/Company";
 import { InvitePage } from "./pages/Invite";
 import { PortfolioPage } from "./pages/Portfolio";
@@ -36,6 +37,7 @@ function SignedIn() {
   return (
     <>
       <Masthead me={me} />
+      <LimitNotice />
       <Routes>
         <Route path="/" element={<Home me={me} />} />
         <Route path="/portfolio" element={<PortfolioPage />} />

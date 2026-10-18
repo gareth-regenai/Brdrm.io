@@ -59,6 +59,10 @@ SYSTEM_SESSION_ALLOWED = {
     ("events.py", "_dispatch_round"),
     # Platform admins reading the interpretation log (FR-4.10).
     ("modules/intake/api.py", "interpretation_log"),
+    # Stripe's signed webhook, which has no user, writes the company's plan (FR-9.2).
+    ("modules/billing/service.py", "handle_webhook"),
+    # Platform admins setting plans, which are platform data (FR-9.1).
+    ("modules/billing/service.py", "save_plan"),
 }
 AS_SYSTEM_ALLOWED = {
     # Joining a company once its invitation is checked.

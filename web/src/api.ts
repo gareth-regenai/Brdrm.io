@@ -157,8 +157,13 @@ export async function api<T>(
   if (r.status === 204) return undefined as T;
   const body = await r.json().catch(() => null);
   if (!r.ok) throw new ApiError(r.status, message(body, r.status));
+  // A plan limit passed in warn mode: the action went through, and the person is told.
+  const warning = r.headers.get("X-Limit-Warning");
+  if (warning) window.dispatchEvent(new CustomEvent<string>(LIMIT_EVENT, { detail: warning }));
   return body as T;
 }
+
+export const LIMIT_EVENT = "boardroom:limit";
 
 // A file from the API, such as an update's PDF or the company logo.
 export async function apiBlob(path: string, tenant: string, retry = true): Promise<Blob> {

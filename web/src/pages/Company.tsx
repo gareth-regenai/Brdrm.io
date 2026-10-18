@@ -16,6 +16,7 @@ import {
   ROLE_NAMES,
 } from "../api";
 import { useSubmit } from "./Auth";
+import { BillingSection } from "./Billing";
 import { Dashboard, Sidebar } from "./Shell";
 import { Hub } from "./Hub";
 import { MetricsGrid } from "./Metrics";
@@ -246,6 +247,7 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
                 ) : (
                   <p className="muted">Only the Owner and CEO change company settings.</p>
                 )}
+                {can("manage_billing") && <BillingSection tenant={tenant} />}
               </>
             }
           />
@@ -280,6 +282,10 @@ const ACTIONS: Record<string, string> = {
   "setup.invites_sent": "Sent investor invitations from setup",
   "setup.invites_discarded": "Did not invite investors from setup",
   "metrics.setting_changed": "Changed how a figure is shown",
+  "billing.checkout_started": "Started paying for a plan",
+  "billing.portal_opened": "Opened billing",
+  "billing.subscription_changed": "Plan changed, confirmed by Stripe",
+  "billing.limit_passed": "Went past a plan limit",
 };
 
 function describe(e: AuditEntry): string {

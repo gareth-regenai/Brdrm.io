@@ -7,12 +7,13 @@ from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from boardroom.config import get_settings
 from boardroom.events import Event, consumer, emit
 from boardroom.modules.audit import service as audit
+from boardroom.modules.billing import service as billing
 from boardroom.modules.identity import service as identity
 from boardroom.modules.intake import pipeline
 from boardroom.modules.intake.models import (
@@ -45,6 +46,24 @@ def _get(session: Session, upload_id: uuid.UUID) -> Upload:
     return upload
 
 
+def uploads_this_month(session: Session, tenant_id: uuid.UUID) -> int:
+    """Files added to the current company this calendar month, as counted against the
+    uploads_per_month key. A file that failed or was never sent does not count."""
+    start = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    return (
+        session.scalar(
+            select(func.count())
+            .select_from(Upload)
+            .where(
+                Upload.tenant_id == tenant_id,
+                Upload.created_at >= start,
+                Upload.status.not_in(("created", "failed")),
+            )
+        )
+        or 0
+    )
+
+
 def create_upload(
     session: Session,
     tenant_id: uuid.UUID,
@@ -58,6 +77,17 @@ def create_upload(
         raise IntakeError(
             413, f"Files can be up to {limit} MB. Split the file or export fewer rows."
         )
+    try:
+        billing.check(session, tenant_id, user_id, "max_file_mb", billing.megabytes(size_bytes))
+        billing.check(
+            session,
+            tenant_id,
+            user_id,
+            "uploads_per_month",
+            uploads_this_month(session, tenant_id) + 1,
+        )
+    except billing.LimitReached as exc:
+        raise IntakeError(exc.code, exc.message) from exc
     upload = Upload(
         tenant_id=tenant_id,
         uploaded_by=user_id,
@@ -96,6 +126,14 @@ def complete_upload(
         storage.delete(key)
         pipeline.set_status(session, upload, "failed", "This file is larger than we accept.")
         return upload
+    if size > upload.size_bytes:
+        # Larger than declared at the start, so the plan's size is checked again.
+        try:
+            billing.check(session, tenant_id, user_id, "max_file_mb", billing.megabytes(size))
+        except billing.LimitReached as exc:
+            storage.delete(key)
+            pipeline.set_status(session, upload, "failed", exc.message)
+            return upload
     upload.size_bytes = size
     upload.sha256 = hashlib.sha256(storage.get(key)).hexdigest()
     audit.record(

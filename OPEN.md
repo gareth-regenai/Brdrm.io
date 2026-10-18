@@ -15,9 +15,10 @@ Decisions the code does not make. Each is built behind a setting or a default th
 | The closed filter set for row selection | FR-5.2 | Four filters: in, not in, is empty, not empty, on the dataset's own fields and only with values the dataset holds. Defined once in `backend/boardroom/modules/metrics/selection.py`. | `FILTER_OPS` |
 | Default High, Medium and Low thresholds | FR-5.7, FR-7.2, FR-7.3 | Placeholders: runway high below 6 months, medium below 12; gross margin 20% / 40%; revenue growth -5% / 0%; revenue against plan 80% / 95% of target; coverage 1x / 2x; win rate 15% / 25%; stalled deals above 30% / 15% of open deals. Cash, burn, pipeline and deal size carry no level. Companies can change their own. | `DEFAULT_THRESHOLDS` in `backend/boardroom/modules/metrics/display.py` |
 | Overview sort rule | FR-7.3 | The proposed rule: most High measures first, then most Medium, then shortest runway, then name. A company with no runway shared sorts after those with one. | `overview` in `backend/boardroom/modules/updates/service.py` |
+| Limits warn or block | FR-9.4 | Warn: the action goes through, the person sees "Your plan includes 3 investors. This went through.", and `billing.limit_passed` is audited. `block` refuses it with the same sentence. Both are tested. | `LIMIT_BEHAVIOUR` in `backend/boardroom/config.py` |
 | Named check on cash, burn and runway before sharing | FR-3.3, FR-6.3 | Not built. An update is shared when one approver approves it, under the company's approval setting (default the CEO). A named tick on these three figures would be a second step in `approve`, and needs the decision before it adds process. | `approve` in `backend/boardroom/modules/updates/service.py` |
 
-The rest of chapter 14 (sort rule, warn or block, named check, rates feed, first connector) belongs to later epics and is recorded when those epics start.
+The rest of chapter 14 (rates feed, first connector) belongs to later epics and is recorded when those epics start.
 
 ## Raised in E1
 
@@ -106,4 +107,14 @@ The rest of chapter 14 (sort rule, warn or block, named check, rates feed, first
 | Who an investor can tag | Tagging tells a person their name was used. Investors already see other investors' names (FR-2.5), not the whole team. | Investors can tag the Owner, the CEO, department leads and other investors. The company can tag anyone in it. Investors cannot be tagged on an update before it is shared. |
 | What the company sees in its own pack | "The same view" for both sides, but the company also needs to see what is about to go out. | The company's pack includes updates awaiting approval, with each such figure marked "Awaiting approval" and a notice at the top. Investors see shared updates only. |
 | Parts of v5.7 not built | v5.7 predates the revised spec. | Quarterly cycles, the stepper and "Submit for approval" are replaced by dated updates. Risk register and CEO development are left out until they have requirements. Spend, income and balance sub-pages, forward burn and stack optimisation need calculations the registry does not have yet. |
+
+## Raised in E8
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| Plans, prices and the value of each limit | Pricing is under commercial review (BR-9); the build must not hard-wire it. | No plan exists until a platform admin adds one (`PUT /admin/billing/plans/{key}`). With no plans, nothing is limited. Each plan holds a Stripe price id and a value for each key; changing one takes effect on the next request. |
+| Which keys exist | FR-9.1 gives viewers, uploads_per_month and max_file_mb as examples. | Those three. `viewers` counts investors in the company plus open investor invitations, checked when an investor is invited. `uploads_per_month` counts files added this calendar month (UTC), not counting failed ones. `max_file_mb` can lower the size limit but never raise it above `MAX_FILE_MB`. A new key needs its check where the action happens. |
+| Who manages billing | The FRD permissions table has no billing row. | The Owner and the CEO, as for company settings. Approval never depends on the plan (FR-9.3), which a test enforces. |
+| A company whose payment lapses | Stripe retries a failed payment for a while before ending the subscription. | Active, trialing and past due keep the paid plan. Any other status, or no subscription, falls back to the default plan. Nothing is deleted. |
+| Investor workspaces | Investors may one day pay for the portfolio view. | Billing applies to company workspaces only. Investors pay nothing and have no limits. |
 
