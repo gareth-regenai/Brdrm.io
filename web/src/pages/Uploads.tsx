@@ -68,7 +68,7 @@ function busy(u: Upload): boolean {
   return ["received", "understanding", "calculating", "describing"].includes(u.status) && !u.question && !u.needs_mapping;
 }
 
-export function UploadsSection({ tenant }: { tenant: string }) {
+export function UploadsSection({ tenant, onSettled }: { tenant: string; onSettled: () => void }) {
   const [uploads, setUploads] = useState<Upload[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -84,11 +84,19 @@ export function UploadsSection({ tenant }: { tenant: string }) {
     void load();
   }, [load]);
 
+  const working = uploads.some(busy);
   useEffect(() => {
-    if (!uploads.some(busy)) return;
+    if (!working) return;
     const timer = setTimeout(() => void load(), 1500);
     return () => clearTimeout(timer);
-  }, [uploads, load]);
+  }, [uploads, load, working]);
+
+  // When the last file finishes, the figures have changed.
+  const [wasWorking, setWasWorking] = useState(false);
+  useEffect(() => {
+    if (wasWorking && !working) onSettled();
+    setWasWorking(working);
+  }, [working, wasWorking, onSettled]);
 
   async function add(file: File) {
     setError(null);
@@ -310,7 +318,7 @@ function MappingForm({ upload, tenant, onDone }: { upload: Upload; tenant: strin
   );
 }
 
-export function FiguresSection({ tenant }: { tenant: string }) {
+export function FiguresSection({ tenant, onSaved }: { tenant: string; onSaved: () => void }) {
   const [figures, setFigures] = useState<Figure[]>([]);
   const load = useCallback(async () => setFigures(await api<Figure[]>("/company/figures", { tenant })), [tenant]);
   const { error, busy: saving, onSubmit } = useSubmit(async (data, form) => {
@@ -326,6 +334,7 @@ export function FiguresSection({ tenant }: { tenant: string }) {
     });
     form.reset();
     await load();
+    onSaved();
   });
 
   useEffect(() => {

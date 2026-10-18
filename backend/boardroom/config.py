@@ -88,6 +88,8 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None
     skill1_model: str = "claude-sonnet-5-5"
     skill1_effort: Literal["low", "medium", "high"] = "medium"
+    # Skill 2, row selection.
+    skill2_model: str = "claude-sonnet-5-5"
     # Development only: replay recorded answers instead of calling the model.
     skill1_replay_dir: str | None = None
 

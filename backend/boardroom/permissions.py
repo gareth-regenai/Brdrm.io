@@ -45,6 +45,8 @@ class Action(StrEnum):
     REMOVE_INVESTOR = "remove_investor"
     MANAGE_SETTINGS = "manage_settings"
     VIEW_AUDIT = "view_audit"
+    # Investors see figures through shared updates (E5) and the overview (E7).
+    VIEW_FIGURES = "view_figures"
     COMMENT = "comment"
     DELETE_WORKSPACE = "delete_workspace"
 
@@ -65,6 +67,7 @@ MATRIX: dict[Action, frozenset[Role]] = {
     Action.REMOVE_INVESTOR: frozenset({Role.OWNER, Role.CEO}),
     Action.MANAGE_SETTINGS: frozenset({Role.OWNER, Role.CEO}),
     Action.VIEW_AUDIT: frozenset({Role.OWNER, Role.CEO}),
+    Action.VIEW_FIGURES: COMPANY_ROLES,
     Action.COMMENT: ALL,
     Action.DELETE_WORKSPACE: frozenset({Role.OWNER}),
 }

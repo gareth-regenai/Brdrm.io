@@ -323,13 +323,15 @@ class Client(Protocol):
 
 
 class AnthropicClient:
-    """Messages API with structured outputs. No code execution, no tools (FR-10.5)."""
+    """Messages API with structured outputs. No code execution, no tools (FR-10.5).
+    Skill 2 reuses it with its own schema."""
 
-    def __init__(self) -> None:
+    def __init__(self, schema: dict[str, Any] | None = None, model: str | None = None) -> None:
         import anthropic
 
         settings = get_settings()
-        self.model = settings.skill1_model
+        self.schema = schema or OUTPUT_SCHEMA
+        self.model = model or settings.skill1_model
         self._effort = settings.skill1_effort
         self._anthropic = anthropic
         self._client = anthropic.Anthropic(timeout=120.0, max_retries=2)
@@ -345,7 +347,7 @@ class AnthropicClient:
                 fallbacks="default",
                 output_config={
                     "effort": self._effort,
-                    "format": {"type": "json_schema", "schema": OUTPUT_SCHEMA},
+                    "format": {"type": "json_schema", "schema": self.schema},
                 },
                 system=[
                     {
