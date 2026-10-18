@@ -1,4 +1,20 @@
-# BoardRoom.io dev pack, 18 October 2026
+# BoardRoom.io
+
+BoardRoom.io turns the files a small company already has into figures its investors can trust and trace.
+
+## Repository
+
+| Folder | What is in it |
+|---|---|
+| backend/ | FastAPI app and Celery worker, one Postgres schema per module, Alembic migrations, tests |
+| web/ | React app, styled only from design-system/tokens.json |
+| render.yaml | Render Blueprint, Frankfurt |
+| OPEN.md | Decisions the code does not make yet |
+| docs/epics/ | A DEMO.md per epic: what to show and how to run it |
+
+Start with docs/epics/E1/DEMO.md to run it locally.
+
+## Dev pack, 18 October 2026
 
 Everything needed to start the MVP build in Claude Code.
 

@@ -1,0 +1,98 @@
+# Every pull request runs lint, types, tests, the API contract check and security scans (FR-13.1).
+# End-to-end journeys on the preview environment are added with E9.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      TEST_ADMIN_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+      - run: pip install -r requirements-dev.txt && pip install --no-deps -e .
+      - name: Lint
+        run: ruff check . && ruff format --check .
+      - name: Types
+        run: mypy
+      - name: API contract is up to date
+        run: python scripts/export_openapi.py --check
+      - name: Tests (unit, integration, role matrix, two-tenant, policies)
+        run: pytest --cov=boardroom --cov-report=term-missing:skip-covered
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install bandit==1.9.4 pip-audit==2.10.1
+      - name: Static analysis
+        run: bandit -ll -c backend/pyproject.toml -r backend/boardroom
+      - name: Known vulnerabilities in Python dependencies
+        run: pip-audit -r backend/requirements.txt
+      - name: Install gitleaks
+        run: |
+          curl -sSL -o /tmp/gitleaks.tgz \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.21.2/gitleaks_8.21.2_linux_x64.tar.gz
+          tar xzf /tmp/gitleaks.tgz -C /usr/local/bin gitleaks
+      - name: Secret scan gate catches a seeded secret (FR-11.8)
+        run: |
+          mkdir -p /tmp/seed
+          echo "aws_access_key_id = AKIA$(tr -dc 'A-Z2-7' </dev/urandom | head -c16)" > /tmp/seed/creds.txt
+          if gitleaks dir /tmp/seed --no-banner -l warn; then
+            echo "gitleaks missed a seeded secret"; exit 1
+          fi
+      - name: Secret scan of the repository and its history
+        run: gitleaks git . --redact --no-banner
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: Copy rules from CLAUDE.md
+        run: npm run check:copy
+      - name: Types and build
+        run: npm run build
+      - name: Known vulnerabilities in web dependencies
+        run: npm audit --audit-level=moderate

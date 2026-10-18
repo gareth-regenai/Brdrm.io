@@ -1,0 +1,67 @@
+[project]
+name = "boardroom"
+version = "0.1.0"
+description = "BoardRoom.io API and worker"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi==0.143.5",
+    "starlette==1.8.0",
+    "uvicorn[standard]==0.54.0",
+    "pydantic==2.14.1",
+    "pydantic-settings==2.16.0",
+    "email-validator==2.3.0",
+    "sqlalchemy==2.0.55",
+    "psycopg[binary]==3.3.6",
+    "alembic==1.20.0",
+    "celery[redis]==5.6.3",
+    "pyjwt==2.15.1",
+    "argon2-cffi==25.1.0",
+    "structlog==26.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "httpx==0.28.1",
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "ruff==0.17.1",
+    "mypy==2.4.0",
+    "bandit==1.9.4",
+    "pip-audit==2.10.1",
+    "pyyaml==6.0.3",
+    "types-pyyaml==6.0.12.20260906",
+]
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["boardroom*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "SIM"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106"]
+"migrations/**" = ["E501", "S608"]
+
+[tool.mypy]
+python_version = "3.12"
+packages = ["boardroom"]
+strict_optional = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", "migrations"]
