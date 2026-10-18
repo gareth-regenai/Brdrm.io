@@ -38,6 +38,11 @@ class SectionOut(BaseModel):
     unmatched: list[str]
 
 
+class MentionOut(BaseModel):
+    user_id: uuid.UUID
+    name: str
+
+
 class CommentOut(BaseModel):
     id: uuid.UUID
     author_name: str
@@ -45,6 +50,7 @@ class CommentOut(BaseModel):
     body: str
     created_at: datetime
     mine: bool
+    mentions: list[MentionOut]
 
 
 class UpdateOut(BaseModel):
@@ -78,6 +84,8 @@ class SectionEdit(BaseModel):
 
 class CommentIn(BaseModel):
     body: str = Field(min_length=1, max_length=2000)
+    # People tagged with @, chosen from /company/people.
+    mentions: list[uuid.UUID] = Field(default_factory=list, max_length=10)
 
 
 def _raise(exc: service.UpdatesError) -> HTTPException:
@@ -200,7 +208,13 @@ def comment(
 ) -> UpdateOut:
     try:
         service.add_comment(
-            ctx.session, ctx.tenant_id, ctx.user_id, ctx.role, update_id, body.body.strip()
+            ctx.session,
+            ctx.tenant_id,
+            ctx.user_id,
+            ctx.role,
+            update_id,
+            body.body.strip(),
+            body.mentions,
         )
         return _one(ctx, update_id)
     except service.UpdatesError as exc:
@@ -234,6 +248,8 @@ class SharedFigureOut(BaseModel):
     figure_id: uuid.UUID
     metric: str
     label: str
+    unit: str
+    department: str
     period: str
     display: str
     previous_period: str | None
@@ -241,6 +257,7 @@ class SharedFigureOut(BaseModel):
     risk: str | None
     source_line: str
     edited_by_name: str | None
+    shared: bool
 
 
 @router.get("/company/shared-figures", response_model=list[SharedFigureOut], tags=["updates"])
@@ -252,6 +269,69 @@ def shared_figures(
     return [
         SharedFigureOut.model_validate(f, from_attributes=True)
         for f in service.shared_figures(ctx.session, ctx.tenant_id)
+    ]
+
+
+class PointOut(BaseModel):
+    period: str
+    value: str
+    display: str
+
+
+class SeriesOut(BaseModel):
+    metric: str
+    label: str
+    points: list[PointOut]
+
+
+class TargetOut(BaseModel):
+    metric: str
+    label: str
+    actual: str
+    actual_display: str
+    target: str
+    target_display: str
+
+
+class DepartmentCommentaryOut(BaseModel):
+    department: str
+    update_id: uuid.UUID
+    shared: bool
+    sections: list[SectionOut]
+
+
+class PackOut(BaseModel):
+    company_name: str
+    data_as_of: date | None
+    includes_unshared: bool
+    figures: list[SharedFigureOut]
+    series: list[SeriesOut]
+    targets: list[TargetOut]
+    commentary: list[DepartmentCommentaryOut]
+    commentary_waiting: bool
+
+
+@router.get("/company/pack", response_model=PackOut, tags=["updates"])
+def board_pack(ctx: TenantContext = Depends(require(Action.VIEW_COMPANY))) -> PackOut:
+    """The Full Picture: the same view for the company and its investors. Investors see
+    what was shared; the company also sees what waits for approval, marked as such."""
+    return PackOut.model_validate(
+        service.pack(ctx.session, ctx.tenant_id, ctx.role), from_attributes=True
+    )
+
+
+class PersonOut(BaseModel):
+    user_id: uuid.UUID
+    name: str
+    role: str
+
+
+@router.get("/company/people", response_model=list[PersonOut], tags=["updates"])
+def people(ctx: TenantContext = Depends(require(Action.COMMENT))) -> list[PersonOut]:
+    """Who this person can tag with @ in a comment."""
+    return [
+        PersonOut(user_id=p.user_id, name=p.name, role=p.role.value)
+        for p in service.identity.mentionable(ctx.session, ctx.tenant_id, ctx.role)
     ]
 
 

@@ -40,7 +40,18 @@ interface Target {
 const BANDS = ["Whole pounds", "£k, 1 decimal", "£m, 3 decimals", "£m, 2 decimals", "£m, 1 decimal"];
 
 // A short interview, one question at a time, as in mockup/interview-example.
-export function SetupChat({ tenant, userName, onChanged }: { tenant: string; userName: string; onChanged: () => void }) {
+export function SetupChat({
+  tenant,
+  userName,
+  onChanged,
+  untilDone = false,
+}: {
+  tenant: string;
+  userName: string;
+  onChanged: () => void;
+  // On the dashboard: show only while setup is still to do.
+  untilDone?: boolean;
+}) {
   const [setup, setSetup] = useState<Setup | null>(null);
   const [busy, setBusy] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -77,6 +88,7 @@ export function SetupChat({ tenant, userName, onChanged }: { tenant: string; use
   if (!setup) return null;
   const started = setup.status === "open" || setup.status === "done";
 
+  if (untilDone && (setup.status === "done" || setup.status === "skipped")) return null;
   if (!started) {
     return (
       <section className="card setup">

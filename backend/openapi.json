@@ -278,6 +278,15 @@
             "minLength": 1,
             "title": "Body",
             "type": "string"
+          },
+          "mentions": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Mentions",
+            "type": "array"
           }
         },
         "required": [
@@ -310,6 +319,13 @@
             "title": "Id",
             "type": "string"
           },
+          "mentions": {
+            "items": {
+              "$ref": "#/components/schemas/MentionOut"
+            },
+            "title": "Mentions",
+            "type": "array"
+          },
           "mine": {
             "title": "Mine",
             "type": "boolean"
@@ -321,7 +337,8 @@
           "author_role",
           "body",
           "created_at",
-          "mine"
+          "mine",
+          "mentions"
         ],
         "title": "CommentOut",
         "type": "object"
@@ -377,6 +394,38 @@
         ],
         "title": "Department",
         "type": "string"
+      },
+      "DepartmentCommentaryOut": {
+        "properties": {
+          "department": {
+            "title": "Department",
+            "type": "string"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/SectionOut"
+            },
+            "title": "Sections",
+            "type": "array"
+          },
+          "shared": {
+            "title": "Shared",
+            "type": "boolean"
+          },
+          "update_id": {
+            "format": "uuid",
+            "title": "Update Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "department",
+          "update_id",
+          "shared",
+          "sections"
+        ],
+        "title": "DepartmentCommentaryOut",
+        "type": "object"
       },
       "FigureEdit": {
         "properties": {
@@ -817,6 +866,25 @@
         "title": "MembershipOut",
         "type": "object"
       },
+      "MentionOut": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "user_id": {
+            "format": "uuid",
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "name"
+        ],
+        "title": "MentionOut",
+        "type": "object"
+      },
       "MessageIn": {
         "properties": {
           "text": {
@@ -868,6 +936,74 @@
         "title": "MessageOut",
         "type": "object"
       },
+      "PackOut": {
+        "properties": {
+          "commentary": {
+            "items": {
+              "$ref": "#/components/schemas/DepartmentCommentaryOut"
+            },
+            "title": "Commentary",
+            "type": "array"
+          },
+          "commentary_waiting": {
+            "title": "Commentary Waiting",
+            "type": "boolean"
+          },
+          "company_name": {
+            "title": "Company Name",
+            "type": "string"
+          },
+          "data_as_of": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data As Of"
+          },
+          "figures": {
+            "items": {
+              "$ref": "#/components/schemas/SharedFigureOut"
+            },
+            "title": "Figures",
+            "type": "array"
+          },
+          "includes_unshared": {
+            "title": "Includes Unshared",
+            "type": "boolean"
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesOut"
+            },
+            "title": "Series",
+            "type": "array"
+          },
+          "targets": {
+            "items": {
+              "$ref": "#/components/schemas/boardroom__modules__updates__api__TargetOut"
+            },
+            "title": "Targets",
+            "type": "array"
+          }
+        },
+        "required": [
+          "company_name",
+          "data_as_of",
+          "includes_unshared",
+          "figures",
+          "series",
+          "targets",
+          "commentary",
+          "commentary_waiting"
+        ],
+        "title": "PackOut",
+        "type": "object"
+      },
       "PermissionsOut": {
         "properties": {
           "actions": {
@@ -893,47 +1029,27 @@
         "title": "PermissionsOut",
         "type": "object"
       },
-      "PersonOut": {
+      "PointOut": {
         "properties": {
-          "departments": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Departments",
-            "type": "array"
-          },
-          "email": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Email"
-          },
-          "name": {
-            "title": "Name",
+          "display": {
+            "title": "Display",
             "type": "string"
           },
-          "role": {
-            "$ref": "#/components/schemas/Role"
+          "period": {
+            "title": "Period",
+            "type": "string"
           },
-          "user_id": {
-            "format": "uuid",
-            "title": "User Id",
+          "value": {
+            "title": "Value",
             "type": "string"
           }
         },
         "required": [
-          "user_id",
-          "name",
-          "email",
-          "role",
-          "departments"
+          "period",
+          "value",
+          "display"
         ],
-        "title": "PersonOut",
+        "title": "PointOut",
         "type": "object"
       },
       "PortfolioCompanyOut": {
@@ -1262,6 +1378,32 @@
         "title": "SectionOut",
         "type": "object"
       },
+      "SeriesOut": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "metric": {
+            "title": "Metric",
+            "type": "string"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/PointOut"
+            },
+            "title": "Points",
+            "type": "array"
+          }
+        },
+        "required": [
+          "metric",
+          "label",
+          "points"
+        ],
+        "title": "SeriesOut",
+        "type": "object"
+      },
       "SettingIn": {
         "properties": {
           "band_offset": {
@@ -1376,6 +1518,10 @@
       },
       "SharedFigureOut": {
         "properties": {
+          "department": {
+            "title": "Department",
+            "type": "string"
+          },
           "display": {
             "title": "Display",
             "type": "string"
@@ -1441,8 +1587,16 @@
             ],
             "title": "Risk"
           },
+          "shared": {
+            "title": "Shared",
+            "type": "boolean"
+          },
           "source_line": {
             "title": "Source Line",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
             "type": "string"
           },
           "update_id": {
@@ -1456,13 +1610,16 @@
           "figure_id",
           "metric",
           "label",
+          "unit",
+          "department",
           "period",
           "display",
           "previous_period",
           "previous_display",
           "risk",
           "source_line",
-          "edited_by_name"
+          "edited_by_name",
+          "shared"
         ],
         "title": "SharedFigureOut",
         "type": "object"
@@ -1592,39 +1749,6 @@
           "value"
         ],
         "title": "TargetIn",
-        "type": "object"
-      },
-      "TargetOut": {
-        "properties": {
-          "metric": {
-            "title": "Metric",
-            "type": "string"
-          },
-          "period": {
-            "title": "Period",
-            "type": "string"
-          },
-          "set_by_name": {
-            "title": "Set By Name",
-            "type": "string"
-          },
-          "source": {
-            "title": "Source",
-            "type": "string"
-          },
-          "value": {
-            "title": "Value",
-            "type": "string"
-          }
-        },
-        "required": [
-          "metric",
-          "period",
-          "value",
-          "source",
-          "set_by_name"
-        ],
-        "title": "TargetOut",
         "type": "object"
       },
       "TileOut": {
@@ -2110,6 +2234,49 @@
         "title": "ValidationError",
         "type": "object"
       },
+      "boardroom__modules__identity__api__PersonOut": {
+        "properties": {
+          "departments": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Departments",
+            "type": "array"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "user_id": {
+            "format": "uuid",
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "name",
+          "email",
+          "role",
+          "departments"
+        ],
+        "title": "PersonOut",
+        "type": "object"
+      },
       "boardroom__modules__intake__api__FigureOut": {
         "properties": {
           "id": {
@@ -2159,6 +2326,39 @@
           "label"
         ],
         "title": "FigureOut",
+        "type": "object"
+      },
+      "boardroom__modules__setup__api__TargetOut": {
+        "properties": {
+          "metric": {
+            "title": "Metric",
+            "type": "string"
+          },
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "set_by_name": {
+            "title": "Set By Name",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "metric",
+          "period",
+          "value",
+          "source",
+          "set_by_name"
+        ],
+        "title": "TargetOut",
         "type": "object"
       },
       "boardroom__modules__updates__api__FigureOut": {
@@ -2252,6 +2452,68 @@
           "edited_at"
         ],
         "title": "FigureOut",
+        "type": "object"
+      },
+      "boardroom__modules__updates__api__PersonOut": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "user_id": {
+            "format": "uuid",
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "name",
+          "role"
+        ],
+        "title": "PersonOut",
+        "type": "object"
+      },
+      "boardroom__modules__updates__api__TargetOut": {
+        "properties": {
+          "actual": {
+            "title": "Actual",
+            "type": "string"
+          },
+          "actual_display": {
+            "title": "Actual Display",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "metric": {
+            "title": "Metric",
+            "type": "string"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "target_display": {
+            "title": "Target Display",
+            "type": "string"
+          }
+        },
+        "required": [
+          "metric",
+          "label",
+          "actual",
+          "actual_display",
+          "target",
+          "target_display"
+        ],
+        "title": "TargetOut",
         "type": "object"
       }
     }
@@ -2744,7 +3006,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/PersonOut"
+                    "$ref": "#/components/schemas/boardroom__modules__identity__api__PersonOut"
                   },
                   "title": "Response Investors Company Investors Get",
                   "type": "array"
@@ -3176,6 +3438,96 @@
         ]
       }
     },
+    "/company/pack": {
+      "get": {
+        "description": "The Full Picture: the same view for the company and its investors. Investors see\nwhat was shared; the company also sees what waits for approval, marked as such.",
+        "operationId": "board_pack_company_pack_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PackOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Board Pack",
+        "tags": [
+          "updates"
+        ]
+      }
+    },
+    "/company/people": {
+      "get": {
+        "description": "Who this person can tag with @ in a comment.",
+        "operationId": "people_company_people_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-ID",
+            "required": true,
+            "schema": {
+              "title": "X-Tenant-Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/boardroom__modules__updates__api__PersonOut"
+                  },
+                  "title": "Response People Company People Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "People",
+        "tags": [
+          "updates"
+        ]
+      }
+    },
     "/company/permissions": {
       "get": {
         "operationId": "my_permissions_company_permissions_get",
@@ -3552,7 +3904,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/TargetOut"
+                    "$ref": "#/components/schemas/boardroom__modules__setup__api__TargetOut"
                   },
                   "title": "Response Get Targets Company Settings Targets Get",
                   "type": "array"
@@ -3610,7 +3962,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/TargetOut"
+                    "$ref": "#/components/schemas/boardroom__modules__setup__api__TargetOut"
                   },
                   "title": "Response Put Targets Company Settings Targets Put",
                   "type": "array"
@@ -3963,7 +4315,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/PersonOut"
+                    "$ref": "#/components/schemas/boardroom__modules__identity__api__PersonOut"
                   },
                   "title": "Response Team Company Team Get",
                   "type": "array"

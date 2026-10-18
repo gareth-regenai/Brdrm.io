@@ -631,3 +631,68 @@ def common_thresholds(metric: str) -> dict[str, str] | None:
     if t is None:
         return None
     return {"high": str(t.high), "medium": str(t.medium), "direction": t.direction}
+
+
+# For the board pack's charts: a measure's value in each month of one calculation.
+
+
+@dataclass(frozen=True)
+class Point:
+    period: str
+    value: str
+    display: str
+
+
+def series(session: Session, tenant_id: uuid.UUID, run_id: uuid.UUID, metric: str) -> list[Point]:
+    """Every month of ``metric`` in a run, oldest first, formatted by code."""
+    run = session.scalar(select(Run).where(Run.tenant_id == tenant_id, Run.id == run_id))
+    if run is None:
+        return []
+    settings = _settings(session, tenant_id)
+    rows = session.scalars(
+        select(FigureRecord)
+        .where(
+            FigureRecord.tenant_id == tenant_id,
+            FigureRecord.run_id == run_id,
+            FigureRecord.metric == metric,
+            FigureRecord.value.is_not(None),
+        )
+        .order_by(FigureRecord.period)
+    ).all()
+    return [
+        Point(f.period, f.value or "", _display(f, run.band, run.currency, settings)) for f in rows
+    ]
+
+
+@dataclass(frozen=True)
+class Target:
+    metric: str
+    label: str
+    actual: str
+    actual_display: str
+    target: str
+    target_display: str
+
+
+def target_for(session: Session, tenant_id: uuid.UUID, figure_id: uuid.UUID) -> Target | None:
+    """For a figure measured against a target (revenue against plan), the actual and the
+    target it was measured against, both from the figure's own inputs."""
+    f = session.scalar(
+        select(FigureRecord).where(
+            FigureRecord.tenant_id == tenant_id, FigureRecord.id == figure_id
+        )
+    )
+    if f is None or f.metric != "revenue_vs_plan" or not f.inputs.get("target"):
+        return None
+    run = session.get(Run, f.run_id)
+    assert run is not None  # noqa: S101
+    band = run.band
+    actual, target = Decimal(f.inputs["revenue"]), Decimal(f.inputs["target"])
+    return Target(
+        "revenue",
+        "Revenue",
+        str(actual),
+        format_value(actual, "revenue", band, run.currency),
+        str(target),
+        format_value(target, "revenue", band, run.currency),
+    )

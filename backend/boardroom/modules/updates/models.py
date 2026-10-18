@@ -79,6 +79,8 @@ class Comment(Base):
     author_name: Mapped[str] = mapped_column(String(200))
     author_role: Mapped[str] = mapped_column(String(30))
     body: Mapped[str] = mapped_column(Text)
+    # The people this comment tags with @, as user ids. Each is emailed.
+    mentions: Mapped[list[str]] = mapped_column(JSONB, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

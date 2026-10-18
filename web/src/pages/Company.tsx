@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Navigate, Route, Routes } from "react-router";
 
 import {
   api,
@@ -15,9 +16,10 @@ import {
   ROLE_NAMES,
 } from "../api";
 import { useSubmit } from "./Auth";
-import { MetricsGrid, SharedFiguresGrid } from "./Metrics";
+import { Dashboard, Sidebar } from "./Shell";
+import { Hub } from "./Hub";
+import { MetricsGrid } from "./Metrics";
 import { SetupChat } from "./Setup";
-import { UpdatesFeed } from "./Updates";
 import { FiguresSection, UploadsSection } from "./Uploads";
 
 interface Data {
@@ -66,27 +68,9 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
   const isInvestor = membership.role === "investor";
   const names = new Map([...data.team, ...data.investors].map((p) => [p.user_id, p.name]));
 
-  return (
-    <main className="page">
-      <div className="page-head">
-        <span className="label">{ROLE_NAMES[membership.role]}</span>
-        <h1>{membership.tenant_name}</h1>
-        {data.permissions.can_approve && <p className="small">You can approve this company's updates.</p>}
-      </div>
-
-      {can("manage_settings") && <SetupChat tenant={tenant} userName={me.name} onChanged={refreshFigures} />}
-      {can("view_figures") && (
-        <MetricsGrid tenant={tenant} version={figuresVersion} canManage={can("manage_settings")} />
-      )}
-      {can("upload_files") && (
-        <div className="grid-2">
-          <UploadsSection tenant={tenant} onSettled={refreshFigures} />
-          <FiguresSection tenant={tenant} onSaved={refreshFigures} />
-        </div>
-      )}
-      {isInvestor && <SharedFiguresGrid tenant={tenant} companyName={membership.tenant_name} />}
-      <UpdatesFeed tenant={tenant} companyName={membership.tenant_name} version={figuresVersion} investor={isInvestor} />
-
+  const first = me.name.split(" ")[0];
+  const team = (
+    <>
       <div className="grid-2">
         {can("view_team") && (
           <section className="card">
@@ -188,7 +172,87 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
           </div>
         </section>
       )}
-    </main>
+    </>
+  );
+
+  if (isInvestor) {
+    // Investors see the same board pack as the company, read-only (comment and tag only).
+    return (
+      <main className="page">
+        <Routes>
+          <Route path="pack/:page?" element={<Hub tenant={tenant} me={me} membership={membership} canEdit={false} />} />
+          <Route path="*" element={<Hub tenant={tenant} me={me} membership={membership} canEdit={false} />} />
+        </Routes>
+      </main>
+    );
+  }
+
+  return (
+    <div className="shell">
+      <Sidebar me={me} membership={membership} />
+      <main className="main">
+        <Routes>
+          <Route
+            index
+            element={
+              <Dashboard tenant={tenant} firstName={first} canSetUp={can("manage_settings")} onChanged={refreshFigures} me={me} />
+            }
+          />
+          <Route
+            path="pack/:page?"
+            element={<Hub tenant={tenant} me={me} membership={membership} canEdit={can("edit_update")} />}
+          />
+          <Route
+            path="files"
+            element={
+              <>
+                <div className="page-head">
+                  <h1>Files</h1>
+                  <p className="muted">Add any export. Nothing to prepare: we work out what it is and calculate the figures.</p>
+                </div>
+                {can("upload_files") && (
+                  <div className="grid-2">
+                    <UploadsSection tenant={tenant} onSettled={refreshFigures} />
+                    <FiguresSection tenant={tenant} onSaved={refreshFigures} />
+                  </div>
+                )}
+                {can("view_figures") && (
+                  <MetricsGrid tenant={tenant} version={figuresVersion} canManage={can("manage_settings")} />
+                )}
+              </>
+            }
+          />
+          <Route
+            path="team"
+            element={
+              <>
+                <div className="page-head">
+                  <h1>Team and investors</h1>
+                  {data.permissions.can_approve && <p className="muted">You can approve this company's updates.</p>}
+                </div>
+                {team}
+              </>
+            }
+          />
+          <Route
+            path="settings"
+            element={
+              <>
+                <div className="page-head">
+                  <h1>Settings</h1>
+                </div>
+                {can("manage_settings") ? (
+                  <SetupChat tenant={tenant} userName={me.name} onChanged={refreshFigures} />
+                ) : (
+                  <p className="muted">Only the Owner and CEO change company settings.</p>
+                )}
+              </>
+            }
+          />
+          <Route path="*" element={<Navigate to="." replace />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 

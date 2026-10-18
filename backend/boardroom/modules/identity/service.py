@@ -637,3 +637,14 @@ def approvers(session: Session, tenant_id: uuid.UUID) -> list[MemberContact]:
         for c in member_contacts(session, tenant_id, set(COMPANY_ROLES))
         if can_approve(c.role, str(c.user_id), settings.approver_roles, settings.approver_user_ids)
     ]
+
+
+def mentionable(session: Session, tenant_id: uuid.UUID, role: Role) -> list[MemberContact]:
+    """Who a person can tag with @ in a comment. The company can tag anyone in it. An
+    investor can tag the company's Owner, CEO and department leads, and the other
+    investors, whom they can already see (FR-2.5), never the whole team."""
+    if role == Role.INVESTOR:
+        roles = {Role.OWNER, Role.CEO, Role.DEPARTMENT_LEAD, Role.INVESTOR}
+    else:
+        roles = set(Role)
+    return member_contacts(session, tenant_id, roles)
