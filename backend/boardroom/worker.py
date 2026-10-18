@@ -6,6 +6,7 @@ from celery import Celery
 
 import boardroom.modules.identity.models  # noqa: F401  registers the identity outbox
 import boardroom.modules.intake.service  # noqa: F401  registers the intake outbox and consumers
+import boardroom.modules.metrics.service  # noqa: F401  registers the metrics outbox and consumers
 import boardroom.modules.notify.service  # noqa: F401  registers event consumers
 from boardroom.config import get_settings
 from boardroom.events import dispatch_pending

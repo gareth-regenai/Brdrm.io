@@ -15,6 +15,7 @@ import {
   ROLE_NAMES,
 } from "../api";
 import { useSubmit } from "./Auth";
+import { MetricsGrid } from "./Metrics";
 import { FiguresSection, UploadsSection } from "./Uploads";
 
 interface Data {
@@ -29,6 +30,8 @@ interface Data {
 export function CompanyPage({ me, membership }: { me: Me; membership: Membership }) {
   const tenant = membership.tenant_id;
   const [data, setData] = useState<Data | null>(null);
+  const [figuresVersion, setFiguresVersion] = useState(0);
+  const refreshFigures = useCallback(() => setFiguresVersion((v) => v + 1), []);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -69,10 +72,13 @@ export function CompanyPage({ me, membership }: { me: Me; membership: Membership
         {data.permissions.can_approve && <p className="small">You can approve this company's updates.</p>}
       </div>
 
+      {can("view_figures") && (
+        <MetricsGrid tenant={tenant} version={figuresVersion} canManage={can("manage_settings")} />
+      )}
       {can("upload_files") ? (
         <div className="grid-2">
-          <UploadsSection tenant={tenant} />
-          <FiguresSection tenant={tenant} />
+          <UploadsSection tenant={tenant} onSettled={refreshFigures} />
+          <FiguresSection tenant={tenant} onSaved={refreshFigures} />
         </div>
       ) : (
         <section className="card">

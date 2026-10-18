@@ -31,6 +31,12 @@ def _rows(owner_conn, upload_id):
     ]
 
 
+def _status(client, company, upload_id):
+    """Figures are calculated just after a request, so read the upload again."""
+    r = client.get(f"/company/uploads/{upload_id}", headers=company.owner.auth(company.tenant_id))
+    return r.json()["status"]
+
+
 def _statuses(owner_conn, upload_id):
     rows = owner_conn.execute(
         "SELECT details->>'status' FROM audit.audit_log "
@@ -251,7 +257,7 @@ def test_an_ambiguous_cash_column_asks_exactly_one_question(
         json={"question_id": q["id"], "answer": "yes"},
     )
     assert r.status_code == 200, r.text
-    assert r.json()["status"] == "ready"
+    assert _status(client, company, upload["id"]) == "ready"
     rows = _rows(owner_conn, upload["id"])
     assert rows[-1]["cash_balance"] == "1210000" and rows[-1]["debt"] == "225000"
     # Saved to the layout: the same file next time asks nothing.
@@ -263,12 +269,12 @@ def test_answering_no_leaves_the_figure_out(client, make_company, recorded_ai, o
     company = make_company()
     upload = upload_file(client, company, "finance_ambiguous.csv")
     q = upload["question"]
-    r = client.post(
+    client.post(
         f"/company/uploads/{upload['id']}/answer",
         headers=company.owner.auth(company.tenant_id),
         json={"question_id": q["id"], "answer": "no"},
     )
-    assert r.json()["status"] == "ready"
+    assert _status(client, company, upload["id"]) == "ready"
     assert all("cash_balance" not in row for row in _rows(owner_conn, upload["id"]))
 
 
@@ -370,7 +376,7 @@ def test_with_the_ai_off_a_person_maps_the_file(client, make_company, owner_conn
         },
     )
     assert r.status_code == 200, r.text
-    assert r.json()["status"] == "ready"
+    assert _status(client, company, upload["id"]) == "ready"
     assert _rows(owner_conn, upload["id"])[0]["revenue"] == "58000.00"
 
 

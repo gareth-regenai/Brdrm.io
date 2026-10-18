@@ -13,10 +13,11 @@ import boardroom.events  # noqa: F401
 import boardroom.modules.audit.models  # noqa: F401
 import boardroom.modules.identity.models  # noqa: F401
 import boardroom.modules.intake.models  # noqa: F401
+import boardroom.modules.metrics.models  # noqa: F401
 from boardroom.db import Base
 
 target_metadata = Base.metadata
-SCHEMAS = ("identity", "audit", "events", "intake")
+SCHEMAS = ("identity", "audit", "events", "intake", "metrics")
 
 
 def _url() -> str:
