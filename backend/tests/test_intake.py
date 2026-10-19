@@ -8,6 +8,7 @@ eval in evals/, never in CI.
 
 import io
 import json
+import re
 import zipfile
 
 import openpyxl
@@ -148,6 +149,9 @@ def test_instructions_in_cells_stay_data(client, make_company, recorded_ai, owne
 # FR-4.4, FR-11.3
 
 
+RANDOM_HEX = re.compile(r"[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}|[0-9a-f]{64}")
+
+
 def test_pay_columns_leave_no_trace(client, make_company, recorded_ai, owner_conn):
     company = make_company()
     upload = upload_file(client, company, "team_with_pay.csv")
@@ -177,6 +181,9 @@ def test_pay_columns_leave_no_trace(client, make_company, recorded_ai, owner_con
             ).fetchall()
         ]
     )
+    # Ids and file fingerprints are random hex, so a short number such as 2000 can turn up
+    # inside one by chance. Blank them out before looking for the dropped values.
+    stored, payloads, database = (RANDOM_HEX.sub("#", t) for t in (stored, payloads, database))
     for secret in secrets:
         assert secret not in stored and secret not in payloads and secret not in database, secret
     for header in ("Salary", "Bonus", "NI number", "Date of birth"):
