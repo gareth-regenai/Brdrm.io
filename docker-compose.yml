@@ -55,7 +55,7 @@ services:
   # the services above for development.
   migrate:
     <<: *backend
-    command: ["python", "-m", "alembic", "upgrade", "head"]
+    command: ["sh", "-c", "python -m alembic upgrade head && python scripts/set_login_password.py"]
     depends_on:
       postgres: { condition: service_healthy }
   api:
