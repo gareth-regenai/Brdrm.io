@@ -76,8 +76,13 @@ export function UploadsSection({ tenant, onSettled }: { tenant: string; onSettle
   const [mapping, setMapping] = useState<string | null>(null);
   const input = useRef<HTMLInputElement>(null);
 
+  // Only the newest request may set the list. A slow first load that lands after an
+  // upload's own reload would otherwise replace the new file with the older, empty list.
+  const latest = useRef(0);
   const load = useCallback(async () => {
-    setUploads(await api<Upload[]>("/company/uploads", { tenant }));
+    const request = ++latest.current;
+    const list = await api<Upload[]>("/company/uploads", { tenant });
+    if (request === latest.current) setUploads(list);
   }, [tenant]);
 
   useEffect(() => {
