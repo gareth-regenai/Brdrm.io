@@ -320,6 +320,11 @@ This BRD is for the build team and for Claude Code. It says what the business ne
 | Allowed row filters for the AI; rates feed | To propose                         |
 | Approval permissions                       | Designed later; default is the CEO |
 | Commercials                                | Parked                             |
+| Board pack sections: phase                 | To discuss                         |
+| Documents as a source; quoted figures      | To decide                          |
+| Scenario assumptions                       | To decide                          |
+| Monthly check-in conversation              | To decide                          |
+| Where updates live in the board pack       | To decide                          |
 
 ### Business risks
 
@@ -330,3 +335,33 @@ This BRD is for the build team and for Claude Code. It says what the business ne
 | A tenant isolation bug leaks a company's numbers   | Database isolation, two-tenant tests, a penetration test                                                 |
 | Data retention worries block sales                 | The zero-data-retention path and a clear subprocessor page                                               |
 | The product is easy to copy                        | Traceable figures, near-zero setup and the investor portfolio view                                       |
+
+## 15. Board pack sections
+
+[Phase to be decided, see chapter 14]
+
+**Business need**A board wants the full picture: where the cash goes, what is in the pipeline, what the plan is, what could go wrong and how the founder is growing. Companies that build this by hand produce rich dashboards, but every figure and paragraph is typed and re-typed each month. BoardRoom must reach the same depth while the company prepares nothing. Evidence: docs/07-Board-pack-reference-analysis.md. Detail: docs/06-Board-pack-sections.md.
+
+### Outcomes
+
+- BR-15.1The board pack has eight sections in one bar, the same for the company and its investors: Overview, Roadmap, Product, Cashflow, Pipeline, Momentum, Risk register and CEO development. Each section has its own sub-tabs.
+- BR-15.2Content fills itself wherever a source holds it. People are asked only for what no source holds, and then in as few questions as possible.
+- BR-15.3Every block shows where its content came from: calculated, modelled, drafted by Claude, entered by a person, or judged by a person.
+- BR-15.4Bank transactions are a source, through a bank export, an accounting connection or both (open), so that spend, income, balance and suppliers are calculated, not typed.
+- BR-15.5Modelled figures are always labelled as modelled, show their assumptions, and are never mixed with actual figures.
+- BR-15.6Levels, scores, statuses and ticks are always set by a named person. Claude may propose them.
+- BR-15.7Risks can be raised automatically by rules on the company's own figures, as well as entered or proposed.
+- BR-15.8Investors see CEO development.
+
+### Business rules
+
+- Claude never produces a figure, score, level or status shown as fact.
+- Payroll appears as one total. Pay per person is never stored or shown.
+- An income payment that could be revenue, investment or a loan is asked about, never guessed.
+- Nothing reaches investors before the company's approval setting is met (BR-6.3).
+
+### Success measures
+
+- Fed the raw files behind a hand-built reference dashboard, BoardRoom fills every calculated block with the exact figure, checked against a hand-worked answer.
+- No drafted block reaches investors with a figure that fails the number check.
+- A company with a finance export, a deals export and bank transactions sees Cashflow and Pipeline complete without typing anything except answers to questions.

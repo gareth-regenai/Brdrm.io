@@ -1,132 +1,250 @@
-# Board pack sections: what each one holds
+# Board pack sections specification
 
-What each board pack section and sub-tab contains, and where every piece comes from. Written from two investor dashboards a company filled in by hand, so the content is what a real board wants to see. This document describes structure only: no names, figures or copy from those dashboards are used in the product.
+What each board pack section contains, how it is laid out and where every block's content comes from. 19 October 2026.
 
-Status: draft for review. Nothing here is built until the decisions at the end are made and the FRD carries the requirements.
+- **Evidence:** docs/07-Board-pack-reference-analysis.md (the block-by-block inventory of two reference dashboards, with counts).
+- **Requirements:** BRD and FRD chapter 15. Build to the FRD; this document is the detail it points to.
+- **Status:** navigation, scope and sources decided; the open decisions in section 8 block parts of it. Nothing is built until FRD chapter 15 is agreed.
 
-## How to read the source column
+## 1. Navigation (decided)
 
-| Source | Meaning | Principle |
+- **Section bar.** One bar across the top, always visible, the same for company users and investors, in this order: Overview, Roadmap, Product, Cashflow, Pipeline, Momentum, Risk register, CEO development.
+- **Sub-tabs.** Each section has its own sub-tab bar under a section header (block type T1). The sub-tabs are listed in section 4.
+- **Working pages.** Dashboard, Files, Your tools, Team and Settings sit in a side menu for company users only. Investors never see them.
+- **Investors.** The company picker stays in the header. Investors see only content from approved updates (FR-6.3).
+- **Updates.** Where the dated updates and their comment threads live is open (section 8, decision 5).
+- **Phase 2.** Sections or sub-tabs whose data is phase 2 show "Coming in phase 2" behind their feature flag (FR-1.3).
+
+## 2. Sources
+
+Every block is built from one or more of these sources. Codes match the analysis.
+
+| Code | Source | Rules |
 |---|---|---|
-| **Calculated** | Code computes it from a file or a connected tool, with a fixed formula in the metric registry | 2 |
-| **Entered** | A person types it. Shows "Entered by [name], [date]" | FR-4.8 |
-| **Modelled** | Code computes it from assumptions a person entered. Always labelled "Modelled, not a forecast" | 2 |
-| **Drafted** | Claude writes text from the data and the company's own documents. Passes the number check, labelled "Drafted by Claude", editable | 3 |
-| **Rule** | Code raises it when a figure crosses a threshold | 2 |
+| C | Calculated | A fixed formula in the metric registry over rows Claude selected with the closed filters (FR-5.1, FR-5.2). Click view as FR-5.4 |
+| M | Modelled | Code applies a fixed formula to assumptions a person entered. Every modelled block is labelled "Modelled, not a forecast" and shows its assumptions and who entered them. Never mixed with actuals in one tile or chart series |
+| D | Drafted | Claude writes text only. Every figure in it passes the number check (FR-5.5). Labelled "Drafted by Claude" and editable; edits show "Edited by [name]". Investors see it only once approved |
+| Q | Quoted | Text or a figure taken from a company document, shown with the document name and page. Open decision 2: not built until decided |
+| E | Entered | Typed by a company user. Labelled "Entered by [name], [date]" (FR-4.8) |
+| J | Judgement | A level, score, status or tick set by a named person. Claude may propose; only a person sets it |
 
-Claude never produces a figure, a score or a rating. Where a section needs one and no file holds it, a person enters it.
+**Never:** a figure, score, level or status produced by Claude and shown as fact (principle 2).
 
-## Patterns every section shares
+## 3. Block types
 
-- A header: company, section name, the period covered and "data true as of".
-- A row of up to four headline tiles, leading with the number.
-- One plain-English callout for the position today (Drafted, editable).
-- Lists of cards with a status or severity pill (Critical, High, Medium, Low; or Done, In progress, Planned, Live).
-- Modelled figures sit in their own labelled block, never mixed with actuals.
-- Every figure opens the click view: exact value, source, what it moves, risk level (FR-5.4).
+Built once, reused by every section. "Value" means a figure from C, M or E.
 
-## 1. Overview
-
-| Block | Content | Source |
+| Type | Block | Content rules |
 |---|---|---|
-| Section cards | One card per section with two headline chips (for example cash and runway) | Calculated |
-| Progress to plan | Each target with actual, target and a bar | Calculated against Entered targets |
-| Headline tiles | Revenue, cash, runway, net burn | Calculated |
-| Founder update | Short summary across sections | Drafted |
+| T1 | Section header | Company, section name, the period covered and "data true as of" from the latest approved update; sub-tab bar |
+| T2 | Tile row | Up to four tiles: label, value, one context line. Value colour comes only from the figure's risk level (FR-5.7) or a J status. Each value opens the click view |
+| T3 | Target block | One headline target (E), its conditions (E), three or four sub-targets with actuals (C) |
+| T4 | Progress list | Label, bar, actual. Numeric rows: actual C against target E. Worded rows ("Done", "Building"): J with name and date, no bar fill unless a person sets one |
+| T5 | Call-out | Labelled paragraph. D by default, E if a person writes it. Labels from a fixed list: Position today, Why, Action needed, What it buys, Context |
+| T6 | Severity list | Title, description, mitigation, owner, level pill. Text D or E; level J only |
+| T7 | Milestone cards | Date, title, description, tag, status. E (or Q once decided); status J; from a project tool in phase 2 |
+| T8 | Timeline grid | Tracks by month, one status per cell. Items from T7; statuses J, or C from a project tool in phase 2 |
+| T9 | Table | Rows, columns and a totals row. Every number C or M; the totals row is code, never typed |
+| T10 | Chart | Bar, line, combined bar and line, donut with drill-down and month filter, radar. C or M data only; colours from tokens; no chart of D content |
+| T11 | Story card | Who, their role, what happened, why it matters, optional figures. Text E or D from notes; figures C or E |
+| T12 | Checklist | Tasks grouped by week, typed Reflect, Execute or Team, tickable; progress C from ticks. Tasks D, ticks J |
+| T13 | Schedule | Time blocks by day, week and fortnight with purpose. D, editable |
+| T14 | Detail pop-up | Opens from a row: diagnosis, action, linked items. Same rules as the row's source |
+| T15 | Formula strip | Inputs, operators and result laid out as a sum. Inputs E (assumptions) or C; result M |
 
-Built today, except the chips are missing from most cards.
+## 4. Sections
 
-## 2. Roadmap
+Each table lists the blocks in page order. "Data" names what the block needs; "Empty" says what shows without it.
 
-Sub-tabs: Overview, Product, Sales, Cash, Team.
+### 4.1 Overview
 
-| Sub-tab | Content | Source |
+| Block | Type | Source | Data | Empty |
+|---|---|---|---|---|
+| Title | T1 | C | Company profile | Always shown |
+| Section cards, one per section | T2 | C, D | Two chips per card from that section's headline figures | Card shows its description and no chips |
+| Progress to plan | T4 | C, E | Targets (FR-4.11) | "Set a target to see progress against plan" |
+| Headline tiles | T2 | C | Revenue, cash, runway, net burn | "Not shared yet" per tile |
+
+### 4.2 Roadmap: Overview, Product, Sales, Cash, Team
+
+| Sub-tab | Block | Type | Source | Data |
+|---|---|---|---|---|
+| Overview | Next target | T3 | E, C | Targets, matching measures |
+| Overview | Progress to targets | T4 | C, J | Targets; worded statuses |
+| Overview | End-of-period goals | T7 | E | Four goals: revenue, customers, team, product |
+| Overview | Timeline | T8 | E, J | Milestones from every track |
+| Product | Tiles | T2 | E, C | Counts the company chooses, plan progress |
+| Product | The build that matters | T5 | D | Milestones, documents |
+| Product | Milestones | T7 | E | Product milestones |
+| Sales | Tiles | T2 | E, C | Sales targets, conversion from the CRM |
+| Sales | How revenue builds | T15 | M | Scenario assumptions (decision 3) |
+| Sales | Growth chart | T10 | M | Scenario assumptions, customer plan |
+| Sales | Milestones and channels | T7 | E | Sales milestones, channels |
+| Sales | Commercial position | T5 | D | Sales figures |
+| Cash | Tiles | T2 | C, M | Booked revenue, cost reduction, date revenue covers burn |
+| Cash | Action needed | T5 | D | Cash figures |
+| Cash | Milestones | T7 | E | Cash milestones |
+| Cash | Growth model and month-by-month path | T9 | M | Scenario assumptions, cost plan |
+| Team | Tiles | T2 | E (C in phase 2) | Team size, key roles, next hire |
+| Team | Hiring milestones and principle | T7, T5 | E | Hiring plan |
+
+Not built: the reference's founder-journey curve. It places the company on a named third-party framework by judgement alone, and adds no figure an investor can trace.
+
+### 4.3 Product: What we built, How it works, Outcomes
+
+| Sub-tab | Block | Type | Source | Data |
+|---|---|---|---|---|
+| What we built | Tiles | T2 | E | Counts the company chooses |
+| What we built | What it is | T5 | E, D | Description; documents once decided |
+| What we built | Capabilities | T7 | E | Capability cards in groups |
+| How it works | Stages | T7 | E | Stages with steps |
+| Outcomes | Tiles | T2 | C, E | Outcome figures |
+| Outcomes | What a customer gets | T5 | E, D | Offer description |
+| Outcomes | Customer proof | T11 | E, C | Customer, result, two figures |
+
+Product depends most on documents (decision 2). Without them every block is entered.
+
+### 4.4 Cashflow: Overview, Spend, Income, Revenue, Balance, Stack optimisation
+
+Needs bank transactions (decided as a source). Spend, Income, Balance and Stack optimisation show "Add your bank transactions" until they arrive.
+
+| Sub-tab | Block | Type | Source | Data |
+|---|---|---|---|---|
+| Overview | Tiles | T2 | C, J | Current balance, booked revenue, qualified pipeline, status against break-even target |
+| Overview | Position today and why | T5 | D | Cashflow figures |
+| Overview | Totals | T2 | C | Capital in, total out, net burn for the period |
+| Overview | Money in against money out | T10 | C | Monthly totals |
+| Overview | Forward burn | T2 | C, D | Peak month, change, current run rate |
+| Spend | Spend wheel | T10 | C | Categories; drill-down into a category; month filter |
+| Spend | Spend list | T9 | C | Category totals |
+| Income | Income sources | T10 | C, J | Revenue, investment, loans |
+| Income | Explanation | T5 | D | Income figures |
+| Revenue | Tiles | T2 | C | Booked, collected, qualified pipeline |
+| Revenue | Per customer | T11 | C | Invoices and payments per customer |
+| Balance | Balance over time | T10 | C | Daily or monthly balance |
+| Balance | Tiles | T2 | C, E | Peak, current, forward burn, break-even target date |
+| Balance | Position | T5 | D | Balance figures |
+| Stack optimisation | Saving | T2 | C | Sum of savings on suppliers marked "cut" |
+| Stack optimisation | Already stopped | T6 | C | Recurring suppliers with no charge in two cycles |
+| Stack optimisation | Opportunities | T6 | C, J, D | Recurring suppliers: trend, overlap group, recommendation (J), reason (D) |
+
+Rules:
+- **Categories.** Claude picks each transaction's category from a closed list; code adds up. The list is a config file, editable without a deploy.
+- **Payroll.** One payroll total only, never a line per person. Pay is dropped at intake under the hard rule (section 6).
+- **Uncertain income.** An income line that could be revenue, investment or a loan becomes one question to a person (principle 4), then the answer is remembered for that counterparty.
+- **Corrections.** A payment and its reversal within 30 days are netted and shown as one line with both dates.
+
+### 4.5 Pipeline: Deal stages, Scenario modelling
+
+| Sub-tab | Block | Type | Source | Data |
+|---|---|---|---|---|
+| Deal stages | Total and note | T2, T5 | C, D | Qualified pipeline |
+| Deal stages | Stages | T9 | C | Stage, count, value, deal names |
+| Deal stages | Early prospects | T7 | C, E | Deals before the qualifying stage, next step; never counted in the total |
+| Scenario modelling | Assumptions | T15 | E | Rates, prices, volumes (decision 3) |
+| Scenario modelling | Segment tiles | T2 | M | Results at each rate, per segment |
+| Scenario modelling | Per-deal tables | T9 | M | Per deal at each rate |
+
+The qualifying stage, and which segment a deal belongs to, are company settings (E). A deal with no volume uses the company's default volume and is starred.
+
+### 4.6 Momentum: Validation, Recognition, Cost savings
+
+| Sub-tab | Block | Type | Source | Data |
+|---|---|---|---|---|
+| Validation | Tiles | T2 | C, E | Conversion figures the company chooses |
+| Validation | Endorsements | T11 | E, D | Who, role, what happened |
+| Recognition | Tiles and cards | T2, T11 | E, C | Talks, invitations, awards; live customers from data |
+| Cost savings | Tiles | T2 | C, E | Spend on stopped suppliers, monthly saving |
+| Cost savings | Suppliers stopped | T9 | C, J | Suppliers a person marks as stopped |
+| Cost savings | The change and where it goes | T5 | D, E | Cost figures |
+
+Momentum replaces "Market validation" (decided). The reference's "What we built" under Momentum moves to Product.
+
+### 4.7 Risk register: Without capital, Market, Execution, Team
+
+| Sub-tab | Block | Type | Source | Data |
+|---|---|---|---|---|
+| Without capital | Tiles | T2 | C, E | Runway without new money, invoiceable now, cost reduction, funding trigger |
+| Without capital | Position and what capital buys | T5 | D | Cash figures, risks |
+| Every sub-tab | Risks | T6 | E, D, J | Title, description, mitigation, owner, level |
+| Market, Team | Context | T5 | D | Risks in that category |
+
+Risks arrive three ways:
+- **Entered** by a company user.
+- **Raised by a rule.** Rules live in config with defaults: runway under six months, one customer over 40% of revenue, a deal stalled over 30 days, burn up over 20% month on month.
+- **Proposed by Claude** from data and documents.
+
+A rule-raised or proposed risk shows "Proposed" until a person sets its level. Only a person sets or changes a level.
+
+### 4.8 CEO development: Gap map, 30-day plan, Operating rhythm
+
+Investors see this section (decided).
+
+| Sub-tab | Block | Type | Source | Data |
+|---|---|---|---|---|
+| Gap map | Tiles | T2 | C | Counts of critical, high and strength areas from scores; plan progress |
+| Gap map | Radar | T10 | C | Scores by area |
+| Gap map | How it was assessed | T5 | E | Date and method |
+| Gap map | Areas | T6, T14 | J, D | Area, score 0 to 100 set by the CEO, level, diagnosis and action |
+| 30-day plan | Progress and daily structure | T2, T5 | C, D | Ticks, protected time |
+| 30-day plan | Tasks | T12 | D, J | Thirty tasks, typed and ticked |
+| Operating rhythm | The problem and the schedule | T5, T13 | D, E | Daily, weekly and fortnightly blocks |
+
+The areas and diagnoses come from an assessment conversation with Claude, like the setup chat (chapter 8). Claude proposes areas and wording; the CEO sets every score.
+
+## 5. Data needed
+
+| Source | Feeds | Status |
 |---|---|---|
-| Overview | Next milestone target with three or four target tiles; progress to each target; four end-of-period goals (revenue, customers, team, product); a timeline of every track by month with status per item | Targets Entered, progress Calculated where a measure exists, otherwise Entered status |
-| Product | Then and now tiles (for example services built), the one build that matters most and why, milestone cards (date, title, description, tag) | Entered, or from a Jira or monday.com export (phase 2) |
-| Sales | Target tiles (customers, recurring revenue, average deal, conversion); how revenue builds as a worked formula; growth chart with customers as columns and revenue as lines per scenario; milestone and channel cards | Inputs Entered, results Modelled |
-| Cash | Booked revenue, cost reduction, date revenue covers burn; the action needed now; cash milestones; growth model tables (per customer and month by month, with cost, revenue and margin) | Actuals Calculated, plan Modelled |
-| Team | Current team size, key roles, next hire; hiring milestones; hiring principle | Entered (headcount Calculated in phase 2) |
+| Finance export (existing) | Cashflow overview, Overview tiles | Built |
+| CRM deals (existing) | Pipeline, Revenue booked, Sales tiles | Built; needs deal name, next step and segment fields |
+| Bank transactions | Cashflow spend, income, revenue collected, balance, stack optimisation; Momentum cost savings | Decided as a source. Bank export, accounting connection, or both: see decision 6 |
+| Scenario assumptions | Roadmap sales and cash, Pipeline scenarios | Decision 3 |
+| Documents (deck, plan, notes) | Product, milestones, Momentum stories, risk proposals | Decision 2; file formats are already an open decision (FRD chapter 14) |
+| Assessment conversation | CEO development | Decided in scope; built like the setup chat |
+| Monthly check-in conversation | Anything no source holds | Decision 4 |
+| Project tool (Jira, monday.com) | Roadmap timeline statuses | Phase 2 |
+| HR export | Team headcount | Phase 2 |
 
-## 3. Product
+## 6. Privacy
 
-Sub-tabs: What we built, How it works, Outcomes.
+- Pay is never stored or shown per person. Payroll appears as one total in Cashflow (hard rule, CLAUDE.md).
+- Bank details, personal emails and dates of birth in transaction references are dropped at intake as today.
+- Counterparty names in transactions are kept: they are needed to group suppliers and customers.
+- CEO development is visible to every investor of the company; the CEO sees exactly what investors will see before approving.
 
-| Sub-tab | Content | Source |
+## 7. Evaluations before a section is done
+
+Each needs a golden set and a pass mark, run in CI with recorded answers (FR-13.2), as for skill 1:
+
+1. Transaction categories.
+2. Revenue, investment or loan.
+3. Recurring supplier detection.
+4. Drafting cards from documents, with every card traceable to a passage (once decision 2 is made).
+5. Risk proposals against risks a CEO kept.
+
+The benchmark (analysis section 8, item 6) is run privately before each section ships.
+
+## 8. Open decisions
+
+| # | Decision | Blocks |
 |---|---|---|
-| What we built | Count tiles (then and now); capability cards grouped by theme | Entered, or Drafted from the company's documents |
-| How it works | Stages from start to result, each with short steps | Entered or Drafted |
-| Outcomes | Outcome tiles (for example reply rate, price per unit); customer proof cards with two figures each; what a customer gets | Figures Calculated where a file holds them, else Entered |
+| 1 | Phase: MVP, or phase 2 behind a flag | Build order |
+| 2 | Documents as a source, and figures quoted from them shown as quoted (Q) | Product, milestones, stories, risk proposals |
+| 3 | Scenario assumptions entered by the company; defaults taken from the company's own data where it has them | Roadmap sales and cash, Pipeline scenarios |
+| 4 | A monthly check-in conversation that asks only for what no source holds | Momentum, risks, worded progress |
+| 5 | Where updates live: in each section under its figures, or as their own page | Navigation |
+| 6 | The CEO asked to "test both". Either a bank export against an accounting connection (no conflict), or one payroll total against pay per person (per-person pay needs the hard rule changed). To confirm which | Cashflow sources and spend |
 
-## 4. Cashflow
+## 9. Proposed build order
 
-Sub-tabs: Overview, Spend, Income, Revenue, Balance, Stack optimisation. Needs bank transactions as a new source (decision 2).
+One PR per step, each ending with a demo and a benchmark run.
 
-| Sub-tab | Content | Source |
-|---|---|---|
-| Overview | Money in against money out by month; headline tiles | Calculated |
-| Spend | Category wheel with drill-down into a category; month filter (all or one month); full list by category | Calculated. Claude picks each transaction's category from a closed list; code adds up |
-| Income | Income split into revenue, investment and loans; corrections netted out | Calculated. A line that could be revenue or a loan is one question to a person |
-| Revenue | Booked, collected and qualified pipeline tiles; one card per customer with the invoices behind it | Calculated from transactions and the CRM |
-| Balance | Balance over time; peak, current, forward burn, target date | Calculated, target Entered |
-| Stack optimisation | Recurring suppliers found in transactions: already stopped, overlapping, rising in cost, low use; potential monthly saving | Calculated (last charge, trend, total). Claude groups overlaps from a closed list of tool types; a person marks each one kept or cut |
-
-## 5. Pipeline
-
-Sub-tabs: Deal stages, Scenario modelling.
-
-| Sub-tab | Content | Source |
-|---|---|---|
-| Deal stages | Qualified pipeline total; one card per stage with count, value and named deals; closed won; early prospects listed separately and not counted until they pass a first meeting | Calculated from the CRM export or connector |
-| Scenario modelling | Low, base and high conversion; per-deal table of volume, results and revenue at each rate; totals; segments kept apart (for example small business and enterprise) | Modelled. Rates and prices Entered; a default volume is used and starred where the real one is unknown |
-
-## 6. Momentum
-
-Sub-tabs: Validation, Recognition, Cost savings. Named Momentum, not Market validation (CEO, 19 October 2026).
-
-| Sub-tab | Content | Source |
-|---|---|---|
-| Validation | Conversion tiles (for example event meetings, partner sign-ups); endorsement cards: who, their role, what happened, why it matters | Tiles Calculated or Entered; stories Entered |
-| Recognition | Speaking slots, invitations, live customers; one card each | Entered |
-| Cost savings | Spend on suppliers that have stopped, monthly saving, where the money goes next; one line per supplier | Calculated from transactions, with suppliers tagged by a person |
-
-## 7. Risk register
-
-Sub-tabs: Without capital, Market, Execution, Team.
-
-| Block | Content | Source |
-|---|---|---|
-| Tiles | Runway without new money, amount invoiceable now, burn reduction, funding trigger | Calculated |
-| Position | What happens without the capital, and what the capital buys | Drafted, editable |
-| Risks | Title, description, level, mitigation, owner, status. Ranked by level | Entered, or Rule (for example runway under six months raises a capital risk), or proposed by Claude. A person decides every level |
-
-## 8. CEO development
-
-Sub-tabs: Gap map, 30-day plan, Operating rhythm.
-
-| Sub-tab | Content | Source |
-|---|---|---|
-| Gap map | Count of critical gaps, high priorities and strengths; a score from 0 to 100 per area with level; radar chart; detail per area | Areas proposed by Claude from an assessment conversation; every score Entered by the CEO |
-| 30-day plan | One task a day in weeks, typed Reflect, Execute or Team; tick to complete; progress | Drafted, ticked by the CEO |
-| Operating rhythm | Daily, weekly and fortnightly blocks with their purpose | Drafted, editable |
-
-## New sources this needs
-
-1. **Bank transactions** (CSV export or an accounting connector): Cashflow, Momentum cost savings, Revenue collected.
-2. **Scenario assumptions** (rates, prices, volumes): Roadmap sales and cash, Pipeline scenarios.
-3. **Milestones and timeline items**: Roadmap. Entered now, from Jira or monday.com in phase 2.
-4. **Hand-written content blocks**: Product, Momentum stories, Risk register, CEO development.
-
-## Decisions
-
-Made by the CEO on 19 October 2026:
-
-1. Risk register and CEO development are in scope, and investors see CEO development.
-2. Bank transactions become a source.
-3. The section is called Momentum.
-
-Still open:
-
-4. Payroll in bank data: the hard rule says pay is dropped at intake and never stored, so the default is one payroll total and no line per person. Showing people's pay would need that rule changed.
-5. Scenario assumptions: the conversion rates, prices and volumes behind the modelled tables (for example a low, base and high conversion rate and a price per unit). The company types them in once, code does the sums, and the result is labelled "Modelled, not a forecast". Confirm this is how modelled figures should work.
-6. Phase: whether these sections are in the MVP or behind a feature flag. To discuss.
+1. Navigation: section bar, sub-tabs, section header, block types T1, T2, T4, T5.
+2. Cashflow, with bank transactions and evaluations 1 to 3.
+3. Pipeline, including scenario modelling once decision 3 is made.
+4. Roadmap.
+5. Risk register, with rules.
+6. Momentum.
+7. CEO development, with the assessment conversation.
+8. Product, once decision 2 is made.

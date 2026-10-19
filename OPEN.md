@@ -143,3 +143,14 @@ The rest of chapter 14 (rates feed, first connector) belongs to later epics and 
 | How long a support session lasts | Long enough to help, short enough to limit exposure. | 60 minutes, set by `SUPPORT_SESSION_MINUTES` (5 to 240). |
 | Staff tooling | Staff open sessions through the admin API for now. | No staff screen yet. A small admin page can follow once support volume justifies it. |
 
+
+## Raised by the board pack sections (docs/06, FRD chapter 15)
+
+| Decision | Why it matters | What the code does now |
+|---|---|---|
+| MVP or phase 2 | Eight sections with sub-tabs is a large build. | Nothing built. The specification is written. |
+| Documents as a source, and figures quoted from them | Product, milestones, stories and risk proposals depend on decks, plans and notes. A quoted figure is neither calculated nor entered. | Nothing built. File formats beyond CSV and Excel are already open (FRD chapter 14). |
+| Scenario assumptions | Modelled tables need rates, prices and volumes. | Nothing built. Proposed: the company enters them, defaults come from its own data, results are labelled "Modelled, not a forecast". |
+| Monthly check-in conversation | Asks only for what no source holds. | Nothing built. |
+| Where updates live | In each section under its figures, or their own page. | Updates is a tab in the board pack. |
+| What "test both" means | Either a bank export against an accounting connection, or one payroll total against pay per person. Per-person pay breaks the hard rule on pay data. | Pay is dropped at intake. Proposed: one payroll total, and both bank routes built. |

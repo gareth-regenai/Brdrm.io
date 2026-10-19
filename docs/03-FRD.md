@@ -220,3 +220,35 @@ Each requirement names the business requirement it serves and has an acceptance 
 | What a removed investor keeps                             | FR-2.8                 |
 | Rates feed provider                                       | FR-4.13 (phase 2)      |
 | First connector, such as Xero                             | Not yet in scope       |
+| Board pack sections: MVP or phase 2                       | FR-15.1 to FR-15.19    |
+| Documents as a source, and figures quoted from them       | Product and milestones in docs/06 |
+| Scenario assumptions and their defaults                   | FR-15.13               |
+| Monthly check-in conversation                             | docs/06 section 8      |
+| Where updates live in the board pack                      | FR-15.1                |
+| "Test both": bank routes, or payroll per person          | FR-15.6, FR-15.9       |
+
+## 15. Board pack sections
+
+[Phase to be decided, see chapter 14]
+
+Detail for every requirement here is in docs/06-Board-pack-sections.md, which names each block, its type and its source. Evidence is in docs/07-Board-pack-reference-analysis.md.
+
+- FR-15.1BR-15.1One section bar, in the order Overview, Roadmap, Product, Cashflow, Pipeline, Momentum, Risk register, CEO development, is shown to company users and investors alike. Dashboard, Files, Your tools, Team and Settings move to a side menu shown to company users only.**Accept:** an investor and the CEO of the same company see the same bar; the investor's page has no side menu.
+- FR-15.2BR-15.1Each section opens on a header with the company, section name, period covered and "data true as of", and a sub-tab bar with the sub-tabs in docs/06 section 4.**Accept:** every sub-tab in docs/06 is reachable in one click from its section.
+- FR-15.3BR-15.3Blocks are built from the fifteen types in docs/06 section 3, and each carries its source label: "Drafted by Claude", "Entered by [name], [date]", "Modelled, not a forecast", or the click view for a calculated figure.**Accept:** a test renders one block of each source and finds the right label on each.
+- FR-15.4BR-15.5A modelled block shows its assumptions, who entered them and when, and no chart series or tile mixes modelled and actual values.**Accept:** changing an assumption changes the modelled result and the "Entered by" line, and no actual figure moves.
+- FR-15.5BR-15.6Levels, scores, statuses and ticks can only be set through a person's action. A value proposed by Claude or a rule shows "Proposed" until a person sets it.**Accept:** no endpoint stores a level, score or status from an AI response; a proposed risk shows "Proposed".
+- FR-15.6BR-15.4[Open] Bank transactions are accepted as a file (CSV or Excel export from a bank) and through an accounting connection, through the same intake path as other files (FR-4.1).**Accept:** the same transactions through either route give identical figures.
+- FR-15.7BR-15.4Claude chooses each transaction's category from a closed list held in config. Code totals by category, month and supplier.**Accept:** a category outside the list is rejected; the categories eval passes its mark.
+- FR-15.8BR-15.2An income line that could be revenue, investment or a loan becomes one question to a company user. The answer is remembered for that counterparty.**Accept:** an ambiguous line asks once; a second payment from the same counterparty asks nothing.
+- FR-15.9Payroll shows as one total. Per-person pay is dropped at intake as in FR-4.4.**Accept:** a bank file with named salary payments stores no per-person amount and shows one payroll line.
+- FR-15.10A payment and its reversal within 30 days are netted and shown as one line with both dates.**Accept:** a fixture with a payment and a partial reversal shows the net amount and both dates.
+- FR-15.11BR-15.4Code finds recurring suppliers and marks those with no charge in two of their cycles as stopped. A company user marks each remaining supplier as kept or cut, and the potential saving is the total of those marked cut.**Accept:** the supplier detection eval passes its mark; the saving equals the sum of suppliers marked cut.
+- FR-15.12The Pipeline stages table shows count, value and deal names per stage. Deals before the company's qualifying stage are listed separately and never counted in the qualified total.**Accept:** moving a deal across the qualifying stage moves it between the two lists and changes the total by its value.
+- FR-15.13BR-15.5[Open] Scenario modelling applies fixed formulas to rates, prices and volumes entered by the company, with defaults from the company's own data where it has them.**Accept:** the per-deal tables equal a hand-worked spreadsheet for a fixture.
+- FR-15.14BR-15.7Risks are entered, raised by rules in config (runway under six months, one customer over 40% of revenue, a deal stalled over 30 days, burn up over 20% month on month), or proposed by Claude. Each has a title, description, mitigation, owner and level.**Accept:** a fixture crossing each rule raises one proposed risk; a person setting its level removes "Proposed".
+- FR-15.15BR-15.8CEO development holds the gap map, the 30-day plan and the operating rhythm. Areas, diagnoses, tasks and schedule come from an assessment conversation with Claude; every score is set by the CEO; progress is calculated from ticks.**Accept:** completing the assessment produces areas with no scores until the CEO sets them; ticking a task changes progress.
+- FR-15.16Roadmap milestones and timeline items are entered by company users in phase 1, each with a date, track, title, description and status, and come from a project tool in phase 2.**Accept:** an entered milestone appears on its track's sub-tab and in the timeline in its month.
+- FR-15.17Momentum endorsements and recognition are entered as story cards; cost savings are calculated from suppliers a person marks as stopped.**Accept:** marking a supplier stopped adds its spend to cost savings.
+- FR-15.18Each section's call-outs are drafted by Claude from that section's figures and pass the number check before any person sees them as final.**Accept:** a call-out with a figure that fails the check is regenerated once, then marked for a person to write (FR-5.5).
+- FR-15.19BR-15.2No section is called done until its evaluations in docs/06 section 7 pass in CI on recorded answers and the private benchmark has been run.**Accept:** CI runs each section's evaluation and fails below its mark.
