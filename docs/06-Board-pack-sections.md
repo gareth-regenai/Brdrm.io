@@ -80,9 +80,9 @@ Sub-tabs: Deal stages, Scenario modelling.
 | Deal stages | Qualified pipeline total; one card per stage with count, value and named deals; closed won; early prospects listed separately and not counted until they pass a first meeting | Calculated from the CRM export or connector |
 | Scenario modelling | Low, base and high conversion; per-deal table of volume, results and revenue at each rate; totals; segments kept apart (for example small business and enterprise) | Modelled. Rates and prices Entered; a default volume is used and starred where the real one is unknown |
 
-## 6. Market validation
+## 6. Momentum
 
-Sub-tabs: Validation, Recognition, Cost savings.
+Sub-tabs: Validation, Recognition, Cost savings. Named Momentum, not Market validation (CEO, 19 October 2026).
 
 | Sub-tab | Content | Source |
 |---|---|---|
@@ -112,15 +112,21 @@ Sub-tabs: Gap map, 30-day plan, Operating rhythm.
 
 ## New sources this needs
 
-1. **Bank transactions** (CSV export or an accounting connector): Cashflow, Market validation cost savings, Revenue collected.
+1. **Bank transactions** (CSV export or an accounting connector): Cashflow, Momentum cost savings, Revenue collected.
 2. **Scenario assumptions** (rates, prices, volumes): Roadmap sales and cash, Pipeline scenarios.
 3. **Milestones and timeline items**: Roadmap. Entered now, from Jira or monday.com in phase 2.
-4. **Hand-written content blocks**: Product, Market validation stories, Risk register, CEO development.
+4. **Hand-written content blocks**: Product, Momentum stories, Risk register, CEO development.
 
-## Decisions for the CEO
+## Decisions
 
-1. Are Risk register and CEO development in scope, and do investors see CEO development?
-2. Add bank transactions as a source, with Claude choosing categories from a closed list?
-3. Payroll in bank data: show one total only, never a line per person, in line with the pay-like data rule. Confirm.
-4. Scenario modelling: assumptions entered by the company and always labelled modelled. Confirm.
-5. Should the sections in this document be phase 1 (MVP) or phase 2 behind a feature flag?
+Made by the CEO on 19 October 2026:
+
+1. Risk register and CEO development are in scope, and investors see CEO development.
+2. Bank transactions become a source.
+3. The section is called Momentum.
+
+Still open:
+
+4. Payroll in bank data: the hard rule says pay is dropped at intake and never stored, so the default is one payroll total and no line per person. Showing people's pay would need that rule changed.
+5. Scenario assumptions: the conversion rates, prices and volumes behind the modelled tables (for example a low, base and high conversion rate and a price per unit). The company types them in once, code does the sums, and the result is labelled "Modelled, not a forecast". Confirm this is how modelled figures should work.
+6. Phase: whether these sections are in the MVP or behind a feature flag. To discuss.
