@@ -47,3 +47,12 @@ Build only. Commercials and pricing are parked.
 
 ## To do
 Plus: fixed flag thresholds (now config), Frankfurt-only region and UK residency.
+
+## Board pack sections (decided by the CEO, 19 October 2026)
+- Reference material: two hand-built investor dashboards from another company, analysed in docs/07-Board-pack-reference-analysis.md. Held privately, never in the repository.
+- Navigation: one section bar across the top with sub-tabs per section, the same for the company and its investors. Working pages move to a side menu for company users.
+- Risk register and CEO development are in scope. Investors see CEO development.
+- Bank transactions become a source.
+- The section is called Momentum, not Market validation.
+- The goal is the content depth of the reference dashboards without manual input. The specification is docs/06-Board-pack-sections.md; requirements are FRD chapter 15.
+- Still open: phase, documents as a source, scenario assumptions, a monthly check-in, where updates live, payroll per person. See OPEN.md.

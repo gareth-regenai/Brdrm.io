@@ -5,9 +5,10 @@ export const API = process.env.E2E_API_URL ?? "http://localhost:8000";
 export const PASSWORD = "correct horse battery";
 const FILES = fileURLToPath(new URL("../../backend/tests/fixtures/files/", import.meta.url));
 
-let n = 0;
+// Random, not time-based: tests run in parallel workers, each with its own counter, and two
+// workers signing up in the same millisecond would get the same address.
 export function email(who: string): string {
-  return `${who}-${Date.now()}-${n++}@example.com`;
+  return `${who}-${crypto.randomUUID()}@example.com`;
 }
 
 export interface Company {
