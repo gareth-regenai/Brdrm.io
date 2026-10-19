@@ -1,8 +1,10 @@
 """Structural rules checked in CI: module boundaries, reserved values, flags and hosting."""
 
 import ast
+import importlib.metadata
 import os
 import re
+import sys
 from pathlib import Path
 
 import yaml
@@ -199,3 +201,27 @@ def test_the_api_keeps_tokens_in_paths_out_of_its_logs():
     # Signed upload links carry a token in the path. Uvicorn's access log would print it.
     [api] = [s for s in _blueprint()["services"] if s["name"] == "boardroom-api"]
     assert "--no-access-log" in api["startCommand"]
+
+
+def _normalise(name: str) -> str:
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def test_every_library_the_app_imports_is_in_the_deployed_requirements():
+    # Render installs requirements.txt only. A library that reaches the tests through the
+    # dev extras alone passes CI and then stops the deployed app from starting.
+    pinned = {
+        _normalise(m.group(1))
+        for m in re.finditer(r"^([\w.-]+)==", (ROOT / "backend/requirements.txt").read_text(), re.M)
+    }
+    sources = importlib.metadata.packages_distributions()
+    missing = []
+    for path in PACKAGE.rglob("*.py"):
+        for name in _imports(path):
+            top = name.split(".")[0]
+            if top in sys.stdlib_module_names or top in ("boardroom", "__future__"):
+                continue
+            dists = sources.get(top, [top])
+            if not any(_normalise(d) in pinned for d in dists):
+                missing.append(f"{path.relative_to(ROOT)} imports {top}")
+    assert sorted(set(missing)) == []

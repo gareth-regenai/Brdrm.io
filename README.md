@@ -12,7 +12,7 @@ BoardRoom.io turns the files a small company already has into figures its invest
 | OPEN.md | Decisions the code does not make yet |
 | docs/epics/ | A DEMO.md per epic: what to show and how to run it |
 
-Start with docs/epics/E1/DEMO.md to run it locally.
+To try the whole app on a laptop with demo data, see docs/run-locally.md. To develop, start with docs/epics/E1/DEMO.md.
 
 ## Dev pack, 18 October 2026
 
